@@ -1,0 +1,114 @@
+# Data Mix Insights
+
+LLM 预训练数据配比算法的业界研究洞察项目。
+
+## 项目目标
+
+追踪和分析数据配比（data mixture）领域的最新研究进展，为 QuaDMix 等配比算法的实现和优化提供理论指导和实践参考。
+
+## 核心问题
+
+1. **Proxy 可靠性**：小模型 proxy 的信号是否可靠？如何修复？
+2. **Scaling Law 外推**：小模型拟合的 scaling law 能否外推到大模型？
+3. **相变现象**：数据配比中的相变如何影响训练效果？
+4. **质量信号**：如何定义和量化数据质量？
+
+## 目录结构
+
+```
+data-mix-insights/
+├── papers/          # 论文 PDF (16 篇)
+├── docs/            # 分析文档
+│   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
+│   ├── 高价值论文深度分析.md            # TOP 3 论文精读
+│   └── 最新论文分析_2025-2026.md        # 2025-2026 新发现
+└── README.md
+```
+
+## 论文索引
+
+### 第一梯队：高可信度 + 高价值
+
+| # | 论文 | 机构 | Venue | 关键贡献 |
+|---|------|------|-------|---------|
+| 01 | Phase Transitions in Data Mixing | 清华 | NeurIPS'25 Spotlight | 揭示配比相变现象，理论证明 |
+| 03 | Scaling Laws for Optimal Data Mixtures | Apple | arXiv | 参数化 scaling law，跨模态验证 |
+| 04 | DeMix: Model Merging | 小红书+东大 | ICML'26 | Model merging 替代 proxy 训练 |
+| 09 | CAMEL: Capacity-Aware Mixture Law | 清华 | arXiv | Phase Transitions 的实践版 |
+| 10 | Proxy Reliability | Princeton/Berkeley | ICLR'26 | 降低 LR 修复 proxy 信号 |
+
+### 第二梯队：大厂经验
+
+| # | 论文 | 机构 | Venue | 关键贡献 |
+|---|------|------|-------|---------|
+| 11 | DataMan | 阿里 Qwen | ICLR'25 | 14 条质量标准，447B 标注 |
+| 12 | UtiliMax / MEDU | Meta FAIR | arXiv | Token-count baseline，200x 加速 |
+| 13 | Repetition-Aware Scaling | Apple | arXiv | 高质量数据可重复 15-20x |
+| 14 | Synthetic Data in Pretraining | Meta | EMNLP'25 | 30% 合成 + 70% 自然 |
+
+### 第三梯队：探索方向
+
+| # | 论文 | 机构 | Venue | 关键贡献 |
+|---|------|------|-------|---------|
+| 02 | Mixture Scaling Under Constraints | Apple | arXiv | 数据受限场景配比 |
+| 05 | Data Mixing Laws | 复旦 | ICLR'25 | 嵌套 scaling laws |
+| 06 | Multi-fidelity BO | Columbia | arXiv | 贝叶斯优化框架 |
+| 07 | Beyond Language Modeling | Meta FAIR | arXiv | 多模态预训练 |
+| 08 | CMR Scaling Law | - | EMNLP'24 | 跨模态 scaling |
+| 15 | OP-Mix | NYU+DeepMind | arXiv | LoRA 插值 proxy |
+| 16 | Data Organization | Microsoft | ACL'26 | 数据顺序优化 |
+
+## 核心洞察
+
+### 1. Proxy 可靠性是核心问题
+
+三篇论文从不同角度指向同一个问题：
+- **Phase Transitions** (NeurIPS'25): 小 proxy 信号可能完全无效（理论）
+- **Proxy 可靠性** (ICLR'26): 超参数设置会导致结论翻转（实证）
+- **CAMEL** (2026.3): 用 capacity-aware 方法修正不可靠性（方法）
+
+**结论**：1M proxy 是最大的风险点，需要立即修复。
+
+### 2. Scaling Law 的局限性
+
+- Scaling law 本质是经验拟合，不是第一性原理
+- 小模型拟合的 scaling law 在 >10B 模型上常常失效
+- Phase Transitions 证明了为什么：知识密集数据存在相变，power law 无法预测
+
+**结论**：Scaling law 作为理解趋势的工具有价值，但作为精确预测工具不够可靠。
+
+### 3. 简单方法可能是最好的
+
+- **Token-count heuristic** (Meta UtiliMax): 优于人工调参和 learned mix
+- **降低 LR** (Proxy 可靠性): 简单 patch 解决大问题
+- **15-20x 重复** (Apple): 比想象中高得多
+
+**结论**：不要过度工程化，先试试简单方法。
+
+## 对 QuaDMix 的行动建议
+
+### 立即行动
+
+1. **修复 Proxy LR** — 降低 proxy 的 learning rate，验证与大模型结果的相关性
+2. **实现 Capacity-Aware Mixture Law** — 在 LightGBM 回归中加入 capacity-aware 特征
+
+### 短期行动
+
+3. **对比 Token-Count Baseline** — 实现 token-count heuristic 作为 baseline
+4. **调整高质量数据重复次数** — 高质量数据重复 15-20x
+5. **参考 DataMan 质量标准** — 检查 Eq.1 的质量信号是否覆盖 14 条标准
+
+### 长期探索
+
+6. **探索 LoRA 插值 Proxy** — 比训完整模型便宜，比 model merging 灵活
+7. **扩展到数据顺序优化** — 顺序是另一个重要维度
+8. **合成数据配比** — 如果数据池包含合成数据，使用 30% 配比
+
+## 更新日志
+
+- **2026-06-22**: 初始分析，收集 8 篇论文，完成 TOP 3 深度分析
+- **2026-06-23**: 扩展搜索，新增 8 篇论文，发现 CAMEL 和 Proxy 可靠性两篇关键论文
+
+## License
+
+MIT
