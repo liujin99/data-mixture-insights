@@ -17,11 +17,14 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (16 篇)
+├── papers/          # 论文 PDF (18 篇)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
-│   └── 最新论文分析_2025-2026.md        # 2025-2026 新发现
+│   ├── 最新论文分析_2025-2026.md        # 2025-2026 新发现
+│   ├── CAMEL_Proxy_Reliability_深度分析.md  # CAMEL + Proxy 可靠性深度分析
+│   ├── Proxy_Reliability_论文总结.md        # Proxy 可靠性完整总结
+│   └── LLMSurgeon_DataChef_深度分析.md      # LLMSurgeon + DataChef 分析
 └── README.md
 ```
 
@@ -57,6 +60,8 @@ data-mix-insights/
 | 08 | CMR Scaling Law | - | EMNLP'24 | 跨模态 scaling |
 | 15 | OP-Mix | NYU+DeepMind | arXiv | LoRA 插值 proxy |
 | 16 | Data Organization | Microsoft | ACL'26 | 数据顺序优化 |
+| 17 | LLMSurgeon | MBZUAI+UCL | ACL'26 | 从生成文本反推预训练配比 |
+| 18 | DataChef | 复旦+上海AI Lab | arXiv | RL 自动生成 adaptation 配方 |
 
 ## 核心洞察
 
@@ -108,6 +113,7 @@ data-mix-insights/
 
 - **2026-06-22**: 初始分析，收集 8 篇论文，完成 TOP 3 深度分析
 - **2026-06-23**: 扩展搜索，新增 8 篇论文，发现 CAMEL 和 Proxy 可靠性两篇关键论文
+- **2026-06-30**: 新增 LLMSurgeon (ACL'26) 和 DataChef (arXiv)，完成深度分析，评估与 QuaDMix 相关性（低）
 
 ## License
 
