@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (22 篇)
+├── papers/          # 论文 PDF (23 篇)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
@@ -27,7 +27,8 @@ data-mix-insights/
 │   ├── LLMSurgeon_DataChef_深度分析.md      # LLMSurgeon + DataChef 分析
 │   ├── GroupMATES_深度分析.md               # Group-MATES 组级数据选择分析
 │   ├── Chameleon_深度分析.md                # Chameleon KRLS 领域配比分析
-│   └── PiKE_ADAPT_OPMix_深度分析.md        # PiKE + ADAPT + OP-Mix 深度分析
+│   ├── PiKE_ADAPT_OPMix_深度分析.md        # PiKE + ADAPT + OP-Mix 深度分析
+│   └── NAG_NeuronActivatedGraph_深度分析.md  # NAG 神经元激活图数据选择分析
 └── README.md
 ```
 
@@ -69,6 +70,7 @@ data-mix-insights/
 | 17 | LLMSurgeon | MBZUAI+UCL | ACL'26 | 从生成文本反推预训练配比 |
 | 18 | DataChef | 复旦+上海AI Lab | arXiv | RL 自动生成 adaptation 配方 |
 | 19 | Group-MATES | CMU+Meta | arXiv | 组级数据选择，建模数据交互效应 |
+| 23 | NAG: Neuron-Activated Graph | 华东师大+商汤+UCSC | arXiv | 神经元激活图做 target-oriented 数据选择，training-free |
 
 ## 核心洞察
 
@@ -124,6 +126,16 @@ ADAPT (Cambridge, ICLR'26) 揭示离线数据选择的根本缺陷：
 
 **结论**：QuaDMix 作为离线方法，评估时必须包含 OOD benchmark，避免过度优化特定领域。
 
+### 7. 神经元级信号是未被充分利用的维度
+
+NAG (华东师大+商汤+UCSC) 证明 LLM 内部神经元激活模式可以有效表征数据质量：
+- 仅 0.12% 的神经元构成"功能骨架"，关掉即导致 23.5% 性能崩塌
+- FFN UP 层信号最丰富，跨层聚合比单层好 4.1%
+- Training-free，192 GPU-hours 一次性提取可复用于任意 target
+- 与质量信号（FineWeb-Edu）正交，可叠加
+
+**结论**：NAG 解决样本级选择，QuaDMix 解决领域级配比，两者互补。NAG 论文自己指出 QuaDMix 可以改进其 multi-target 设置。
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
@@ -151,6 +163,7 @@ ADAPT (Cambridge, ICLR'26) 揭示离线数据选择的根本缺陷：
 - **2026-07-03**: 新增 Group-MATES (CMU+Meta)，完成深度分析，评估组级数据选择对 QuaDMix 的启示
 - **2026-07-03**: 新增 Chameleon (EPFL, ICML'25)，完成深度分析，KRLS 领域配比方法与 QuaDMix 高相关
 - **2026-07-03**: 新增 PiKE (Google Research, arXiv) 和 ADAPT (Cambridge, ICLR'26)，完成深度分析；确认 OP-Mix (paper 15/23) 为同一篇论文
+- **2026-07-03**: 新增 NAG (华东师大+商汤+UCSC, arXiv)，完成深度分析，神经元激活图做 target-oriented 数据选择，与 QuaDMix 互补
 
 ## License
 
