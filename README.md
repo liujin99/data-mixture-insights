@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (19 篇)
+├── papers/          # 论文 PDF (20 篇)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
@@ -25,7 +25,8 @@ data-mix-insights/
 │   ├── CAMEL_Proxy_Reliability_深度分析.md  # CAMEL + Proxy 可靠性深度分析
 │   ├── Proxy_Reliability_论文总结.md        # Proxy 可靠性完整总结
 │   ├── LLMSurgeon_DataChef_深度分析.md      # LLMSurgeon + DataChef 分析
-│   └── GroupMATES_深度分析.md               # Group-MATES 组级数据选择分析
+│   ├── GroupMATES_深度分析.md               # Group-MATES 组级数据选择分析
+│   └── Chameleon_深度分析.md                # Chameleon KRLS 领域配比分析
 └── README.md
 ```
 
@@ -40,6 +41,7 @@ data-mix-insights/
 | 04 | DeMix: Model Merging | 小红书+东大 | ICML'26 | Model merging 替代 proxy 训练 |
 | 09 | CAMEL: Capacity-Aware Mixture Law | 清华 | arXiv | Phase Transitions 的实践版 |
 | 10 | Proxy Reliability | Princeton/Berkeley | ICLR'26 | 降低 LR 修复 proxy 信号 |
+| 20 | Chameleon | EPFL | **ICML'25** | KRLS 领域权重，免重训迁移 |
 
 ### 第二梯队：大厂经验
 
@@ -126,6 +128,7 @@ Group-MATES (CMU+Meta) 用实验量化了数据交互效应：
 - **2026-06-23**: 扩展搜索，新增 8 篇论文，发现 CAMEL 和 Proxy 可靠性两篇关键论文
 - **2026-06-30**: 新增 LLMSurgeon (ACL'26) 和 DataChef (arXiv)，完成深度分析，评估与 QuaDMix 相关性（低）
 - **2026-07-03**: 新增 Group-MATES (CMU+Meta)，完成深度分析，评估组级数据选择对 QuaDMix 的启示
+- **2026-07-03**: 新增 Chameleon (EPFL, ICML'25)，完成深度分析，KRLS 领域配比方法与 QuaDMix 高相关
 
 ## License
 
