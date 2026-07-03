@@ -380,6 +380,16 @@ OP-Mix 与 QuaDMix 解决**同一层次的问题**（领域级数据配比），
 1. **预训练只验证到 530M**：LoRA 插值在更大规模上是否仍然有效未知
 2. **领域数量未扩展**：只测了 5 个领域，10+ 领域时 LoRA 插值的误差可能增大
 3. **LoRA rank 选择**：论文未深入讨论 rank 对配比质量的影响
+4. **Baseline 对比极弱**（最大可信度缺口）：
+   - **实际对比的 baseline**：ERM (uniform)、OLMix (off-policy)、MergeMix (on-policy full FT)、Continual SFT、WSD-S、10% Data Replay、SDFT
+   - **缺失的关键对比**：
+     - DoReMi（data mixing 标准 baseline）❌
+     - DoGE（同类型 proxy-based）❌
+     - RegMix（OP-Mix 自己引用了）❌
+     - PiKE（同期最强在线方法）❌
+     - Chameleon（同期离线方法）❌
+     - QuaDMix（直接竞品）❌
+   - **含义**：+6.3% PPL 提升是相对于 ERM 和 OLMix，不是相对于 DoReMi/DoGE/RegMix 这些强 baseline。证明了 on-policy > off-policy，但**没证明 OP-Mix > DoReMi/DoGE/RegMix**
 
 ### 可信度评估
 
