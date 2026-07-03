@@ -17,14 +17,15 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (18 篇)
+├── papers/          # 论文 PDF (19 篇)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
 │   ├── 最新论文分析_2025-2026.md        # 2025-2026 新发现
 │   ├── CAMEL_Proxy_Reliability_深度分析.md  # CAMEL + Proxy 可靠性深度分析
 │   ├── Proxy_Reliability_论文总结.md        # Proxy 可靠性完整总结
-│   └── LLMSurgeon_DataChef_深度分析.md      # LLMSurgeon + DataChef 分析
+│   ├── LLMSurgeon_DataChef_深度分析.md      # LLMSurgeon + DataChef 分析
+│   └── GroupMATES_深度分析.md               # Group-MATES 组级数据选择分析
 └── README.md
 ```
 
@@ -62,6 +63,7 @@ data-mix-insights/
 | 16 | Data Organization | Microsoft | ACL'26 | 数据顺序优化 |
 | 17 | LLMSurgeon | MBZUAI+UCL | ACL'26 | 从生成文本反推预训练配比 |
 | 18 | DataChef | 复旦+上海AI Lab | arXiv | RL 自动生成 adaptation 配方 |
+| 19 | Group-MATES | CMU+Meta | arXiv | 组级数据选择，建模数据交互效应 |
 
 ## 核心洞察
 
@@ -90,6 +92,15 @@ data-mix-insights/
 
 **结论**：不要过度工程化，先试试简单方法。
 
+### 4. 组级效应是真实且显著的
+
+Group-MATES (CMU+Meta) 用实验量化了数据交互效应：
+- 个体选择 vs 组级选择性能差距 **2x**
+- 关系权重（embedding cosine similarity）是建模交互的最有效组件
+- 选择开销随模型规模增大而递减（3B 上仅 3.4%）
+
+**结论**：QuaDMix 的二次型 Q 矩阵方向正确，但可以考虑用更轻量的 cosine similarity 替代。
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
@@ -114,6 +125,7 @@ data-mix-insights/
 - **2026-06-22**: 初始分析，收集 8 篇论文，完成 TOP 3 深度分析
 - **2026-06-23**: 扩展搜索，新增 8 篇论文，发现 CAMEL 和 Proxy 可靠性两篇关键论文
 - **2026-06-30**: 新增 LLMSurgeon (ACL'26) 和 DataChef (arXiv)，完成深度分析，评估与 QuaDMix 相关性（低）
+- **2026-07-03**: 新增 Group-MATES (CMU+Meta)，完成深度分析，评估组级数据选择对 QuaDMix 的启示
 
 ## License
 
