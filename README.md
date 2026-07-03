@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (20 篇)
+├── papers/          # 论文 PDF (22 篇)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
@@ -26,7 +26,8 @@ data-mix-insights/
 │   ├── Proxy_Reliability_论文总结.md        # Proxy 可靠性完整总结
 │   ├── LLMSurgeon_DataChef_深度分析.md      # LLMSurgeon + DataChef 分析
 │   ├── GroupMATES_深度分析.md               # Group-MATES 组级数据选择分析
-│   └── Chameleon_深度分析.md                # Chameleon KRLS 领域配比分析
+│   ├── Chameleon_深度分析.md                # Chameleon KRLS 领域配比分析
+│   └── PiKE_ADAPT_OPMix_深度分析.md        # PiKE + ADAPT + OP-Mix 深度分析
 └── README.md
 ```
 
@@ -42,6 +43,7 @@ data-mix-insights/
 | 09 | CAMEL: Capacity-Aware Mixture Law | 清华 | arXiv | Phase Transitions 的实践版 |
 | 10 | Proxy Reliability | Princeton/Berkeley | ICLR'26 | 降低 LR 修复 proxy 信号 |
 | 20 | Chameleon | EPFL | **ICML'25** | KRLS 领域权重，免重训迁移 |
+| 21 | PiKE: Adaptive Data Mixing | Google Research+USC | arXiv | 梯度交互自适应配比，1.9x 收敛加速 |
 
 ### 第二梯队：大厂经验
 
@@ -51,6 +53,7 @@ data-mix-insights/
 | 12 | UtiliMax / MEDU | Meta FAIR | arXiv | Token-count baseline，200x 加速 |
 | 13 | Repetition-Aware Scaling | Apple | arXiv | 高质量数据可重复 15-20x |
 | 14 | Synthetic Data in Pretraining | Meta | EMNLP'25 | 30% 合成 + 70% 自然 |
+| 22 | ADAPT: Online Reweighting | Cambridge+Oxford | **ICLR'26** | 在线 reweighting 优于离线选择，泛化性强 |
 
 ### 第三梯队：探索方向
 
@@ -103,6 +106,24 @@ Group-MATES (CMU+Meta) 用实验量化了数据交互效应：
 
 **结论**：QuaDMix 的二次型 Q 矩阵方向正确，但可以考虑用更轻量的 cosine similarity 替代。
 
+### 5. LLM 预训练中梯度冲突极少，应利用而非修复
+
+PiKE (Google Research) 实证发现大规模预训练中任务梯度几乎不冲突：
+- PCGrad、NashMTL 等冲突缓解方法在 LLM 中**基本无效**
+- 最优动态权重取决于**梯度范数**和**梯度方差**两个标量
+- 自适应调整比最优静态权重**一致更好**
+
+**结论**：QuaDMix 可以利用梯度范数+方差作为配比信号，不需要复杂的冲突缓解。
+
+### 6. 离线方法存在泛化风险
+
+ADAPT (Cambridge, ICLR'26) 揭示离线数据选择的根本缺陷：
+- 离线选择在 in-domain 上表现好，但 **OOD 泛化严重退化**（LESS: -11.5%）
+- 硬过滤牺牲数据多样性，用记忆替代泛化
+- 在线 reweighting 保持全部数据，动态调整权重，泛化更强
+
+**结论**：QuaDMix 作为离线方法，评估时必须包含 OOD benchmark，避免过度优化特定领域。
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
@@ -129,6 +150,7 @@ Group-MATES (CMU+Meta) 用实验量化了数据交互效应：
 - **2026-06-30**: 新增 LLMSurgeon (ACL'26) 和 DataChef (arXiv)，完成深度分析，评估与 QuaDMix 相关性（低）
 - **2026-07-03**: 新增 Group-MATES (CMU+Meta)，完成深度分析，评估组级数据选择对 QuaDMix 的启示
 - **2026-07-03**: 新增 Chameleon (EPFL, ICML'25)，完成深度分析，KRLS 领域配比方法与 QuaDMix 高相关
+- **2026-07-03**: 新增 PiKE (Google Research, arXiv) 和 ADAPT (Cambridge, ICLR'26)，完成深度分析；确认 OP-Mix (paper 15/23) 为同一篇论文
 
 ## License
 
