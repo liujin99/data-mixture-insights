@@ -9,7 +9,7 @@
 | 维度 | 信息 |
 |------|------|
 | arXiv | 2604.15706 (2026.04) |
-| 机构 | **华东师范大学 + 商汤科技 + UC Santa Cruz** |
+| 机构 | **ByteDance (字节跳动) + UC Santa Cruz + UNC-Chapel Hill** |
 | 作者 | Zijun Wang, Haoqin Tu, Weidong Zhou, Yiyang Zhou, Xiaohuan Zhou, Bingni Zhang, Weiguo Feng, Taifeng Wang, Cihang Xie, Fengze Liu |
 | 方向 | 基于神经元激活图的 target-oriented 预训练数据选择 |
 | 代码 | https://github.com/asillycat/NAG |
@@ -20,10 +20,11 @@
 | 作者 | 机构 | 分量 |
 |------|------|------|
 | **Cihang Xie** | UC Santa Cruz | ★★★★☆ 对抗鲁棒性/可解释性方向知名学者 |
-| **Taifeng Wang** | 商汤科技 | ★★★☆☆ 业界资深 |
-| **Fengze Liu** (通讯) | 华东师范大学 | ★★★☆☆ |
-| Zijun Wang (一作) | 华东师范大学 | ★★☆☆☆ 博士生 |
+| **Fengze Liu** (通讯) | ByteDance | ★★★☆☆ fengze.liu@bytedance.com |
+| Zijun Wang (一作) | ByteDance + UCSC | ★★☆☆☆ zwang745@ucsc.edu |
 | Haoqin Tu | UC Santa Cruz | ★★☆☆☆ |
+| Yiyang Zhou | UNC-Chapel Hill | ★★☆☆☆ |
+| 其余 6 人 | ByteDance | - |
 
 ---
 
@@ -213,7 +214,7 @@ NAG 不做领域配比优化。在 multi-target 设置下，NAG 用简单等权�
 
 | 维度 | 评分 | 理由 |
 |------|------|------|
-| 机构 | ★★★☆☆ | 华东师范大学 + 商汤 + UCSC，非顶级 LLM 实验室 |
+| 机构 | ★★★☆☆ | ByteDance + UCSC + UNC，大厂+学术组合，非顶级 LLM 实验室 |
 | 理论 | ★★★☆☆ | 无收敛保证或理论 bound，纯实证 |
 | 实验 | ★★★★☆ | 6 个 benchmark × 3 个 backbone × 2 个 target 设置 + 7B scaling |
 | 创新性 | ★★★★☆ | 神经元级数据选择是新颖视角，可解释性强 |

@@ -70,7 +70,7 @@ data-mix-insights/
 | 17 | LLMSurgeon | MBZUAI+UCL | ACL'26 | 从生成文本反推预训练配比 |
 | 18 | DataChef | 复旦+上海AI Lab | arXiv | RL 自动生成 adaptation 配方 |
 | 19 | Group-MATES | CMU+Meta | arXiv | 组级数据选择，建模数据交互效应 |
-| 23 | NAG: Neuron-Activated Graph | 华东师大+商汤+UCSC | arXiv | 神经元激活图做 target-oriented 数据选择，training-free |
+| 23 | NAG: Neuron-Activated Graph | ByteDance+UCSC+UNC | arXiv | 神经元激活图做 target-oriented 数据选择，training-free |
 
 ## 核心洞察
 
@@ -128,7 +128,7 @@ ADAPT (Cambridge, ICLR'26) 揭示离线数据选择的根本缺陷：
 
 ### 7. 神经元级信号是未被充分利用的维度
 
-NAG (华东师大+商汤+UCSC) 证明 LLM 内部神经元激活模式可以有效表征数据质量：
+NAG (ByteDance+UCSC+UNC) 证明 LLM 内部神经元激活模式可以有效表征数据质量：
 - 仅 0.12% 的神经元构成"功能骨架"，关掉即导致 23.5% 性能崩塌
 - FFN UP 层信号最丰富，跨层聚合比单层好 4.1%
 - Training-free，192 GPU-hours 一次性提取可复用于任意 target
@@ -163,7 +163,7 @@ NAG (华东师大+商汤+UCSC) 证明 LLM 内部神经元激活模式可以有�
 - **2026-07-03**: 新增 Group-MATES (CMU+Meta)，完成深度分析，评估组级数据选择对 QuaDMix 的启示
 - **2026-07-03**: 新增 Chameleon (EPFL, ICML'25)，完成深度分析，KRLS 领域配比方法与 QuaDMix 高相关
 - **2026-07-03**: 新增 PiKE (Google Research, arXiv) 和 ADAPT (Cambridge, ICLR'26)，完成深度分析；确认 OP-Mix (paper 15/23) 为同一篇论文
-- **2026-07-03**: 新增 NAG (华东师大+商汤+UCSC, arXiv)，完成深度分析，神经元激活图做 target-oriented 数据选择，与 QuaDMix 互补
+- **2026-07-03**: 新增 NAG (ByteDance+UCSC+UNC, arXiv)，完成深度分析，神经元激活图做 target-oriented 数据选择，与 QuaDMix 互补
 
 ## License
 
