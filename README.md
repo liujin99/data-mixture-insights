@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (23 篇)
+├── papers/          # 论文 PDF (24 篇)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
@@ -28,7 +28,8 @@ data-mix-insights/
 │   ├── GroupMATES_深度分析.md               # Group-MATES 组级数据选择分析
 │   ├── Chameleon_深度分析.md                # Chameleon KRLS 领域配比分析
 │   ├── PiKE_ADAPT_OPMix_深度分析.md        # PiKE + ADAPT + OP-Mix 深度分析
-│   └── NAG_NeuronActivatedGraph_深度分析.md  # NAG 神经元激活图数据选择分析
+│   ├── NAG_NeuronActivatedGraph_深度分析.md  # NAG 神经元激活图数据选择分析
+│   └── CausalMix_深度分析.md                  # CausalMix 因果推断数据配比分析
 └── README.md
 ```
 
@@ -71,6 +72,7 @@ data-mix-insights/
 | 18 | DataChef | 复旦+上海AI Lab | arXiv | RL 自动生成 adaptation 配方 |
 | 19 | Group-MATES | CMU+Meta | arXiv | 组级数据选择，建模数据交互效应 |
 | 23 | NAG: Neuron-Activated Graph | ByteDance+UCSC+UNC | arXiv | 神经元激活图做 target-oriented 数据选择，training-free |
+| 24 | CausalMix: Causal Inference | 清华+蚂蚁集团 | arXiv (2026.7) | 因果推断框架做 SFT 配比，DML 正交化 + CATE |
 
 ## 核心洞察
 
@@ -136,6 +138,16 @@ NAG (ByteDance+UCSC+UNC) 证明 LLM 内部神经元激活模式可以有效表�
 
 **结论**：NAG 解决样本级选择，QuaDMix 解决领域级配比，两者互补。NAG 论文自己指出 QuaDMix 可以改进其 multi-target 设置。
 
+### 8. 因果推断视角：不存在单一最优配比，最优配比取决于数据状态
+
+CausalMix (清华+蚂蚁集团, 2026.7) 将数据配比转化为因果边际收益估计：
+- 用 Double Machine Learning 正交化隔离数据状态的混杂效应
+- 3 个协变量（Normalized_Loss, HES, Writing_Style）分别对应 Complexity, Difficulty, Quality
+- 因果模型在 tulu-3 上训练，成功迁移到**完全未见的数据集和模型架构**（Qwen3-4B）
+- CATE Interpreter 发现：Knowledge 数据对困难数据有负效应（技能冲突）
+
+**结论**：QuaDMix 的 90 维搜索在找静态最优解，而 CausalMix 证明最优配比应该随数据状态变化。可借鉴 DML 正交化改进 LightGBM surrogate，用 top-100 平均替代单一最优点。
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
@@ -164,6 +176,7 @@ NAG (ByteDance+UCSC+UNC) 证明 LLM 内部神经元激活模式可以有效表�
 - **2026-07-03**: 新增 Chameleon (EPFL, ICML'25)，完成深度分析，KRLS 领域配比方法与 QuaDMix 高相关
 - **2026-07-03**: 新增 PiKE (Google Research, arXiv) 和 ADAPT (Cambridge, ICLR'26)，完成深度分析；确认 OP-Mix (paper 15/23) 为同一篇论文
 - **2026-07-03**: 新增 NAG (ByteDance+UCSC+UNC, arXiv)，完成深度分析，神经元激活图做 target-oriented 数据选择，与 QuaDMix 互补
+- **2026-07-06**: 新增 CausalMix (清华+蚂蚁集团, arXiv 2026.7)，完成深度分析，因果推断框架做 SFT 数据配比，DML 正交化 + CATE Interpreter
 
 ## License
 
