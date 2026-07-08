@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (24 篇)
+├── papers/          # 论文 PDF (25 篇)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
@@ -29,7 +29,8 @@ data-mix-insights/
 │   ├── Chameleon_深度分析.md                # Chameleon KRLS 领域配比分析
 │   ├── PiKE_ADAPT_OPMix_深度分析.md        # PiKE + ADAPT + OP-Mix 深度分析
 │   ├── NAG_NeuronActivatedGraph_深度分析.md  # NAG 神经元激活图数据选择分析
-│   └── CausalMix_深度分析.md                  # CausalMix 因果推断数据配比分析
+│   ├── CausalMix_深度分析.md                  # CausalMix 因果推断数据配比分析
+│   └── HERMES_深度分析.md                     # HERMES 多粒度标签基底分析
 └── README.md
 ```
 
@@ -73,6 +74,7 @@ data-mix-insights/
 | 19 | Group-MATES | CMU+Meta | arXiv | 组级数据选择，建模数据交互效应 |
 | 23 | NAG: Neuron-Activated Graph | ByteDance+UCSC+UNC | arXiv | 神经元激活图做 target-oriented 数据选择，training-free |
 | 24 | CausalMix: Causal Inference | 清华+蚂蚁集团 | arXiv (2026.7) | 因果推断框架做 SFT 配比，DML 正交化 + CATE |
+| 25 | HERMES: Multi-Granularity Labeling | Wizard Quant+北大+中科大 | arXiv (2026.7) | 层级 RVQ 标签基底，粒度作为前缀长度，粒度×质量过滤交互效应 |
 
 ## 核心洞察
 
@@ -148,6 +150,17 @@ CausalMix (清华+蚂蚁集团, 2026.7) 将数据配比转化为因果边际收�
 
 **结论**：QuaDMix 的 90 维搜索在找静态最优解，而 CausalMix 证明最优配比应该随数据状态变化。可借鉴 DML 正交化改进 LightGBM surrogate，用 top-100 平均替代单一最优点。
 
+### 9. 瓶颈在标签系统而非 mixer，粒度存在最优点
+
+HERMES (Wizard Quant+北大+中科大, 2026.7) 证明数据配比的瓶颈不在混合策略优化，而在分组方式本身：
+- 3-stage RVQ 一次标注 ~50M 文档，通过前缀长度切换粒度（256 → 65k → 130k buckets）
+- **L₁₂ (65k) 粒度下 quality top-30% 带来 +0.0253 Avg.**，但 L₁₂₃ (130k) 上优势消失
+- 原因：candidate competition — 桶中位大小从 2,271 缩到 429，桶内排序不再稳定
+- **DoReMi 在 L₁ 上不如 Uniform**（4 组中 3 组），group-DRO 优化了错误的目标
+- 五种 256-way 聚类方法在标准指标上完全一致，证明增益来自层级结构而非聚类质量
+
+**结论**：QuaDMix 的 ~30 领域可能在"太粗"一端，但粒度也不是越细越好（~400 文档/桶是下界）。标签系统和混合策略应作为独立设计轴。桶内质量过滤在合适粒度下效果显著，再次验证 quality-top-k 方向正确。
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
@@ -177,6 +190,7 @@ CausalMix (清华+蚂蚁集团, 2026.7) 将数据配比转化为因果边际收�
 - **2026-07-03**: 新增 PiKE (Google Research, arXiv) 和 ADAPT (Cambridge, ICLR'26)，完成深度分析；确认 OP-Mix (paper 15/23) 为同一篇论文
 - **2026-07-03**: 新增 NAG (ByteDance+UCSC+UNC, arXiv)，完成深度分析，神经元激活图做 target-oriented 数据选择，与 QuaDMix 互补
 - **2026-07-06**: 新增 CausalMix (清华+蚂蚁集团, arXiv 2026.7)，完成深度分析，因果推断框架做 SFT 数据配比，DML 正交化 + CATE Interpreter
+- **2026-07-08**: 新增 HERMES (Wizard Quant+北大+中科大, arXiv 2026.7)，完成深度分析，层级 RVQ 标签基底，粒度×质量过滤交互效应，与 QuaDMix 高相关 (★★★★☆)
 
 ## License
 
