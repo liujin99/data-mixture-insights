@@ -19,6 +19,9 @@ env/
 venv/
 .venv/
 
+# Papers (PDFs)
+papers/
+
 # Temp
 *.tmp
 *.bak
