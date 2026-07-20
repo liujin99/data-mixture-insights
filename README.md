@@ -30,7 +30,8 @@ data-mix-insights/
 │   ├── PiKE_ADAPT_OPMix_深度分析.md        # PiKE + ADAPT + OP-Mix 深度分析
 │   ├── NAG_NeuronActivatedGraph_深度分析.md  # NAG 神经元激活图数据选择分析
 │   ├── CausalMix_深度分析.md                  # CausalMix 因果推断数据配比分析
-│   └── HERMES_深度分析.md                     # HERMES 多粒度标签基底分析
+│   ├── HERMES_深度分析.md                     # HERMES 多粒度标签基底分析
+│   └── FastMix_DomainAwareScalingLaws_深度分析.md  # FastMix + Domain-Aware SL 深度分析
 └── README.md
 ```
 
@@ -47,6 +48,8 @@ data-mix-insights/
 | 10 | Proxy Reliability | Princeton/Berkeley | ICLR'26 | 降低 LR 修复 proxy 信号 |
 | 20 | Chameleon | EPFL | **ICML'25** | KRLS 领域权重，免重训迁移 |
 | 21 | PiKE: Adaptive Data Mixing | Google Research+USC | arXiv | 梯度交互自适应配比，1.9x 收敛加速 |
+| 26 | FastMix: Gradient Descent Mixing | 腾讯混元+港大 | **ICLR'26** | 可微 bilevel 优化，1 proxy 550x 加速 |
+| 27 | Domain-Aware Scaling Laws | MIT+Microsoft Research | arXiv | 域间协同量化 γ/σ，R²=0.91 |
 
 ### 第二梯队：大厂经验
 
@@ -75,6 +78,8 @@ data-mix-insights/
 | 23 | NAG: Neuron-Activated Graph | ByteDance+UCSC+UNC | arXiv | 神经元激活图做 target-oriented 数据选择，training-free |
 | 24 | CausalMix: Causal Inference | 清华+蚂蚁集团 | arXiv (2026.7) | 因果推断框架做 SFT 配比，DML 正交化 + CATE |
 | 25 | HERMES: Multi-Granularity Labeling | Wizard Quant+北大+中科大 | arXiv (2026.7) | 层级 RVQ 标签基底，粒度作为前缀长度，粒度×质量过滤交互效应 |
+| 26 | FastMix: Gradient Descent Data Mixing | 腾讯混元+港大+中大 | **ICLR 2026** | 可微 bilevel 优化，1 proxy 550x 加速，梯度内积信号 |
+| 27 | Domain-Aware Scaling Laws | MIT CSAIL+Microsoft Research | arXiv (2026.7) | 量化域间协同 γ 和 σ，观测拟合，R²=0.91 |
 
 ## 核心洞察
 
@@ -150,7 +155,28 @@ CausalMix (清华+蚂蚁集团, 2026.7) 将数据配比转化为因果边际收�
 
 **结论**：QuaDMix 的 90 维搜索在找静态最优解，而 CausalMix 证明最优配比应该随数据状态变化。可借鉴 DML 正交化改进 LightGBM surrogate，用 top-100 平均替代单一最优点。
 
-### 9. 瓶颈在标签系统而非 mixer，粒度存在最优点
+### 9. 可微 bilevel 优化实现 550x 搜索加速，但工业数据风险高
+
+FastMix (腾讯混元, ICLR 2026) 将配比权重从采样概率重参数化为 loss 权重，使 α 可微：
+- 1 个 proxy（2-layer LLaMA 256d，与 QuaDMix **架构完全相同**）联合优化模型参数和配比
+- 梯度 = 验证集梯度 · 领域训练梯度的内积（方向对齐信号）
+- Pre-training 14 benchmarks 平均 48.2（RegMix 47.2, CLIMB 47.5），搜索成本 1.3 GPU-hours（RegMix 720h）
+- SFT 场景优势更大：65.4 vs CLIMB 59.9
+
+**关键警告**：论文自己承认 < 0.5B proxy 在工业数据上收敛不稳定。QuaDMix 的 14M proxy 远小于 0.5B。代码中熵正则化 λ=0（论文声称 1e-5），只用 lm_head 梯度（论文未讨论）。
+
+### 10. 域间协同可量化，且协同 ≠ 语义重叠
+
+Domain-Aware Scaling Laws (MIT+MSR, 2026.7) 从 52 个公开模型拟合域间协同：
+- **一阶 γ**：Math→HumanEval +1.34, Books→HumanEval -0.90, Code→IFEval +0.88
+- **二阶 σ**：Code×Science +2.55, Code×Math +2.40, Math×Books 负值
+- R² 从 Chinchilla 0.41 提升到 FO 0.92（HumanEval），最差 R²=0.866
+- 验证实验：optimal vs anti-optimal 在 150M 上 HumanEval BPB 差 0.337
+- **协同 ≠ 重叠**：Code×Science embedding cosine=0.31（低），但 σ=+2.55（强协同）
+
+**局限**：观测拟合（非因果），8 域只有 2 个有效 PCA 方向，验证仅 30M/150M。
+
+### 11. 瓶颈在标签系统而非 mixer，粒度存在最优点
 
 HERMES (Wizard Quant+北大+中科大, 2026.7) 证明数据配比的瓶颈不在混合策略优化，而在分组方式本身：
 - 3-stage RVQ 一次标注 ~50M 文档，通过前缀长度切换粒度（256 → 65k → 130k buckets）
@@ -167,18 +193,23 @@ HERMES (Wizard Quant+北大+中科大, 2026.7) 证明数据配比的瓶颈不在
 
 1. **修复 Proxy LR** — 降低 proxy 的 learning rate，验证与大模型结果的相关性
 2. **实现 Capacity-Aware Mixture Law** — 在 LightGBM 回归中加入 capacity-aware 特征
+3. **记录域梯度统计量** — 在 proxy 训练中记录每个域的梯度范数和方差（FastMix + PiKE）
+4. **加入 pairwise 域特征** — 在 LightGBM 特征中加入 u_k × u_{k'} 捕捉二阶协同（Domain-Aware SL）
 
 ### 短期行动
 
-3. **对比 Token-Count Baseline** — 实现 token-count heuristic 作为 baseline
-4. **调整高质量数据重复次数** — 高质量数据重复 15-20x
-5. **参考 DataMan 质量标准** — 检查 Eq.1 的质量信号是否覆盖 14 条标准
+5. **对比 Token-Count Baseline** — 实现 token-count heuristic 作为 baseline
+6. **调整高质量数据重复次数** — 高质量数据重复 15-20x
+7. **参考 DataMan 质量标准** — 检查 Eq.1 的质量信号是否覆盖 14 条标准
+8. **验证集域覆盖度检查** — 确保 CAP v1/OpenHermes 不偏向特定域（Domain-Aware SL + Google MDE）
+9. **PCA 检查搜索空间有效维度** — 对 proxy 实验数据做 PCA（Domain-Aware SL 发现 8 域只有 2 个有效方向）
 
 ### 长期探索
 
-6. **探索 LoRA 插值 Proxy** — 比训完整模型便宜，比 model merging 灵活
-7. **扩展到数据顺序优化** — 顺序是另一个重要维度
-8. **合成数据配比** — 如果数据池包含合成数据，使用 30% 配比
+10. **探索 FastMix 在线优化模式** — 550x 搜索加速，但需注意工业数据风险
+11. **探索 LoRA 插值 Proxy** — 比训完整模型便宜，比 model merging 灵活
+12. **扩展到数据顺序优化** — 顺序是另一个重要维度
+13. **合成数据配比** — 如果数据池包含合成数据，使用 30% 配比
 
 ## 更新日志
 
@@ -191,6 +222,7 @@ HERMES (Wizard Quant+北大+中科大, 2026.7) 证明数据配比的瓶颈不在
 - **2026-07-03**: 新增 NAG (ByteDance+UCSC+UNC, arXiv)，完成深度分析，神经元激活图做 target-oriented 数据选择，与 QuaDMix 互补
 - **2026-07-06**: 新增 CausalMix (清华+蚂蚁集团, arXiv 2026.7)，完成深度分析，因果推断框架做 SFT 数据配比，DML 正交化 + CATE Interpreter
 - **2026-07-08**: 新增 HERMES (Wizard Quant+北大+中科大, arXiv 2026.7)，完成深度分析，层级 RVQ 标签基底，粒度×质量过滤交互效应，与 QuaDMix 高相关 (★★★★☆)
+- **2026-07-20**: 新增 FastMix (腾讯混元+港大+中大, ICLR 2026) 和 Domain-Aware Scaling Laws (MIT+MSR, arXiv 2026.7)，完成深度分析。关键发现：FastMix proxy 架构与 QuaDMix 完全相同；论文自述 <0.5B proxy 工业数据不稳定；域间协同可量化且协同≠语义重叠
 
 ## License
 
