@@ -48,8 +48,8 @@ data-mix-insights/
 | 10 | Proxy Reliability | Princeton/Berkeley | ICLR'26 | 降低 LR 修复 proxy 信号 |
 | 20 | Chameleon | EPFL | **ICML'25** | KRLS 领域权重，免重训迁移 |
 | 21 | PiKE: Adaptive Data Mixing | Google Research+USC | arXiv | 梯度交互自适应配比，1.9x 收敛加速 |
-| 26 | FastMix: Gradient Descent Mixing | 腾讯混元+港大 | **ICLR'26** | 可微 bilevel 优化，1 proxy 550x 加速 |
-| 27 | Domain-Aware Scaling Laws | MIT+Microsoft Research | arXiv | 域间协同量化 γ/σ，R²=0.91 |
+| 26 | **FastMix: Gradient Descent Mixing** | 腾讯混元+港大 | **ICLR'26** | **[高价值]** 可微 bilevel 优化，1 proxy 550x 加速，proxy 架构与 QuaDMix 完全相同，Section 4.3 工业踩坑经验直接适用 |
+| 27 | **Domain-Aware Scaling Laws** | MIT+Microsoft Research | arXiv (2026.7) | **[高价值]** 域间协同量化 γ/σ，R²=0.91，协同≠语义重叠，pairwise 特征可直接加入 LightGBM |
 
 ### 第二梯队：大厂经验
 
@@ -78,8 +78,6 @@ data-mix-insights/
 | 23 | NAG: Neuron-Activated Graph | ByteDance+UCSC+UNC | arXiv | 神经元激活图做 target-oriented 数据选择，training-free |
 | 24 | CausalMix: Causal Inference | 清华+蚂蚁集团 | arXiv (2026.7) | 因果推断框架做 SFT 配比，DML 正交化 + CATE |
 | 25 | HERMES: Multi-Granularity Labeling | Wizard Quant+北大+中科大 | arXiv (2026.7) | 层级 RVQ 标签基底，粒度作为前缀长度，粒度×质量过滤交互效应 |
-| 26 | FastMix: Gradient Descent Data Mixing | 腾讯混元+港大+中大 | **ICLR 2026** | 可微 bilevel 优化，1 proxy 550x 加速，梯度内积信号 |
-| 27 | Domain-Aware Scaling Laws | MIT CSAIL+Microsoft Research | arXiv (2026.7) | 量化域间协同 γ 和 σ，观测拟合，R²=0.91 |
 
 ## 核心洞察
 
