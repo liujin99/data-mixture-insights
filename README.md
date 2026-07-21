@@ -31,7 +31,8 @@ data-mix-insights/
 │   ├── NAG_NeuronActivatedGraph_深度分析.md  # NAG 神经元激活图数据选择分析
 │   ├── CausalMix_深度分析.md                  # CausalMix 因果推断数据配比分析
 │   ├── HERMES_深度分析.md                     # HERMES 多粒度标签基底分析
-│   └── FastMix_DomainAwareScalingLaws_深度分析.md  # FastMix + Domain-Aware SL 深度分析
+│   ├── FastMix_DomainAwareScalingLaws_深度分析.md  # FastMix + Domain-Aware SL 深度分析
+│   └── 新论文批量分析_202607.md                      # 7 篇新论文分析 (LR Decay, MixAtlas, WebGraphMix 等)
 └── README.md
 ```
 
@@ -50,6 +51,9 @@ data-mix-insights/
 | 21 | PiKE: Adaptive Data Mixing | Google Research+USC | arXiv | 梯度交互自适应配比，1.9x 收敛加速 |
 | 26 | **FastMix: Gradient Descent Mixing** | 腾讯混元+港大 | **ICLR'26** | **[高价值]** 可微 bilevel 优化，1 proxy 550x 加速，proxy 架构与 QuaDMix 完全相同，Section 4.3 工业踩坑经验直接适用 |
 | 27 | **Domain-Aware Scaling Laws** | MIT+Microsoft Research | arXiv (2026.7) | **[高价值]** 域间协同量化 γ/σ，R²=0.91，协同≠语义重叠，pairwise 特征可直接加入 LightGBM |
+| 28 | **LR Decay Wastes Best Data** | Princeton+清华 | arXiv | **[高价值]** LR decay 与 curriculum 冲突，cosine decay 浪费质量信号，moderate decay + checkpoint 平均修复 +2.7% |
+| 30 | **WebGraphMix** | Princeton (Danqi Chen) | arXiv | 网页图中心度作为 training-free 正交质量信号，与 FastText 正交，乘法组合 +1.5% |
+| 31 | PreSelect | HKUST+Vivo AI | **ICML'25** | Predictive strength + fastText，10x 计算缩减，开源 |
 
 ### 第二梯队：大厂经验
 
@@ -78,6 +82,10 @@ data-mix-insights/
 | 23 | NAG: Neuron-Activated Graph | ByteDance+UCSC+UNC | arXiv | 神经元激活图做 target-oriented 数据选择，training-free |
 | 24 | CausalMix: Causal Inference | 清华+蚂蚁集团 | arXiv (2026.7) | 因果推断框架做 SFT 配比，DML 正交化 + CATE |
 | 25 | HERMES: Multi-Granularity Labeling | Wizard Quant+北大+中科大 | arXiv (2026.7) | 层级 RVQ 标签基底，粒度作为前缀长度，粒度×质量过滤交互效应 |
+| 29 | MixAtlas: GP Surrogate | Apple+UW+VTech | arXiv | GP surrogate + GP-UCB 主动采样，同预算比 LightGBM 高 4-7 点，0.5B→7B 迁移验证 |
+| 32 | GRASP: Subset Interaction | Wizard Quant+USTC | arXiv | 子集交互感知数据归因，二次几何惩罚，rank correlation 翻倍 |
+| 33 | DoGraph: Gradient Dynamics | HKUST-GZ+HIT+OpenCSG | arXiv | 梯度视角重定义域，人类域≠模型域，graph-constrained reweighting |
+| 34 | MIRA: Mid-Training Rubric | 北航+上交+IQuest | arXiv | 源感知 rubric 发现 + student 蒸馏，25B tokens 匹配 50B 性能 |
 
 ## 核心洞察
 
@@ -185,29 +193,71 @@ HERMES (Wizard Quant+北大+中科大, 2026.7) 证明数据配比的瓶颈不在
 
 **结论**：QuaDMix 的 ~30 领域可能在"太粗"一端，但粒度也不是越细越好（~400 文档/桶是下界）。标签系统和混合策略应作为独立设计轴。桶内质量过滤在合适粒度下效果显著，再次验证 quality-top-k 方向正确。
 
+### 12. LR Schedule 与数据质量必须协同设计
+
+LR Decay paper (#28, Princeton+清华) 揭示了一个被所有数据配比论文忽视的问题：
+- **Cosine LR decay 浪费 quality-top-k 选择的高质量数据**：ascending curriculum 在 constant LR 下 +1.57%，在 cosine decay 下仅 +0.60%
+- 原因：高质量数据出现在训练末尾时 LR 已过低，无法充分利用
+- **修复方案 1**：Moderate decay（最终 LR = peak 的 1/3-1/2）→ 核心指标 +1-2%
+- **修复方案 2**：Constant LR + 最后 6 checkpoint EMA 平均 → 核心指标 +2-3%
+- 3.2B 模型验证：ARC-C +3.39, BoolQ +3.39
+
+**结论**：QuaDMix 花大量精力优化数据配比，但如果 LR schedule 不匹配，质量信号会被浪费。**这是最高 ROI 的单点修复**。
+
+### 13. 网页图拓扑是完全正交的质量信号
+
+WebGraphMix (#30, Princeton Danqi Chen 组) 证明了一个惊人的发现：
+- Common Crawl host-level 网页图的中心度（betweenness/katz）与 FastText 质量分数**正交**
+- 中心 host → 符号/算法推理 (+1.4%)，边缘 host → 事实知识 (+1.2%)
+- 1:1 中心/边缘混合 + 乘法组合 = **43.8%** vs quality-only 42.3% vs random 39.8%
+- **18/18 种组合配置均超过 quality-only baseline**
+- 完全 training-free，一次性 9 GPU-hours
+
+**结论**：网页图中心度可作为 QuaDMix FastText 质量分数的独立补充维度，实现成本极低。
+
+### 14. GP Surrogate 在同预算下优于 LightGBM
+
+MixAtlas (#29, Apple+UW) 在相同 proxy 预算下直接对比 GP vs LightGBM (RegMix)：
+- 5D 搜索空间：GP 高 4.18 点（50.68 vs 46.50）
+- 10D 搜索空间：GP 高 7.06 点（47.18 vs 40.12）
+- GP 提供原生不确定性量化 σ(h)，支持 GP-UCB 主动探索
+- 0.5B proxy → 7B target 迁移成功（+8.5%），跨族 Qwen2→Qwen2.5 也成功（+3.3%）
+
+**局限**：GP 的 O(n³) 扩展性限制高维应用。QuaDMix 的 198 维空间可能超出 GP 能力，但低维子空间（5-10 主域）可行。
+
+### 15. 人类定义的域 ≠ 模型感知的域
+
+DoGraph (#33, HKUST-GZ) 通过 Theorem 2.2 证明：域差异编码在梯度几何中，人类标签定义的域与模型梯度感知的域可能不一致。
+
+**结论**：QuaDMix 的 22 个 Dewey Decimal 域是否对 14M proxy 有意义？建议在 proxy 训练中记录 per-domain 梯度分布，用 PCA 检查域结构是否与梯度分布对齐。
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
 
-1. **修复 Proxy LR** — 降低 proxy 的 learning rate，验证与大模型结果的相关性
-2. **实现 Capacity-Aware Mixture Law** — 在 LightGBM 回归中加入 capacity-aware 特征
-3. **记录域梯度统计量** — 在 proxy 训练中记录每个域的梯度范数和方差（FastMix + PiKE）
-4. **加入 pairwise 域特征** — 在 LightGBM 特征中加入 u_k × u_{k'} 捕捉二阶协同（Domain-Aware SL）
+1. **修改 LR Schedule**（#28，最高 ROI）— 将 cosine decay 改为 moderate decay（最终 LR = peak 的 1/3）或 constant LR + checkpoint EMA 平均。预期 +1-3%，成本：改一行配置
+2. **修复 Proxy LR** — 降低 proxy 的 learning rate，验证与大模型结果的相关性
+3. **实现 Capacity-Aware Mixture Law** — 在 LightGBM 回归中加入 capacity-aware 特征
+4. **记录域梯度统计量** — 在 proxy 训练中记录每个域的梯度范数和方差（FastMix + PiKE）
+5. **加入 pairwise 域特征** — 在 LightGBM 特征中加入 u_k × u_{k'} 捕捉二阶协同（Domain-Aware SL）
 
 ### 短期行动
 
-5. **对比 Token-Count Baseline** — 实现 token-count heuristic 作为 baseline
-6. **调整高质量数据重复次数** — 高质量数据重复 15-20x
-7. **参考 DataMan 质量标准** — 检查 Eq.1 的质量信号是否覆盖 14 条标准
-8. **验证集域覆盖度检查** — 确保 CAP v1/OpenHermes 不偏向特定域（Domain-Aware SL + Google MDE）
-9. **PCA 检查搜索空间有效维度** — 对 proxy 实验数据做 PCA（Domain-Aware SL 发现 8 域只有 2 个有效方向）
+6. **加入网页图中心度信号**（#30）— 计算 Common Crawl host-level betweenness centrality，乘法组合 + 50/50 混合，预期 +1.5%，成本 9 GPU-hours
+7. **对比 Token-Count Baseline** — 实现 token-count heuristic 作为 baseline
+8. **调整高质量数据重复次数** — 高质量数据重复 15-20x
+9. **参考 DataMan 质量标准** — 检查 Eq.1 的质量信号是否覆盖 14 条标准
+10. **验证集域覆盖度检查** — 确保 CAP v1/OpenHermes 不偏向特定域（Domain-Aware SL + Google MDE）
+11. **PCA 检查搜索空间有效维度** — 对 proxy 实验数据做 PCA（Domain-Aware SL 发现 8 域只有 2 个有效方向）
+12. **检查域定义与 proxy 梯度一致性**（#33）— 验证 22 个 Dewey Decimal 域是否与模型梯度感知对齐
 
 ### 长期探索
 
-10. **探索 FastMix 在线优化模式** — 550x 搜索加速，但需注意工业数据风险
-11. **探索 LoRA 插值 Proxy** — 比训完整模型便宜，比 model merging 灵活
-12. **扩展到数据顺序优化** — 顺序是另一个重要维度
-13. **合成数据配比** — 如果数据池包含合成数据，使用 30% 配比
+13. **探索 GP Surrogate**（#29）— 在低维子空间（5-10 主域）上尝试 GP + GP-UCB 主动采样
+14. **探索 FastMix 在线优化模式** — 550x 搜索加速，但需注意工业数据风险
+15. **探索 LoRA 插值 Proxy** — 比训完整模型便宜，比 model merging 灵活
+16. **扩展到数据顺序优化** — 顺序是另一个重要维度
+17. **合成数据配比** — 如果数据池包含合成数据，使用 30% 配比
 
 ## 更新日志
 
@@ -221,6 +271,7 @@ HERMES (Wizard Quant+北大+中科大, 2026.7) 证明数据配比的瓶颈不在
 - **2026-07-06**: 新增 CausalMix (清华+蚂蚁集团, arXiv 2026.7)，完成深度分析，因果推断框架做 SFT 数据配比，DML 正交化 + CATE Interpreter
 - **2026-07-08**: 新增 HERMES (Wizard Quant+北大+中科大, arXiv 2026.7)，完成深度分析，层级 RVQ 标签基底，粒度×质量过滤交互效应，与 QuaDMix 高相关 (★★★★☆)
 - **2026-07-20**: 新增 FastMix (腾讯混元+港大+中大, ICLR 2026) 和 Domain-Aware Scaling Laws (MIT+MSR, arXiv 2026.7)，完成深度分析。关键发现：FastMix proxy 架构与 QuaDMix 完全相同；论文自述 <0.5B proxy 工业数据不稳定；域间协同可量化且协同≠语义重叠
+- **2026-07-21**: 新增 7 篇论文 (#28-34)，完成深度分析。关键发现：LR decay 浪费质量信号（#28，最高 ROI 修复）；网页图中心度正交于 FastText（#30）；GP surrogate 同预算优于 LightGBM（#29）；人类域≠模型域（#33）。总计 34 篇论文
 
 ## License
 
