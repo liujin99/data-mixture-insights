@@ -32,6 +32,7 @@ data-mix-insights/
 │   ├── CausalMix_深度分析.md                  # CausalMix 因果推断数据配比分析
 │   ├── HERMES_深度分析.md                     # HERMES 多粒度标签基底分析
 │   ├── FastMix_DomainAwareScalingLaws_深度分析.md  # FastMix + Domain-Aware SL 深度分析
+│   ├── PreSelect_深度分析.md                         # PreSelect (ICML'25) 深度分析
 │   └── 新论文批量分析_202607.md                      # 5 篇新论文分析 (MixAtlas, WebGraphMix, PreSelect 等)
 └── README.md
 ```
@@ -258,6 +259,7 @@ DoGraph (#33, HKUST-GZ) 通过 Theorem 2.2 证明：域差异编码在梯度几�
 - **2026-07-08**: 新增 HERMES (Wizard Quant+北大+中科大, arXiv 2026.7)，完成深度分析，层级 RVQ 标签基底，粒度×质量过滤交互效应，与 QuaDMix 高相关 (★★★★☆)
 - **2026-07-20**: 新增 FastMix (腾讯混元+港大+中大, ICLR 2026) 和 Domain-Aware Scaling Laws (MIT+MSR, arXiv 2026.7)，完成深度分析。关键发现：FastMix proxy 架构与 QuaDMix 完全相同；论文自述 <0.5B proxy 工业数据不稳定；域间协同可量化且协同≠语义重叠
 - **2026-07-21**: 新增 5 篇数据配比/选择论文 (#29-33)，完成深度分析。关键发现：网页图中心度正交于 FastText（#30）；GP surrogate 同预算优于 LightGBM（#29）；人类域≠模型域（#33）。移除 #28 (LR Decay, 训练调度) 和 #34 (MIRA, mid-training)，聚焦数据配比/选择。总计 32 篇论文
+- **2026-07-22**: 完成 PreSelect (ICML'25) 深度分析。核心发现：predictive strength 与 QuaDMix 5 个质量信号完全不重叠，可作为第 6 维；文档级选择比域级选择高 4.8%；同族模型至关重要；开源 fastText 分类器可直接集成
 
 ## License
 
