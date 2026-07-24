@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (32 篇, 本地存储不入库)
+├── papers/          # 论文 PDF (34 篇, 本地存储不入库)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
@@ -33,6 +33,7 @@ data-mix-insights/
 │   ├── HERMES_深度分析.md                     # HERMES 多粒度标签基底分析
 │   ├── FastMix_DomainAwareScalingLaws_深度分析.md  # FastMix + Domain-Aware SL 深度分析
 │   ├── PreSelect_深度分析.md                         # PreSelect (ICML'25) 深度分析
+│   ├── Survey_RegMixD_深度分析.md                    # Survey 综述 + RegMix-D 深度分析
 │   └── 新论文批量分析_202607.md                      # 5 篇新论文分析 (MixAtlas, WebGraphMix, PreSelect 等)
 └── README.md
 ```
@@ -64,6 +65,7 @@ data-mix-insights/
 | 13 | Repetition-Aware Scaling | Apple | arXiv | 高质量数据可重复 15-20x |
 | 14 | Synthetic Data in Pretraining | Meta | EMNLP'25 | 30% 合成 + 70% 自然 |
 | 22 | ADAPT: Online Reweighting | Cambridge+Oxford | **ICLR'26** | 在线 reweighting 优于离线选择，泛化性强 |
+| 36 | **RegMix-D: Dynamic Mixing** | U Tokyo+NII | arXiv (2026.6) | **[高价值]** RegMix 动态化扩展，loss 轨迹回归，128 proxy (25% 预算) 超越 RegMix 512，Online +0.37% 开销，proxy 大小 1M-120M 无差异 |
 
 ### 第三梯队：探索方向
 
@@ -85,6 +87,7 @@ data-mix-insights/
 | 29 | MixAtlas: GP Surrogate | Apple+UW+VTech | arXiv | GP surrogate + GP-UCB 主动采样，同预算比 LightGBM 高 4-7 点，0.5B→7B 迁移验证 |
 | 32 | GRASP: Subset Interaction | Wizard Quant+USTC | arXiv | 子集交互感知数据归因，二次几何惩罚，rank correlation 翻倍 |
 | 33 | DoGraph: Gradient Dynamics | HKUST-GZ+HIT+OpenCSG | arXiv | 梯度视角重定义域，人类域≠模型域，graph-constrained reweighting |
+| 35 | Survey: Data Mixture for LLMs | CUHK-Shenzhen (Ruoyu Sun) | arXiv (2025.5) | 领域综述：19 种方法分类，3 大挑战，指出最优权重仅略优于 uniform |
 
 ## 核心洞察
 
@@ -219,6 +222,28 @@ DoGraph (#33, HKUST-GZ) 通过 Theorem 2.2 证明：域差异编码在梯度几�
 
 **结论**：QuaDMix 的 22 个 Dewey Decimal 域是否对 14M proxy 有意义？建议在 proxy 训练中记录 per-domain 梯度分布，用 PCA 检查域结构是否与梯度分布对齐。
 
+### 15. 动态配比是最低成本的改进路径
+
+RegMix-D (#36, U Tokyo+NII) 用最简洁的扩展证明动态配比的威力：
+- **核心改动**：从终点 loss 回归 → 完整 loss 轨迹回归，输入 (step, weights, current_loss) → next_loss
+- **128 proxy (25% 预算) 的 RegMix-D 超越 512 proxy 的 RegMix**：+0.52 avg（47.93 vs 47.41）
+- **Online 模式**：在目标训练切换点用实际 loss 查询回归模型，额外开销仅 +0.37%
+- **Proxy 大小消融**：1M = 60M = 120M（差异 < 0.05），验证小 proxy 在 Pile 上足够
+- **跨尺度修正**：l̃ = l_target · (P_t/P_p)^β, β=0.05，对 β 不敏感（最大变化 0.25）
+
+**结论**：QuaDMix 只需修改 proxy 训练 logging（记录轨迹）+ 重训 LightGBM（加 step/current_loss 特征），即可获得 +0.5-1% 提升，成本极低。这是目前所有改进建议中 ROI 最高的。
+
+### 16. 最优配比可能只比 uniform 略好（甚至更差）
+
+Survey (#35, CUHK-SZ) 明确指出：大多数方法找到的最优权重**只比 uniform sampling 略好**（Jiang et al. 2024），甚至**不如 uniform sampling**（Chen et al. 2024）。
+
+三大挑战：
+1. 全局最优 curriculum 计算上不可行
+2. 自然域定义过粗（GLaM 8 域 vs Pile 22 域效果差异大）
+3. Loss 指标与任务表现之间存在 gap
+
+**结论**：这与 "QuaDMix < quality-top-k" 的观察高度一致。复杂优化在 loss 空间可能有效，但在任务空间无效。应降低对精确配比的期望，聚焦信号质量而非搜索复杂度。
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
@@ -227,6 +252,7 @@ DoGraph (#33, HKUST-GZ) 通过 Theorem 2.2 证明：域差异编码在梯度几�
 2. **实现 Capacity-Aware Mixture Law** — 在 LightGBM 回归中加入 capacity-aware 特征
 3. **记录域梯度统计量** — 在 proxy 训练中记录每个域的梯度范数和方差（FastMix + PiKE）
 4. **加入 pairwise 域特征** — 在 LightGBM 特征中加入 u_k × u_{k'} 捕捉二阶协同（Domain-Aware SL）
+5. **记录 proxy loss 轨迹 + 训练 trajectory-conditioned LightGBM** — RegMix-D 证明这是 ROI 最高的改进（+0.5-1%，成本仅修改 logging + 重训回归模型）
 
 ### 短期行动
 
@@ -260,6 +286,7 @@ DoGraph (#33, HKUST-GZ) 通过 Theorem 2.2 证明：域差异编码在梯度几�
 - **2026-07-20**: 新增 FastMix (腾讯混元+港大+中大, ICLR 2026) 和 Domain-Aware Scaling Laws (MIT+MSR, arXiv 2026.7)，完成深度分析。关键发现：FastMix proxy 架构与 QuaDMix 完全相同；论文自述 <0.5B proxy 工业数据不稳定；域间协同可量化且协同≠语义重叠
 - **2026-07-21**: 新增 5 篇数据配比/选择论文 (#29-33)，完成深度分析。关键发现：网页图中心度正交于 FastText（#30）；GP surrogate 同预算优于 LightGBM（#29）；人类域≠模型域（#33）。移除 #28 (LR Decay, 训练调度) 和 #34 (MIRA, mid-training)，聚焦数据配比/选择。总计 32 篇论文
 - **2026-07-22**: 完成 PreSelect (ICML'25) 深度分析。核心发现：predictive strength 与 QuaDMix 5 个质量信号完全不重叠，可作为第 6 维；文档级选择比域级选择高 4.8%；同族模型至关重要；开源 fastText 分类器可直接集成
+- **2026-07-24**: 新增 Survey (#35, CUHK-SZ) 和 RegMix-D (#36, U Tokyo+NII)，完成联合深度分析。关键发现：RegMix-D 用 loss 轨迹回归实现动态配比，128 proxy (25% 预算) 超越 RegMix 512，是 ROI 最高的改进路径；Survey 指出最优权重仅略优于 uniform，与 QuaDMix < quality-top-k 观察一致。总计 34 篇论文
 
 ## License
 
