@@ -38,7 +38,8 @@ data-mix-insights/
 │   ├── 新论文批量分析_2026下半年.md                  # 14 篇新论文分析 (InfoLaw, DomainPilot, HDS, Solar Open 2 等)
 │   ├── 业界模型技术报告_数据配比分析.md              # Kimi K3 + DeepSeek V4/V3/Math/LLM 数据配比分析
 │   ├── Nexus_深度分析.md                             # Nexus 优化器深度分析（非数据配比但直接影响配比价值判断）
-│   └── 小Proxy不可用_多论文交叉验证总结.md            # 6 篇论文交叉验证：1M proxy+val_loss 路径不可修复
+│   ├── 小Proxy不可用_多论文交叉验证总结.md            # 6 篇论文交叉验证：1M proxy+val_loss 路径不可修复
+│   └── 头部厂商TechReport_数据配比深度分析.md         # DeepSeek-V4/GLM-5/Qwen3/Nemotron 3 frontier 规模数据配比分析
 └── README.md
 ```
 
@@ -117,6 +118,10 @@ data-mix-insights/
 | 54 | **Kernel Surrogate for Task Attribution** | U Chicago (Hongyang Zhang) | **ICLR'26** | **[新发现]** 核函数代理模型 > 线性代理。25% 更高 LOO 相关性，数据选择 40% 提升。梯度估计 <2% 误差无需重训。可替代 QuaDMix LightGBM |
 | 55 | **K-EXAONE 2.0** | LG AI Research | Tech Report (2026.8) | 750B MoE/37B activated。**"difficulty-focused mid-training"** — 难度聚焦中训练设计。continual pre-training → mid-training → post-training |
 | 56 | **Beyond Rephrasing: Book-Level Organization** | - | arXiv (2026.7) | **[中训练专用]** 书籍级组织的合成教材，686K 教材/32B tokens/15000+ 学科。书级组织（非重写）+1.09 平均提升。Llama3-8B 验证 |
+| 57 | **DeepSeek-V4** | DeepSeek-AI | Tech Report (2026.4) | 1.6T/49B + 284B/13B MoE, 32T+33T tokens。提到"mid-training phase"加入 agentic 数据但无配比细节。训练稳定性: Anticipatory Routing + SwiGLU Clamping |
+| 58 | **GLM-5** | 智谱 AI + 清华 | Tech Report (2026.2) | **[高价值]** 744B/40B MoE, 28.5T tokens。**头部厂商唯一专门 Mid-Training 章节**：三阶段上下文递进(32K→128K→200K, 1T+500B+50B) + 160B SWE 数据 + 合成长上下文 |
+| 59 | **Qwen3** | Alibaba Qwen | Tech Report (2025.5) | 235B/22B MoE, 36T tokens。三阶段预训练(S1通用30T→S2推理5T→S3长上下文)。**实例级配比优化**超越域级方法(DoReMi/RegMix)，30T+ tokens 细粒度标注 |
+| 60 | **Nemotron 3 Ultra** | NVIDIA | Tech Report (2026.6) | **[高价值]** 550B/55B MoE, 20T tokens。**数据配比最透明**：19 类别 Phase1/Phase2 比例公开，两阶段 diversity→quality 课程(75%/25%)，SFT-in-pretrain，消融数据丰富 |
 
 ## 核心洞察
 
@@ -358,6 +363,11 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 22. **探索 InfoLaw 式重复递减收益建模**（#37）— 在 overtraining 场景下显式建模重复的尺度依赖递减收益
 23. **用 DataFlex (#49) 框架做标准化 baseline 对比** — 统一 sample selection/mixture/reweighting 三种范式
 24. **在 nanochat 中验证 Nexus 优化器**（#51）— ~20 行代码实现 Algorithm 3（inner_model NSGD + 位移 pseudo-gradient），3:7 配比不变，验证 STEM+通用域是否同时提升。与数据配比正交，可叠加 Route A/B
+25. **采用两阶段 diversity→quality 课程**（Nemotron 3 #60）— 前 75% 多样性优先，后 25% 质量优先。NVIDIA 550B 规模验证。与 QuaDMix quality-top-k 思路一致
+26. **分阶段上下文+难度递进**（GLM-5 #58）— 中训练分阶段：先扩上下文，再加难度数据。200K 阶段增强 128K 窗口内性能
+27. **考虑加入 SFT-style 数据**（Nemotron 3 #60）— sft-code/sft-stem/sft-general 在预训练中有效（Akter 2026 frontloading）
+28. **考虑补充代码数据**（GLM-5/Qwen3/Nemotron 3）— 所有头部厂商中训练都含 code ≥15%，当前无 code 是最大差异
+29. **长期升级到实例级配比**（Qwen3 #59）— 从域级配比升级到实例级，需要细粒度标签（educational value/fields/domains/safety）
 
 ## 更新日志
 
@@ -377,6 +387,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-07-28**: 扩展搜索范围至业界大模型技术报告，新增 14 篇论文 (#37-50)，完成批量分析。核心发现：① InfoLaw (ICML'26, ByteDance) 信息论 scaling law 同时建模配比+重复，7B/425B 验证 0.15% 误差；② Explaining Data Mixing Scaling Laws (ICML'26) 理论解释 Capacity Competition + Noise Reduction，背书 quality-top-k；③ Solar Open 2 (250B MoE) 业界确认配比优化有效，反驳"仅略优于 uniform"；④ DomainPilot 域级 loss 引导两阶段优化 ~30 行 patch 部署；⑤ HDS (KDD'26) RL 在线调度三目标奖励；⑥ Rarity 数据稀有度信号是低成本正交新维度。**可信度验证**：ICML'26 (InfoLaw/Explaining DMSL/Reasoning Quality) + KDD'26 (HDS) + Data Intelligence 期刊 (Survey #2) 均经 arXiv comment/S2 DBLP 确认；DomainPilot 降级至第三梯队（单作者无 venue无机构）。总计 48 篇论文
 - **2026-08-10**: 新增 Nexus (#51, 清华+字节跳动 Seed, arXiv 2026.4)，完成深度分析。**非数据配比论文，但直接影响配比价值判断**。核心发现：① 同一 pretraining loss（差 0.004），GSM8K 差 15 分——val_loss 不充分的终极证明，不是 proxy 太小的问题而是信号本身缺失完整维度；② Nexus 优化器通过最大化各域梯度余弦相似性收敛到 close minimizer，自动平衡欠优化域（隐式数据混合器），降低对人工配比的敏感度；③ 数据混合实验 Math10/40/70 证明 Nexus 自动补偿数据少的域；④ 与数据配比正交可叠加（Route C），代码改动 ~20 行几乎零计算开销；⑤ SFT 后优势保持。新增第四梯队"相关方向"类别。总计 49 篇论文
 - **2026-08-10**: 新一轮 arXiv 搜索（5 个新角度：梯度/影响力信号、scaling law、中训练、influence function、课程学习），新增 5 篇论文 (#52-56)。关键发现：① 独立再发现 DomainPilot (#39) 为 Tier 1——从不同搜索角度重新发现其高相关性，升级其状态；② Why Larger Models Learn More (#52) 从容量竞争角度解释 1M proxy 为何不能学 STEM 推理——小模型把神经元分配给高频域，稀有复杂域被牺牲；③ RISE (#53) forward-only 数据归因扩展到 32B，112× 压缩，可替代 val_loss 信号；④ Kernel Surrogate (#54, ICLR'26) 核函数代理 > 线性代理 40%，可替代 LightGBM；⑤ K-EXAONE 2.0 (#55) LG 750B MoE 披露"difficulty-focused mid-training"设计；⑥ Beyond Rephrasing (#56) 中训练专用合成教材。总计 54 篇论文。**注意**：Tier 1/2 中 DomainPilot/CAMEL/ADAPT/Explaining DMSL/Phase Transitions/Scaling Laws for Optimal Mixtures 已在索引中，本次搜索独立验证其高相关性
+- **2026-08-10**: 新增 4 篇头部厂商 frontier 规模 Tech Report 深度分析 (#57-60)：DeepSeek-V4 (1.6T/49B, 32T tokens)、GLM-5 (744B/40B, 28.5T)、Qwen3 (235B/22B, 36T)、Nemotron 3 Ultra (550B/55B, 20T)。**核心发现**：① GLM-5 是头部厂商唯一有专门 Mid-Training 章节的论文——三阶段上下文递进(32K→128K→200K, 1T+500B+50B) + 160B SWE 数据；② Nemotron 3 Ultra 数据配比最透明——19 类别 Phase1/Phase2 比例公开，两阶段 diversity→quality 课程(75%/25%)，SFT-in-pretrain；③ Qwen3 实例级配比优化超越域级方法(DoReMi/RegMix)，三阶段预训练 S2 推理阶段本质是中训练；④ DeepSeek-V4 最不透明，仅一句话提到 mid-training。**关键差距**：所有头部厂商中训练都含 code ≥15%，用户当前无 code 数据是最大差异。新增文档 `docs/头部厂商TechReport_数据配比深度分析.md`。总计 58 篇论文
 
 ## License
 
