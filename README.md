@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (48 篇, 本地存储不入库)
+├── papers/          # 论文 PDF (54 篇, 本地存储不入库)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
@@ -96,7 +96,7 @@ data-mix-insights/
 | 32 | GRASP: Subset Interaction | Wizard Quant+USTC | arXiv | 子集交互感知数据归因，二次几何惩罚，rank correlation 翻倍 |
 | 33 | DoGraph: Gradient Dynamics | HKUST-GZ+HIT+OpenCSG | arXiv | 梯度视角重定义域，人类域≠模型域，graph-constrained reweighting |
 | 35 | Survey: Data Mixture for LLMs | CUHK-Shenzhen (Ruoyu Sun) | arXiv (2025.5) | 领域综述：19 种方法分类，3 大挑战，指出最优权重仅略优于 uniform |
-| 39 | DomainPilot | 单作者 (He Zhang) | arXiv (2026.7) | **[降级]** 域级 loss 引导两阶段优化，~30 行 patch 工业部署，Qwen3-1.7B SFT +2-3.8%。单作者无 venue 无机构，工程思路可参考但结论需验证 |
+| 39 | **DomainPilot** | 单作者 (He Zhang) | arXiv (2026.7) | **[独立再发现]** 域级 loss 引导两阶段优化，~30 行 patch 工业部署，Qwen3-1.7B SFT +2-3.8%。单作者无 venue 无机构，但 2026-08 独立搜索中从不同角度重新发现并列为 Tier 1 优先深读。工程思路高参考价值，结论需验证 |
 | 43 | DataOrchestra | SJTU (Pengfei Liu) | arXiv (2026.7) | 样本级策展编排，orchestrator 决定 drop/untouch/clean，0.5B-7B from scratch |
 | 44 | DecoupleMix | Meituan (7 作者) | arXiv (2026.7) | VLM 配比解耦（inter-class 搜索 + intra-class 凸优化），proxy 最优比例迁移到更大尺度 |
 | 45 | CuraWeb | Meituan (15 作者) | arXiv (2026.7) | 质量/冗余/多样性联合优化，2T-token 语料，3B 规模 +1.8% |
@@ -111,6 +111,11 @@ data-mix-insights/
 | # | 论文 | 机构 | Venue | 关键贡献 |
 |---|------|------|-------|---------|
 | 51 | **Nexus: Same Loss, Better Downstream** | 清华+字节跳动 Seed | arXiv (2026.4) | **[高价值]** 优化器方法，非数据配比。同一 pretraining loss GSM8K 差 15%。Nexus 通过梯度相似性收敛到 close minimizer，自动平衡欠优化域（隐式数据混合器）。与数据配比正交，可叠加 |
+| 52 | **Why Larger Models Learn More** | U Chicago+Apple+Anthropic | arXiv (2026.5) | **[新发现]** 容量竞争：小模型把神经元分配给高频/低复杂度域→稀有复杂域被牺牲。OLMo 4M-4B 实验。解释 1M proxy 为何不能学 STEM 推理 |
+| 53 | **RISE: Scalable Data Attribution** | Vendor AI | arXiv (2026.4) | **[新发现]** Forward-only 数据归因，112× 存储压缩，扩展到 32B。影响信号集中在 output layer。闭环：RISE 选数据持续 pretraining → consistent improvement |
+| 54 | **Kernel Surrogate for Task Attribution** | U Chicago (Hongyang Zhang) | **ICLR'26** | **[新发现]** 核函数代理模型 > 线性代理。25% 更高 LOO 相关性，数据选择 40% 提升。梯度估计 <2% 误差无需重训。可替代 QuaDMix LightGBM |
+| 55 | **K-EXAONE 2.0** | LG AI Research | Tech Report (2026.8) | 750B MoE/37B activated。**"difficulty-focused mid-training"** — 难度聚焦中训练设计。continual pre-training → mid-training → post-training |
+| 56 | **Beyond Rephrasing: Book-Level Organization** | - | arXiv (2026.7) | **[中训练专用]** 书籍级组织的合成教材，686K 教材/32B tokens/15000+ 学科。书级组织（非重写）+1.09 平均提升。Llama3-8B 验证 |
 
 ## 核心洞察
 
@@ -370,6 +375,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-07-24**: 新增 Survey (#35, CUHK-SZ) 和 RegMix-D (#36, U Tokyo+NII)，完成联合深度分析。关键发现：RegMix-D 用 loss 轨迹回归实现动态配比，128 proxy (25% 预算) 超越 RegMix 512，是 ROI 最高的改进路径；Survey 指出最优权重仅略优于 uniform，与 QuaDMix < quality-top-k 观察一致。总计 34 篇论文
 - **2026-07-28**: 扩展搜索范围至业界大模型技术报告，新增 14 篇论文 (#37-50)，完成批量分析。核心发现：① InfoLaw (ICML'26, ByteDance) 信息论 scaling law 同时建模配比+重复，7B/425B 验证 0.15% 误差；② Explaining Data Mixing Scaling Laws (ICML'26) 理论解释 Capacity Competition + Noise Reduction，背书 quality-top-k；③ Solar Open 2 (250B MoE) 业界确认配比优化有效，反驳"仅略优于 uniform"；④ DomainPilot 域级 loss 引导两阶段优化 ~30 行 patch 部署；⑤ HDS (KDD'26) RL 在线调度三目标奖励；⑥ Rarity 数据稀有度信号是低成本正交新维度。**可信度验证**：ICML'26 (InfoLaw/Explaining DMSL/Reasoning Quality) + KDD'26 (HDS) + Data Intelligence 期刊 (Survey #2) 均经 arXiv comment/S2 DBLP 确认；DomainPilot 降级至第三梯队（单作者无 venue无机构）。总计 48 篇论文
 - **2026-08-10**: 新增 Nexus (#51, 清华+字节跳动 Seed, arXiv 2026.4)，完成深度分析。**非数据配比论文，但直接影响配比价值判断**。核心发现：① 同一 pretraining loss（差 0.004），GSM8K 差 15 分——val_loss 不充分的终极证明，不是 proxy 太小的问题而是信号本身缺失完整维度；② Nexus 优化器通过最大化各域梯度余弦相似性收敛到 close minimizer，自动平衡欠优化域（隐式数据混合器），降低对人工配比的敏感度；③ 数据混合实验 Math10/40/70 证明 Nexus 自动补偿数据少的域；④ 与数据配比正交可叠加（Route C），代码改动 ~20 行几乎零计算开销；⑤ SFT 后优势保持。新增第四梯队"相关方向"类别。总计 49 篇论文
+- **2026-08-10**: 新一轮 arXiv 搜索（5 个新角度：梯度/影响力信号、scaling law、中训练、influence function、课程学习），新增 5 篇论文 (#52-56)。关键发现：① 独立再发现 DomainPilot (#39) 为 Tier 1——从不同搜索角度重新发现其高相关性，升级其状态；② Why Larger Models Learn More (#52) 从容量竞争角度解释 1M proxy 为何不能学 STEM 推理——小模型把神经元分配给高频域，稀有复杂域被牺牲；③ RISE (#53) forward-only 数据归因扩展到 32B，112× 压缩，可替代 val_loss 信号；④ Kernel Surrogate (#54, ICLR'26) 核函数代理 > 线性代理 40%，可替代 LightGBM；⑤ K-EXAONE 2.0 (#55) LG 750B MoE 披露"difficulty-focused mid-training"设计；⑥ Beyond Rephrasing (#56) 中训练专用合成教材。总计 54 篇论文。**注意**：Tier 1/2 中 DomainPilot/CAMEL/ADAPT/Explaining DMSL/Phase Transitions/Scaling Laws for Optimal Mixtures 已在索引中，本次搜索独立验证其高相关性
 
 ## License
 
