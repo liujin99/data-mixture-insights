@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 
 ```
 data-mix-insights/
-├── papers/          # 论文 PDF (34 篇, 本地存储不入库)
+├── papers/          # 论文 PDF (48 篇, 本地存储不入库)
 ├── docs/            # 分析文档
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
@@ -34,7 +34,10 @@ data-mix-insights/
 │   ├── FastMix_DomainAwareScalingLaws_深度分析.md  # FastMix + Domain-Aware SL 深度分析
 │   ├── PreSelect_深度分析.md                         # PreSelect (ICML'25) 深度分析
 │   ├── Survey_RegMixD_深度分析.md                    # Survey 综述 + RegMix-D 深度分析
-│   └── 新论文批量分析_202607.md                      # 5 篇新论文分析 (MixAtlas, WebGraphMix, PreSelect 等)
+│   ├── 新论文批量分析_202607.md                      # 5 篇新论文分析 (MixAtlas, WebGraphMix, PreSelect 等)
+│   ├── 新论文批量分析_2026下半年.md                  # 14 篇新论文分析 (InfoLaw, DomainPilot, HDS, Solar Open 2 等)
+│   ├── 业界模型技术报告_数据配比分析.md              # Kimi K3 + DeepSeek V4/V3/Math/LLM 数据配比分析
+│   └── Nexus_深度分析.md                             # Nexus 优化器深度分析（非数据配比但直接影响配比价值判断）
 └── README.md
 ```
 
@@ -55,6 +58,8 @@ data-mix-insights/
 | 27 | **Domain-Aware Scaling Laws** | MIT+Microsoft Research | arXiv (2026.7) | **[高价值]** 域间协同量化 γ/σ，R²=0.91，协同≠语义重叠，pairwise 特征可直接加入 LightGBM |
 | 30 | **WebGraphMix** | Princeton (Danqi Chen) | arXiv | 网页图中心度作为 training-free 正交质量信号，与 FastText 正交，乘法组合 +1.5% |
 | 31 | PreSelect | HKUST+Vivo AI | **ICML'25** | Predictive strength + fastText，10x 计算缩减，开源 |
+| 37 | **InfoLaw** | ByteDance | **ICML'26** | **[高价值]** 信息论 scaling law，同时建模配比权重+重复递减收益，7B/425B 验证，0.15% loss 误差 |
+| 38 | **Explaining Data Mixing Scaling Laws** | - | **ICML'26** | **[高价值]** 理论解释配比 scaling law：Capacity Competition + Noise Reduction，理论背书 quality-top-k，解释 proxy→target 失效 |
 
 ### 第二梯队：大厂经验
 
@@ -66,6 +71,9 @@ data-mix-insights/
 | 14 | Synthetic Data in Pretraining | Meta | EMNLP'25 | 30% 合成 + 70% 自然 |
 | 22 | ADAPT: Online Reweighting | Cambridge+Oxford | **ICLR'26** | 在线 reweighting 优于离线选择，泛化性强 |
 | 36 | **RegMix-D: Dynamic Mixing** | U Tokyo+NII | arXiv (2026.6) | **[高价值]** RegMix 动态化扩展，loss 轨迹回归，128 proxy (25% 预算) 超越 RegMix 512，Online +0.37% 开销，proxy 大小 1M-120M 无差异 |
+| 40 | **HDS: Holistic Data Scheduler** | Dang, Ma, Liao | **KDD'26** (S2 DBLP 确认) | 在线 RL（SAC）数据调度，三目标奖励（质量+域间影响+weight norms），Pile 省 44% 迭代，MMLU +7.2%，代码开源 |
+| 41 | TANDEM: Twin Networks | Kuaishou (12 作者) | arXiv (2026.6) | Bi-level 配比优化，twin networks（proxy+reference）差值度量数据效能，理论保证 |
+| 42 | **Solar Open 2** | Upstage | Tech Report (2026.7) | 250B-A15B MoE 业界实践：quality+rarity 策展 + mixture-ratio 优化，20T→10T 精炼 |
 
 ### 第三梯队：探索方向
 
@@ -88,6 +96,21 @@ data-mix-insights/
 | 32 | GRASP: Subset Interaction | Wizard Quant+USTC | arXiv | 子集交互感知数据归因，二次几何惩罚，rank correlation 翻倍 |
 | 33 | DoGraph: Gradient Dynamics | HKUST-GZ+HIT+OpenCSG | arXiv | 梯度视角重定义域，人类域≠模型域，graph-constrained reweighting |
 | 35 | Survey: Data Mixture for LLMs | CUHK-Shenzhen (Ruoyu Sun) | arXiv (2025.5) | 领域综述：19 种方法分类，3 大挑战，指出最优权重仅略优于 uniform |
+| 39 | DomainPilot | 单作者 (He Zhang) | arXiv (2026.7) | **[降级]** 域级 loss 引导两阶段优化，~30 行 patch 工业部署，Qwen3-1.7B SFT +2-3.8%。单作者无 venue 无机构，工程思路可参考但结论需验证 |
+| 43 | DataOrchestra | SJTU (Pengfei Liu) | arXiv (2026.7) | 样本级策展编排，orchestrator 决定 drop/untouch/clean，0.5B-7B from scratch |
+| 44 | DecoupleMix | Meituan (7 作者) | arXiv (2026.7) | VLM 配比解耦（inter-class 搜索 + intra-class 凸优化），proxy 最优比例迁移到更大尺度 |
+| 45 | CuraWeb | Meituan (15 作者) | arXiv (2026.7) | 质量/冗余/多样性联合优化，2T-token 语料，3B 规模 +1.8% |
+| 46 | Reasoning Quality Emerges Early | UCLA (Mirzasoleiman) | **ICML'26** (Poster) | 前 100 推理 token loss + 扰动 checkpoint 检测难度，91% 更高效 |
+| 47 | Online Selection Is Implicit Alignment | 3 作者 | arXiv (2026.7) | 在线数据选择隐式改变行为偏好（拒绝率/冗长度/谄媚度） |
+| 48 | CoDA: Co-Adaptive LoRA | 4 作者 | arXiv (2026.7) | 无标签域参与度控制，competence+affinity 信号，熵正则化 QP，半数据超 uniform |
+| 49 | DataFlex | 北大 (Bin Cui) + Conghui He + Weinan E | arXiv (2026.3) | 统一数据中心训练框架（selection+mixture+reweighting），基于 LLaMA-Factory |
+| 50 | Survey #2: Data Mixing | Tianjin U (Deyi Xiong) | Data Intelligence (2026, 期刊同行评审) | 第三篇综述，bilevel on simplex 形式化，inverse data mixing 方向 |
+
+### 第四梯队：相关方向（非数据配比但直接影响配比价值判断）
+
+| # | 论文 | 机构 | Venue | 关键贡献 |
+|---|------|------|-------|---------|
+| 51 | **Nexus: Same Loss, Better Downstream** | 清华+字节跳动 Seed | arXiv (2026.4) | **[高价值]** 优化器方法，非数据配比。同一 pretraining loss GSM8K 差 15%。Nexus 通过梯度相似性收敛到 close minimizer，自动平衡欠优化域（隐式数据混合器）。与数据配比正交，可叠加 |
 
 ## 核心洞察
 
@@ -244,6 +267,57 @@ Survey (#35, CUHK-SZ) 明确指出：大多数方法找到的最优权重**只�
 
 **结论**：这与 "QuaDMix < quality-top-k" 的观察高度一致。复杂优化在 loss 空间可能有效，但在任务空间无效。应降低对精确配比的期望，聚焦信号质量而非搜索复杂度。
 
+### 17. Scaling Law 从经验拟合走向机制解释，理论背书 quality-top-k
+
+两篇 ICML 2026 论文从理论角度解释数据配比：
+
+**InfoLaw (#37, ByteDance)** 把预训练建模为信息积累：质量→信息密度，重复→尺度依赖递减收益。7B/425B 验证，loss 预测误差仅 0.15%。重复维度是 QuaDMix 完全缺失的关键变量。
+
+**Explaining Data Mixing Scaling Laws (#38)** 识别两个机制：
+- **Capacity Competition**：有限模型容量在域间分配，导致域 loss 全局耦合。这从理论上解释 proxy→target 失效——14M proxy 容量极稀缺，容量竞争机制与 7B target 完全不同，最优配比必然偏移
+- **Noise Reduction**：最优权重向"更难学"的域偏移以最小化噪声。这从理论上**直接背书 quality-top-k**——高质量数据噪声更少，最优权重自然向其偏移
+
+**结论**：QuaDMix 的 quality-first 设计有理论依据。198 维搜索空间严重过参数化（#38 用更少参数达到更高精度）。应考虑引入 InfoLaw 式重复递减收益建模。
+
+### 18. 在线/动态配比方法全面爆发，QuaDMix 静态配比日益孤立
+
+2026 下半年新方法几乎全部是动态/在线的：DomainPilot (两阶段域 loss 引导)、HDS (RL 在线调度)、TANDEM (twin networks)、CoDA (熵正则化 QP)、ADAPT (在线 reweighting)。Solar Open 2 业界报告也明确采用配比优化。
+
+**HDS (#40, KDD 2026)** 引入三目标奖励：data-driven（质量）+ loss-driven（域间影响）+ **model-driven（weight norms）**。weight norms 是 QuaDMix 缺失的模型状态信号，可反映"模型正在学什么"。Pile 省 44% 迭代，MMLU +7.2%。
+
+**DomainPilot (#39)** 证明域级 loss 监控 + 两阶段优化（~30 行 patch 注入 Megatron-LM）即可在 Qwen3-1.7B SFT 上 +2-3.8%，不增加成本。
+
+**结论**：领域整体向动态迁移，QuaDMix 的静态 LightGBM 回归越来越孤立。最低成本动态化路径：① 记录 proxy loss 轨迹（RegMix-D）→ ② 目标训练加域 loss 监控 patch（DomainPilot）→ ③ 如需更强效果加 model-driven reward（HDS）。
+
+### 19. 业界 250B 级模型确认配比优化有效，反驳"仅略优于 uniform"
+
+Solar Open 2 (#42, Upstage, 250B-A15B MoE) 技术报告明确披露：quality + rarity 策展 + mixture-ratio optimization，将 20T 候选池精炼为 10T 混合，"在同等 token 预算下超越 Solar Open 1 配方"。DeepSeek-V3 (671B/37B) 训练 14.8T "diverse and high-quality" tokens，全程零 spike。
+
+**结论**：Survey (#35) "最优权重仅略优于 uniform" 基于学术小规模实验。业界前沿大模型明确采用配比优化并报告收益——**在工业规模上配比优化确实有效且值得投入**，直接支持 QuaDMix 的价值主张。
+
+### 20. Rarity（数据稀有度）是低成本正交质量信号
+
+Solar Open 2 (#42) 业界实践使用 quality + rarity 双信号策展。Rarity = 1/文档频次 或 1/重复度，计算成本极低（语料统计），与现有质量信号正交。
+
+**结论**：QuaDMix 当前 5 个质量信号都是"内容质量"维度，缺少"数据稀有度"维度。Rarity 可作为第 7 个正交信号（与 PreSelect predictive strength 第 6 维、WebGraphMix 中心度正交维度并列），是本次搜索中 ROI 最高的新信号。
+
+### 21. 优化器可替代数据配比的部分功能（val_loss 不充分的终极证明）
+
+Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事实：
+
+- **同一 pretraining loss（差 0.004），GSM8K 差 15 分**（44.0 vs 59.0）
+- 不是 proxy 太小的问题——3B 模型上仍然如此。val_loss 信号本身缺失了"优化器收敛到 close 还是 distant minimizer"这一完整维度
+- Nexus 通过最大化各域梯度余弦相似性，强制模型收敛到 close minimizer
+- **Nexus = 隐式数据混合器**：数据少的域自动被补偿，降低对人工配比的敏感度
+
+**对 QuaDMix 的影响**：
+1. 这是 val_loss 不充分的**最强实锤**——不是噪声问题，是整个优化维度缺失
+2. 提供了第三条破局路线（Route C）：不改配比，改优化器，与 Route A/B 正交可叠加
+3. 如果 Nexus 真能自动平衡域，QuaDMix 精确配比的价值打折扣
+4. 代码改动极小（~20 行），几乎零计算开销，可立即在 nanochat 中验证
+
+**结论**：Nexus 是低成本、低风险的正交方法。它不替代数据配比优化，但可能显著降低对精确配比的依赖。建议立即验证。
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
@@ -253,24 +327,31 @@ Survey (#35, CUHK-SZ) 明确指出：大多数方法找到的最优权重**只�
 3. **记录域梯度统计量** — 在 proxy 训练中记录每个域的梯度范数和方差（FastMix + PiKE）
 4. **加入 pairwise 域特征** — 在 LightGBM 特征中加入 u_k × u_{k'} 捕捉二阶协同（Domain-Aware SL）
 5. **记录 proxy loss 轨迹 + 训练 trajectory-conditioned LightGBM** — RegMix-D 证明这是 ROI 最高的改进（+0.5-1%，成本仅修改 logging + 重训回归模型）
+6. **加入 Rarity 信号（第 7 维质量特征）** — Solar Open 2 (#42) 业界验证，rarity = 1/文档频次，计算成本极低，与现有 5 个质量信号正交（预期 +0.5-1%）
 
 ### 短期行动
 
-5. **加入网页图中心度信号**（#30）— 计算 Common Crawl host-level betweenness centrality，乘法组合 + 50/50 混合，预期 +1.5%，成本 9 GPU-hours
-6. **对比 Token-Count Baseline** — 实现 token-count heuristic 作为 baseline
-7. **调整高质量数据重复次数** — 高质量数据重复 15-20x
-8. **参考 DataMan 质量标准** — 检查 Eq.1 的质量信号是否覆盖 14 条标准
-9. **验证集域覆盖度检查** — 确保 CAP v1/OpenHermes 不偏向特定域（Domain-Aware SL + Google MDE）
-10. **PCA 检查搜索空间有效维度** — 对 proxy 实验数据做 PCA（Domain-Aware SL 发现 8 域只有 2 个有效方向）
-11. **检查域定义与 proxy 梯度一致性**（#33）— 验证 22 个 Dewey Decimal 域是否与模型梯度感知对齐
+7. **加入网页图中心度信号**（#30）— 计算 Common Crawl host-level betweenness centrality，乘法组合 + 50/50 混合，预期 +1.5%，成本 9 GPU-hours
+8. **对比 Token-Count Baseline** — 实现 token-count heuristic 作为 baseline
+9. **调整高质量数据重复次数** — 高质量数据重复 15-20x；参考 InfoLaw (#37) 建模重复递减收益
+10. **参考 DataMan 质量标准** — 检查 Eq.1 的质量信号是否覆盖 14 条标准
+11. **验证集域覆盖度检查** — 确保 CAP v1/OpenHermes 不偏向特定域（Domain-Aware SL + Google MDE）
+12. **PCA 检查搜索空间有效维度** — 对 proxy 实验数据做 PCA（Domain-Aware SL 发现 8 域只有 2 个有效方向；Explaining DMSL #38 用更少参数更高精度）
+13. **检查域定义与 proxy 梯度一致性**（#33）— 验证 22 个 Dewey Decimal 域是否与模型梯度感知对齐
+14. **在目标训练加域 loss 监控 patch**（DomainPilot #39）— ~30 行代码注入训练框架，在切换点查询回归模型调整配比，Qwen3-1.7B 验证 +2-3.8%
+15. **验证 Noise Reduction 理论**（Explaining DMSL #38）— 检查 quality-top-k 是否符合"最优权重向难域偏移"的理论预测
 
 ### 长期探索
 
-12. **探索 GP Surrogate**（#29）— 在低维子空间（5-10 主域）上尝试 GP + GP-UCB 主动采样
-13. **探索 FastMix 在线优化模式** — 550x 搜索加速，但需注意工业数据风险
-14. **探索 LoRA 插值 Proxy** — 比训完整模型便宜，比 model merging 灵活
-15. **扩展到数据顺序优化** — 顺序是另一个重要维度
-16. **合成数据配比** — 如果数据池包含合成数据，使用 30% 配比
+16. **探索 GP Surrogate**（#29）— 在低维子空间（5-10 主域）上尝试 GP + GP-UCB 主动采样
+17. **探索 FastMix 在线优化模式** — 550x 搜索加速，但需注意工业数据风险
+18. **探索 LoRA 插值 Proxy** — 比训完整模型便宜，比 model merging 灵活
+19. **扩展到数据顺序优化** — 顺序是另一个重要维度
+20. **合成数据配比** — 如果数据池包含合成数据，使用 30% 配比
+21. **探索 model-driven reward（weight norms）**（HDS #40）— 作为第三信号（质量+域间影响+模型状态），RL 在线调度 Pile 省 44% 迭代、MMLU +7.2%
+22. **探索 InfoLaw 式重复递减收益建模**（#37）— 在 overtraining 场景下显式建模重复的尺度依赖递减收益
+23. **用 DataFlex (#49) 框架做标准化 baseline 对比** — 统一 sample selection/mixture/reweighting 三种范式
+24. **在 nanochat 中验证 Nexus 优化器**（#51）— ~20 行代码实现 Algorithm 3（inner_model NSGD + 位移 pseudo-gradient），3:7 配比不变，验证 STEM+通用域是否同时提升。与数据配比正交，可叠加 Route A/B
 
 ## 更新日志
 
@@ -287,6 +368,8 @@ Survey (#35, CUHK-SZ) 明确指出：大多数方法找到的最优权重**只�
 - **2026-07-21**: 新增 5 篇数据配比/选择论文 (#29-33)，完成深度分析。关键发现：网页图中心度正交于 FastText（#30）；GP surrogate 同预算优于 LightGBM（#29）；人类域≠模型域（#33）。移除 #28 (LR Decay, 训练调度) 和 #34 (MIRA, mid-training)，聚焦数据配比/选择。总计 32 篇论文
 - **2026-07-22**: 完成 PreSelect (ICML'25) 深度分析。核心发现：predictive strength 与 QuaDMix 5 个质量信号完全不重叠，可作为第 6 维；文档级选择比域级选择高 4.8%；同族模型至关重要；开源 fastText 分类器可直接集成
 - **2026-07-24**: 新增 Survey (#35, CUHK-SZ) 和 RegMix-D (#36, U Tokyo+NII)，完成联合深度分析。关键发现：RegMix-D 用 loss 轨迹回归实现动态配比，128 proxy (25% 预算) 超越 RegMix 512，是 ROI 最高的改进路径；Survey 指出最优权重仅略优于 uniform，与 QuaDMix < quality-top-k 观察一致。总计 34 篇论文
+- **2026-07-28**: 扩展搜索范围至业界大模型技术报告，新增 14 篇论文 (#37-50)，完成批量分析。核心发现：① InfoLaw (ICML'26, ByteDance) 信息论 scaling law 同时建模配比+重复，7B/425B 验证 0.15% 误差；② Explaining Data Mixing Scaling Laws (ICML'26) 理论解释 Capacity Competition + Noise Reduction，背书 quality-top-k；③ Solar Open 2 (250B MoE) 业界确认配比优化有效，反驳"仅略优于 uniform"；④ DomainPilot 域级 loss 引导两阶段优化 ~30 行 patch 部署；⑤ HDS (KDD'26) RL 在线调度三目标奖励；⑥ Rarity 数据稀有度信号是低成本正交新维度。**可信度验证**：ICML'26 (InfoLaw/Explaining DMSL/Reasoning Quality) + KDD'26 (HDS) + Data Intelligence 期刊 (Survey #2) 均经 arXiv comment/S2 DBLP 确认；DomainPilot 降级至第三梯队（单作者无 venue无机构）。总计 48 篇论文
+- **2026-08-10**: 新增 Nexus (#51, 清华+字节跳动 Seed, arXiv 2026.4)，完成深度分析。**非数据配比论文，但直接影响配比价值判断**。核心发现：① 同一 pretraining loss（差 0.004），GSM8K 差 15 分——val_loss 不充分的终极证明，不是 proxy 太小的问题而是信号本身缺失完整维度；② Nexus 优化器通过最大化各域梯度余弦相似性收敛到 close minimizer，自动平衡欠优化域（隐式数据混合器），降低对人工配比的敏感度；③ 数据混合实验 Math10/40/70 证明 Nexus 自动补偿数据少的域；④ 与数据配比正交可叠加（Route C），代码改动 ~20 行几乎零计算开销；⑤ SFT 后优势保持。新增第四梯队"相关方向"类别。总计 49 篇论文
 
 ## License
 
