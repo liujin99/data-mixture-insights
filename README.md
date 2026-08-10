@@ -37,7 +37,8 @@ data-mix-insights/
 │   ├── 新论文批量分析_202607.md                      # 5 篇新论文分析 (MixAtlas, WebGraphMix, PreSelect 等)
 │   ├── 新论文批量分析_2026下半年.md                  # 14 篇新论文分析 (InfoLaw, DomainPilot, HDS, Solar Open 2 等)
 │   ├── 业界模型技术报告_数据配比分析.md              # Kimi K3 + DeepSeek V4/V3/Math/LLM 数据配比分析
-│   └── Nexus_深度分析.md                             # Nexus 优化器深度分析（非数据配比但直接影响配比价值判断）
+│   ├── Nexus_深度分析.md                             # Nexus 优化器深度分析（非数据配比但直接影响配比价值判断）
+│   └── 小Proxy不可用_多论文交叉验证总结.md            # 6 篇论文交叉验证：1M proxy+val_loss 路径不可修复
 └── README.md
 ```
 
