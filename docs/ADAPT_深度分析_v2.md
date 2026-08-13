@@ -210,3 +210,41 @@ ADAPT 的核心价值：
 1. 检查 QuaDMix 选出配比的 OOD 泛化（是否像 LESS 一样过拟合）
 2. 在 nanochat 中实现 ADAPT 式在线重加权（~50 行代码，开源参考）
 3. 如果 OOD 泛化差，考虑从离线 quality-top-k 切换到在线 reweighting
+
+---
+
+## 八、与 Velocitune / DiReCT / Data Mixing Agent 的对比
+
+### 四篇联合对比表
+
+| 维度 | ADAPT | Velocitune | DiReCT | Data Mixing Agent |
+|------|-------|-----------|--------|-------------------|
+| **Venue** | ICLR 2026 | ACL 2025 | ICML 2026 | ACL 2026 |
+| **机构** | Cambridge+Oxford | Microsoft | MSRA+HKUST(GZ) | Microsoft |
+| **阶段** | SFT + 预训练 | Continual pre-training | Annealing | Continual pre-training |
+| **粒度** | 样本级 | **域级** | 样本级 | **域级** |
+| **信号** | hidden 表示相似性 | 学习速度 (loss 轨迹) | Hessian 谱几何 | benchmark 分数 (RL reward) |
+| **Proxy** | 不需要 | 目标模型自身 | 不需要 | 50M proxy (一次性 384 轨迹) |
+| **动态** | 在线 | 在线 | 离线预计算 | 在线 |
+| **代码** | ✅ GitHub | ❌ 无代码 | ✅ GitHub | ❌ 无代码 |
+| **模型规模** | 120M/7B | 7B-8B | 355M-1.1B | 3B |
+| **GitHub Stars** | 3 | — | 2 | — |
+| **引用数** | 未获取 | 11 (3 有影响力) | 0 (太新) | 未获取 |
+| **头部厂商引用** | ❌ 无 | ❌ 无 | ❌ 无 | ❌ 无 |
+
+### 用户场景适用性排序
+
+| 排名 | 方法 | 适用性 | 关键优势 | 关键限制 |
+|------|------|--------|---------|---------|
+| 1 | **Data Mixing Agent** | ★★★★ | 域级 + benchmark reward + 跨模型泛化 | 1996 GPU 小时成本 + 无代码 |
+| 2 | **Velocitune** | ★★★☆ | 域级 + 不用 1M proxy + 在线 | scaling law 不透明 + 无代码 |
+| 3 | **ADAPT** | ★★★☆ | 开源 + 在线 + OOD 泛化 | 样本级非域级 + 120M 规模 |
+| 4 | **DiReCT** | ★★☆☆ | 开源 + 理论好 | annealing only + 100B 不可行 |
+
+### 组合使用
+
+- **Data Mixing Agent** 做域级权重（主训练阶段）
+- **ADAPT** 做域内样本级权重（叠加）
+- **DiReCT** 做冷却阶段样本选择（如果冷却数据是小子集）
+
+三者正交，理论上可叠加。

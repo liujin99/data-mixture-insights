@@ -58,7 +58,7 @@ QuaDMix 当前流程：
 
 **正面贡献**：发现 loss→benchmark 的映射可以用 logistic 函数拟合（多 val_loss → benchmark），为 Route A 提供降成本方案。
 
-详见：`docs/CAMEL_深度分析_v2.md`
+详见：`docs/CAMEL_深度分析_v3.md`
 
 ---
 
@@ -241,14 +241,57 @@ LightGBM 拟合噪声 → 选出比 Random 差的配比
 | 文档 | 内容 |
 |------|------|
 | `docs/PhaseTransitions_深度分析_v2.md` | 相变现象详细分析 |
-| `docs/CAMEL_深度分析_v2.md` | 容量分配 + loss→benchmark 映射 |
+| `docs/CAMEL_深度分析_v3.md` | 容量分配 + loss→benchmark 映射 + 作者调查 + PreSelect 互补 |
 | `docs/ExplainingDMSL_深度分析_v2.md` | Capacity Competition + Noise Reduction |
-| `docs/ADAPT_深度分析_v2.md` | 在线 reweighting vs 离线选择 |
+| `docs/ADAPT_深度分析_v2.md` | 在线 reweighting vs 离线选择 + 四篇联合对比表 |
 | `docs/Proxy_Reliability_论文总结.md` | Tiny LR patch + Taylor 展开推导 |
 | `docs/DomainPilot_深度分析.md` | 域级 loss 轨迹 + 三因子 reward |
 | `docs/Nexus_深度分析.md` | 同 loss 差 15 分 + Nexus 优化器 |
+| `docs/Velocitune_深度分析.md` | 学习速度动态域配比 + scaling law 稳定性分析（Route B 替代） |
+| `docs/DataMixingAgent_深度分析.md` | RL 学习域配比策略（Velocitune 升级版，绕过 val_loss + 跨模型泛化） |
+| `docs/DiReCT_深度分析.md` | Hessian 谱几何冷却阶段样本选择（annealing only） |
 
 ---
 
-**文档版本**: v1.0  
-**创建日期**: 2026-08-10
+## 九、新增破局路线：Velocitune / Data Mixing Agent
+
+### Route E：Velocitune（同模型 scaling law + 学习速度）
+
+**核心**：用目标模型自身在小数据子集上拟合 Chinchilla scaling law → 预测目标 loss → 学习速度 V → 动态域权重
+
+**优势**：
+- 不需要 1M proxy（用目标模型自身）
+- 不需要跨模型规模外推（同模型，变数据量）
+- 在线动态调整
+
+**风险**：
+- Scaling law 稳定性不透明（逐域误差未报告，去掉 target loss → -4.1%）
+- Chinchilla 公式/参数/σ 阈值均未报告 → 需自行验证拟合稳定性
+
+**成本**：3-5 个短训练（scaling law 拟合）+ 1 个完整训练（带在线评估）
+
+### Route F：Data Mixing Agent（RL 学习配比策略）
+
+**核心**：用 50M proxy 训练 384 条轨迹 → benchmark 分数作 reward → CQL 离线 RL → 2.1M agent 部署
+
+**优势**：
+- **完全绕过 val_loss 信号问题**（用 benchmark 分数作 RL reward）
+- **跨模型 + 跨领域泛化**（训一次用多次）
+- Agent 极轻量（2.1M 参数），部署零成本
+- Velocitune 同团队升级版，不再依赖 scaling law
+
+**风险**：
+- 50M proxy → 1.5B+ 目标模型规模迁移未验证（论文只到 3B）
+- 1996 GPU 小时一次性成本（384 轨迹 proxy 训练）
+- 4 维域空间是否足够（论文用 52 维）
+- 无开源代码
+
+**成本**：1996 GPU 小时（一次性）+ 目标训练
+
+### 路线优先级更新
+
+1. **零成本先做**：DomainPilot 式后验分析（已有 336 个实验数据）
+2. **低成本**：Route B（Perplexity Correlations）
+3. **中成本**：Route E（Velocitune，3-5 短训练 + scaling law 验证）
+4. **高成本高回报**：Route F（Data Mixing Agent，1996 GPUh 一次性但可复用）
+5. **可叠加**：Route C（Nexus，~20 行代码）

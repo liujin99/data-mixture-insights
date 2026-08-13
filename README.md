@@ -22,6 +22,7 @@ data-mix-insights/
 │   ├── 数据配比业界洞察分析报告.md      # 初始分析报告
 │   ├── 高价值论文深度分析.md            # TOP 3 论文精读
 │   ├── 最新论文分析_2025-2026.md        # 2025-2026 新发现
+│   ├── CAMEL_深度分析_v3.md                      # CAMEL v3 深度分析（作者调查+6可借鉴点+PreSelect互补）
 │   ├── CAMEL_Proxy_Reliability_深度分析.md  # CAMEL + Proxy 可靠性深度分析
 │   ├── Proxy_Reliability_论文总结.md        # Proxy 可靠性完整总结
 │   ├── LLMSurgeon_DataChef_深度分析.md      # LLMSurgeon + DataChef 分析
@@ -37,9 +38,14 @@ data-mix-insights/
 │   ├── 新论文批量分析_202607.md                      # 5 篇新论文分析 (MixAtlas, WebGraphMix, PreSelect 等)
 │   ├── 新论文批量分析_2026下半年.md                  # 14 篇新论文分析 (InfoLaw, DomainPilot, HDS, Solar Open 2 等)
 │   ├── 业界模型技术报告_数据配比分析.md              # Kimi K3 + DeepSeek V4/V3/Math/LLM 数据配比分析
+│   ├── 一线大厂annealing阶段数据配比分析.md          # Qwen3/Phi-4/DeepSeek V3/Kimi/Gemma3 annealing 阶段分析
 │   ├── Nexus_深度分析.md                             # Nexus 优化器深度分析（非数据配比但直接影响配比价值判断）
 │   ├── 小Proxy不可用_多论文交叉验证总结.md            # 6 篇论文交叉验证：1M proxy+val_loss 路径不可修复
-│   └── 头部厂商TechReport_数据配比深度分析.md         # DeepSeek-V4/GLM-5/Qwen3/Nemotron 3 frontier 规模数据配比分析
+│   ├── 头部厂商TechReport_数据配比深度分析.md         # DeepSeek-V4/GLM-5/Qwen3/Nemotron 3 frontier 规模数据配比分析
+│   ├── Velocitune_深度分析.md                          # Velocitune (ACL'25) 学习速度动态域配比 + scaling law 稳定性分析
+│   ├── DiReCT_深度分析.md                              # DiReCT (ICML'26) Hessian 谱几何冷却阶段样本选择
+│   ├── DataMixingAgent_深度分析.md                     # Data Mixing Agent (ACL'26) RL 学习域配比策略，Velocitune 升级版
+│   └── ADAPT_深度分析_v2.md                            # ADAPT (ICLR'26) 在线 reweighting + 四篇联合对比表
 └── README.md
 ```
 
@@ -76,6 +82,9 @@ data-mix-insights/
 | 40 | **HDS: Holistic Data Scheduler** | Dang, Ma, Liao | **KDD'26** (S2 DBLP 确认) | 在线 RL（SAC）数据调度，三目标奖励（质量+域间影响+weight norms），Pile 省 44% 迭代，MMLU +7.2%，代码开源 |
 | 41 | TANDEM: Twin Networks | Kuaishou (12 作者) | arXiv (2026.6) | Bi-level 配比优化，twin networks（proxy+reference）差值度量数据效能，理论保证 |
 | 42 | **Solar Open 2** | Upstage | Tech Report (2026.7) | 250B-A15B MoE 业界实践：quality+rarity 策展 + mixture-ratio 优化，20T→10T 精炼 |
+| 61 | **Velocitune** | Microsoft | **ACL'25** | 学习速度动态域配比：V=(L_cur-L_target)/(L_init-L_target)，同模型 scaling law 预测目标 loss，exp 权重更新。绕过 QuaDMix 跨模型外推问题。scaling law 稳定性不透明（逐域误差未报告）。11 引用 |
+| 62 | **DiReCT** | MSRA+HKUST(GZ) | **ICML'26** | Annealing 阶段样本选择：Hessian 谱几何 → flat/stiff 子空间 → 选 flat 方向梯度大的样本。随机投影 k≈34。355M-1.1B 验证。100B 数据不可行（论文明确 future work）。代码开源 |
+| 63 | **Data Mixing Agent** | Microsoft | **ACL'26** | **[高价值]** RL 学习域配比策略（Velocitune 升级版）。2.1M agent + CQL 离线 RL + 50M proxy 384 轨迹（1996 GPUh 一次性）。benchmark 分数作 reward（绕过 val_loss 问题）。跨模型+跨领域泛化。3B 验证 +3.02% over RegMix |
 
 ### 第三梯队：探索方向
 
@@ -388,6 +397,8 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-08-10**: 新增 Nexus (#51, 清华+字节跳动 Seed, arXiv 2026.4)，完成深度分析。**非数据配比论文，但直接影响配比价值判断**。核心发现：① 同一 pretraining loss（差 0.004），GSM8K 差 15 分——val_loss 不充分的终极证明，不是 proxy 太小的问题而是信号本身缺失完整维度；② Nexus 优化器通过最大化各域梯度余弦相似性收敛到 close minimizer，自动平衡欠优化域（隐式数据混合器），降低对人工配比的敏感度；③ 数据混合实验 Math10/40/70 证明 Nexus 自动补偿数据少的域；④ 与数据配比正交可叠加（Route C），代码改动 ~20 行几乎零计算开销；⑤ SFT 后优势保持。新增第四梯队"相关方向"类别。总计 49 篇论文
 - **2026-08-10**: 新一轮 arXiv 搜索（5 个新角度：梯度/影响力信号、scaling law、中训练、influence function、课程学习），新增 5 篇论文 (#52-56)。关键发现：① 独立再发现 DomainPilot (#39) 为 Tier 1——从不同搜索角度重新发现其高相关性，升级其状态；② Why Larger Models Learn More (#52) 从容量竞争角度解释 1M proxy 为何不能学 STEM 推理——小模型把神经元分配给高频域，稀有复杂域被牺牲；③ RISE (#53) forward-only 数据归因扩展到 32B，112× 压缩，可替代 val_loss 信号；④ Kernel Surrogate (#54, ICLR'26) 核函数代理 > 线性代理 40%，可替代 LightGBM；⑤ K-EXAONE 2.0 (#55) LG 750B MoE 披露"difficulty-focused mid-training"设计；⑥ Beyond Rephrasing (#56) 中训练专用合成教材。总计 54 篇论文。**注意**：Tier 1/2 中 DomainPilot/CAMEL/ADAPT/Explaining DMSL/Phase Transitions/Scaling Laws for Optimal Mixtures 已在索引中，本次搜索独立验证其高相关性
 - **2026-08-10**: 新增 4 篇头部厂商 frontier 规模 Tech Report 深度分析 (#57-60)：DeepSeek-V4 (1.6T/49B, 32T tokens)、GLM-5 (744B/40B, 28.5T)、Qwen3 (235B/22B, 36T)、Nemotron 3 Ultra (550B/55B, 20T)。**核心发现**：① GLM-5 是头部厂商唯一有专门 Mid-Training 章节的论文——三阶段上下文递进(32K→128K→200K, 1T+500B+50B) + 160B SWE 数据；② Nemotron 3 Ultra 数据配比最透明——19 类别 Phase1/Phase2 比例公开，两阶段 diversity→quality 课程(75%/25%)，SFT-in-pretrain；③ Qwen3 实例级配比优化超越域级方法(DoReMi/RegMix)，三阶段预训练 S2 推理阶段本质是中训练；④ DeepSeek-V4 最不透明，仅一句话提到 mid-training。**关键差距**：所有头部厂商中训练都含 code ≥15%，用户当前无 code 数据是最大差异。新增文档 `docs/头部厂商TechReport_数据配比深度分析.md`。总计 58 篇论文
+- **2026-08-13**: 完成 CAMEL 深度分析 v3 更新。**新增内容**：① 作者调查——确认清华期智研究所 (IIIS) 所属，Phase Transitions 有完整致谢但 CAMEL 无致谢/无资助/无硬件描述，55B MoE 算力来源不明；② 开源状态确认——完全无开源（无 GitHub/HF/代码声明/数据集名），对比同领域 2026 论文普遍不开源趋势；③ 可信度重评——理论可信（ICML'26+数学证明），实验不可验证（无代码/数据/算力不明），不做 DeepSeek 合作定论；④ 6 个可借鉴点梳理（容量分配视角/R_math≠R_know/loss-to-benchmark 映射/内在域分组/hourglass 采样/cooldown 定位）；⑤ PreSelect 互补分析——PreSelect 提供开源信号设计，CAMEL 提供理论框架和规模外推，两者结合是最有前景方案。新增文档 `docs/CAMEL_深度分析_v3.md`
+- **2026-08-13**: 新增 3 篇微软/MSRA 团队数据配比方法深度分析 (#61-63)。**核心发现**：① Velocitune (ACL'25) 用学习速度动态调整域权重，通过同模型 scaling law 预测目标 loss，绕过 QuaDMix 跨模型外推问题——但 scaling law 稳定性不透明（逐域误差未报告，去掉 target loss → -4.1%）；② Data Mixing Agent (ACL'26) 是 Velocitune 同团队升级版，用 RL (CQL) 自动学习配比策略，benchmark 分数作 reward 完全绕过 val_loss 信号问题，跨模型+跨领域泛化（训一次用多次），3B 验证 +3.02% over RegMix，但一次性成本 1996 GPU 小时（384 轨迹）；③ DiReCT (ICML'26) annealing 阶段 Hessian 谱几何样本选择，100B 数据不可行（论文明确 future work），仅适用于冷却阶段小子集。**四篇联合对比**（含 ADAPT #22）已写入 `docs/ADAPT_深度分析_v2.md`。**结论**：Data Mixing Agent 是目前最对口的替代方案（域级 + benchmark reward + 跨模型泛化），但需评估 1996 GPU 小时成本和 50M→1.5B+ 规模迁移风险。新增文档 `docs/Velocitune_深度分析.md`、`docs/DiReCT_深度分析.md`、`docs/DataMixingAgent_深度分析.md`。总计 63 篇论文
 
 ## License
 
