@@ -45,7 +45,8 @@ data-mix-insights/
 │   ├── Velocitune_深度分析.md                          # Velocitune (ACL'25) 学习速度动态域配比 + scaling law 稳定性分析
 │   ├── DiReCT_深度分析.md                              # DiReCT (ICML'26) Hessian 谱几何冷却阶段样本选择
 │   ├── DataMixingAgent_深度分析.md                     # Data Mixing Agent (ACL'26) RL 学习域配比策略，Velocitune 升级版
-│   └── ADAPT_深度分析_v2.md                            # ADAPT (ICLR'26) 在线 reweighting + 四篇联合对比表
+│   ├── ADAPT_深度分析_v2.md                            # ADAPT (ICLR'26) 在线 reweighting + 四篇联合对比表
+│   └── BETR_深度分析.md                                # BETR (Apple, 2025.07) benchmark 相似度文档级过滤，最低成本
 └── README.md
 ```
 
@@ -85,6 +86,7 @@ data-mix-insights/
 | 61 | **Velocitune** | Microsoft | **ACL'25** | 学习速度动态域配比：V=(L_cur-L_target)/(L_init-L_target)，同模型 scaling law 预测目标 loss，exp 权重更新。绕过 QuaDMix 跨模型外推问题。scaling law 稳定性不透明（逐域误差未报告）。11 引用 |
 | 62 | **DiReCT** | MSRA+HKUST(GZ) | **ICML'26** | Annealing 阶段样本选择：Hessian 谱几何 → flat/stiff 子空间 → 选 flat 方向梯度大的样本。随机投影 k≈34。355M-1.1B 验证。100B 数据不可行（论文明确 future work）。代码开源 |
 | 63 | **Data Mixing Agent** | Microsoft | **ACL'26** | **[高价值]** RL 学习域配比策略（Velocitune 升级版）。2.1M agent + CQL 离线 RL + 50M proxy 384 轨迹（1996 GPUh 一次性）。benchmark 分数作 reward（绕过 val_loss 问题）。跨模型+跨领域泛化。3B 验证 +3.02% over RegMix |
+| 64 | **BETR: Benchmark-Targeted Ranking** | **Apple** | arXiv (2025.07) | **[高价值]** benchmark 相似度文档级数据选择。Arctic-Embed + rank scoring + FastText 三步流程，500+ 模型 scaling law 验证。2.1x CM over DCLM-Baseline（4.7x over 无过滤）。**最小模型需最激进过滤**（F_opt ∝ C^0.25，小模型 top 3%，大模型 top 30%）。FastText (75.6% acc) 击败 302M LM classifier (82.4% acc)。成本最低（~2-4 GPUh）。17 引用。被 Phase Transitions 论文引用。文档级 ≠ 域级，但可与 ClimbMix 串联使用（BETR 过滤 → ClimbMix 配比） |
 
 ### 第三梯队：探索方向
 
@@ -399,6 +401,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-08-10**: 新增 4 篇头部厂商 frontier 规模 Tech Report 深度分析 (#57-60)：DeepSeek-V4 (1.6T/49B, 32T tokens)、GLM-5 (744B/40B, 28.5T)、Qwen3 (235B/22B, 36T)、Nemotron 3 Ultra (550B/55B, 20T)。**核心发现**：① GLM-5 是头部厂商唯一有专门 Mid-Training 章节的论文——三阶段上下文递进(32K→128K→200K, 1T+500B+50B) + 160B SWE 数据；② Nemotron 3 Ultra 数据配比最透明——19 类别 Phase1/Phase2 比例公开，两阶段 diversity→quality 课程(75%/25%)，SFT-in-pretrain；③ Qwen3 实例级配比优化超越域级方法(DoReMi/RegMix)，三阶段预训练 S2 推理阶段本质是中训练；④ DeepSeek-V4 最不透明，仅一句话提到 mid-training。**关键差距**：所有头部厂商中训练都含 code ≥15%，用户当前无 code 数据是最大差异。新增文档 `docs/头部厂商TechReport_数据配比深度分析.md`。总计 58 篇论文
 - **2026-08-13**: 完成 CAMEL 深度分析 v3 更新。**新增内容**：① 作者调查——确认清华期智研究所 (IIIS) 所属，Phase Transitions 有完整致谢但 CAMEL 无致谢/无资助/无硬件描述，55B MoE 算力来源不明；② 开源状态确认——完全无开源（无 GitHub/HF/代码声明/数据集名），对比同领域 2026 论文普遍不开源趋势；③ 可信度重评——理论可信（ICML'26+数学证明），实验不可验证（无代码/数据/算力不明），不做 DeepSeek 合作定论；④ 6 个可借鉴点梳理（容量分配视角/R_math≠R_know/loss-to-benchmark 映射/内在域分组/hourglass 采样/cooldown 定位）；⑤ PreSelect 互补分析——PreSelect 提供开源信号设计，CAMEL 提供理论框架和规模外推，两者结合是最有前景方案。新增文档 `docs/CAMEL_深度分析_v3.md`
 - **2026-08-13**: 新增 3 篇微软/MSRA 团队数据配比方法深度分析 (#61-63)。**核心发现**：① Velocitune (ACL'25) 用学习速度动态调整域权重，通过同模型 scaling law 预测目标 loss，绕过 QuaDMix 跨模型外推问题——但 scaling law 稳定性不透明（逐域误差未报告，去掉 target loss → -4.1%）；② Data Mixing Agent (ACL'26) 是 Velocitune 同团队升级版，用 RL (CQL) 自动学习配比策略，benchmark 分数作 reward 完全绕过 val_loss 信号问题，跨模型+跨领域泛化（训一次用多次），3B 验证 +3.02% over RegMix，但一次性成本 1996 GPU 小时（384 轨迹）；③ DiReCT (ICML'26) annealing 阶段 Hessian 谱几何样本选择，100B 数据不可行（论文明确 future work），仅适用于冷却阶段小子集。**四篇联合对比**（含 ADAPT #22）已写入 `docs/ADAPT_深度分析_v2.md`。**结论**：Data Mixing Agent 是目前最对口的替代方案（域级 + benchmark reward + 跨模型泛化），但需评估 1996 GPU 小时成本和 50M→1.5B+ 规模迁移风险。新增文档 `docs/Velocitune_深度分析.md`、`docs/DiReCT_深度分析.md`、`docs/DataMixingAgent_深度分析.md`。总计 63 篇论文
+- **2026-08-17**: 新增 BETR 深度分析 (#64, Apple, arXiv 2025.07)。**核心发现**：① benchmark 相似度驱动文档级数据选择，3 步流程（embed → rank score → FastText filter），成本仅 ~2-4 GPUh，是所有方法中最低；② 500+ 模型 scaling law 验证，2.1x compute multiplier over DCLM-Baseline，MMLU +7.5 分；③ 过滤率幂律 F_opt(C)=4×10⁻⁵·C^0.25 — 小模型需 top 3% 激进过滤，大模型 top 30% 宽松，与 Phase Transitions 容量竞争理论一致；④ FastText (75.6% acc) 击败 302M LM classifier (82.4% acc) — 分类准确率不是关键；⑤ benchmark targeting > domain targeting（Noncore 60.9 > arXiv 52.6）；⑥ 被 Phase Transitions 论文引用，17 Semantic Scholar 引用。**适配评估**：文档级≠域级配比，不能替代 ClimbMix，但可作为低成本预处理步骤（BETR 过滤 → ClimbMix 配比 两阶段串联）。论文仅验证预训练，未验证 continual pre-training。新增文档 `docs/BETR_深度分析.md`。总计 64 篇论文
 
 ## License
 
