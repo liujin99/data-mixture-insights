@@ -46,7 +46,12 @@ data-mix-insights/
 │   ├── DiReCT_深度分析.md                              # DiReCT (ICML'26) Hessian 谱几何冷却阶段样本选择
 │   ├── DataMixingAgent_深度分析.md                     # Data Mixing Agent (ACL'26) RL 学习域配比策略，Velocitune 升级版
 │   ├── ADAPT_深度分析_v2.md                            # ADAPT (ICLR'26) 在线 reweighting + 四篇联合对比表
-│   └── BETR_深度分析.md                                # BETR (Apple, 2025.07) benchmark 相似度文档级过滤，最低成本
+│   ├── BETR_深度分析.md                                # BETR (Apple, 2025.07) benchmark 相似度文档级过滤，最低成本
+│   ├── TaskAgnosticInfluence_深度分析.md               # Task-Agnostic Influence (COLM'26) 数据贡献动态分析，分阶段配比轨迹实证
+│   ├── DIDS_深度分析.md                                 # DIDS (EMNLP'25) FIM 指导域影响 + loss 轨迹动态配比，直接对比 Velocitune 赢 3 分
+│   ├── MIRA_深度分析.md                                 # MIRA (2026) 中训练源感知 rubric 筛选，25B 半量匹配 50B 全量
+│   ├── STEM能力涌现分析.md                              # STEM 能力规模涌现分析：业界共识 + 相变定律 + DeepSeekMath 锚点 + nanochat-npu 1.5B 可行性判断
+│   └── QuaDMix失败分析_相变理论启示.md                   # QuaDMix 1.5B 失败根因（proxy gap + 相变阈值差异 + 容量分配相反）+ Phase Transitions 论文核心信息 + 域级相变 trade-off + 修复方向
 └── README.md
 ```
 
@@ -56,7 +61,7 @@ data-mix-insights/
 
 | # | 论文 | 机构 | Venue | 关键贡献 |
 |---|------|------|-------|---------|
-| 01 | Phase Transitions in Data Mixing | 清华 | NeurIPS'25 Spotlight | 揭示配比相变现象，理论证明 |
+| 01 | **Phase Transitions in Data Mixing** | 清华 | NeurIPS'25 Spotlight | **[高价值/重要]** 揭示配比相变现象，理论证明 STEM 知识获取存在尖锐相变 `r_thres ∝ M^(-α)`，(M, r) 联合曲面，本项目 STEM 涌现分析的理论根基 |
 | 03 | Scaling Laws for Optimal Data Mixtures | Apple | arXiv | 参数化 scaling law，跨模态验证 |
 | 04 | DeMix: Model Merging | 小红书+东大 | ICML'26 | Model merging 替代 proxy 训练 |
 | 09 | CAMEL: Capacity-Aware Mixture Law | 清华 | arXiv | Phase Transitions 的实践版 |
@@ -69,6 +74,8 @@ data-mix-insights/
 | 31 | PreSelect | HKUST+Vivo AI | **ICML'25** | Predictive strength + fastText，10x 计算缩减，开源 |
 | 37 | **InfoLaw** | ByteDance | **ICML'26** | **[高价值]** 信息论 scaling law，同时建模配比权重+重复递减收益，7B/425B 验证，0.15% loss 误差 |
 | 38 | **Explaining Data Mixing Scaling Laws** | - | **ICML'26** | **[高价值]** 理论解释配比 scaling law：Capacity Competition + Noise Reduction，理论背书 quality-top-k，解释 proxy→target 失效 |
+| 65 | **Task-Agnostic Training Data Influence** | NAIST+NII+早稻田+东大+哥本哈根IT+东北大 | **COLM'26** | **[有意思]** task-agnostic 数据贡献度量。**深度批判**：θ* 内生性导致三层循环论证（梯度幅度混淆+自指+域比例偏向），交叉反转可由 loss 动态更简洁解释（先易后难）。对配比决策指导性有限（★★★☆☆），但连接到 Velocitune 的 loss 动态信号 |
+| 66 | **DIDS** | HKUST+MetaX+Alibaba+浙师大+苏大 | **EMNLP'25** | **[高价值]** FIM 指导域影响 + loss 轨迹动态配比。绕过 Velocitune scaling law 依赖。直接对比 Velocitune 赢 3 分（62.3 vs 59.3）。10% 数据超全量训练。开源代码（原型质量，两套不一致实现）。梯度聚类默认关闭。额外开销 1.9% |
 
 ### 第二梯队：大厂经验
 
@@ -87,6 +94,7 @@ data-mix-insights/
 | 62 | **DiReCT** | MSRA+HKUST(GZ) | **ICML'26** | Annealing 阶段样本选择：Hessian 谱几何 → flat/stiff 子空间 → 选 flat 方向梯度大的样本。随机投影 k≈34。355M-1.1B 验证。100B 数据不可行（论文明确 future work）。代码开源 |
 | 63 | **Data Mixing Agent** | Microsoft | **ACL'26** | **[高价值]** RL 学习域配比策略（Velocitune 升级版）。2.1M agent + CQL 离线 RL + 50M proxy 384 轨迹（1996 GPUh 一次性）。benchmark 分数作 reward（绕过 val_loss 问题）。跨模型+跨领域泛化。3B 验证 +3.02% over RegMix |
 | 64 | **BETR: Benchmark-Targeted Ranking** | **Apple** | arXiv (2025.07) | **[高价值]** benchmark 相似度文档级数据选择。Arctic-Embed + rank scoring + FastText 三步流程，500+ 模型 scaling law 验证。2.1x CM over DCLM-Baseline（4.7x over 无过滤）。**最小模型需最激进过滤**（F_opt ∝ C^0.25，小模型 top 3%，大模型 top 30%）。FastText (75.6% acc) 击败 302M LM classifier (82.4% acc)。成本最低（~2-4 GPUh）。17 引用。被 Phase Transitions 论文引用。文档级 ≠ 域级，但可与 ClimbMix 串联使用（BETR 过滤 → ClimbMix 配比） |
+| 67 | **MIRA** | SJTU+UBC+Langboat+北航+IQuest | arXiv (2026.05) | 中训练源感知 rubric 筛选。自锚定 rubric 发现（Kimi-K2.6 教师 → 15 锚定维度/组 → Qwen3.5-35B 学生蒸馏）。25B 半量匹配 50B 全量（64.20 vs 63.83）。可靠性 mask 12% 源-维度对。样本级筛选非域级配比，与 DIDS 互补（MIRA 筛域内 → DIDS 配域间）。无代码无 venue |
 
 ### 第三梯队：探索方向
 
@@ -402,6 +410,11 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-08-13**: 完成 CAMEL 深度分析 v3 更新。**新增内容**：① 作者调查——确认清华期智研究所 (IIIS) 所属，Phase Transitions 有完整致谢但 CAMEL 无致谢/无资助/无硬件描述，55B MoE 算力来源不明；② 开源状态确认——完全无开源（无 GitHub/HF/代码声明/数据集名），对比同领域 2026 论文普遍不开源趋势；③ 可信度重评——理论可信（ICML'26+数学证明），实验不可验证（无代码/数据/算力不明），不做 DeepSeek 合作定论；④ 6 个可借鉴点梳理（容量分配视角/R_math≠R_know/loss-to-benchmark 映射/内在域分组/hourglass 采样/cooldown 定位）；⑤ PreSelect 互补分析——PreSelect 提供开源信号设计，CAMEL 提供理论框架和规模外推，两者结合是最有前景方案。新增文档 `docs/CAMEL_深度分析_v3.md`
 - **2026-08-13**: 新增 3 篇微软/MSRA 团队数据配比方法深度分析 (#61-63)。**核心发现**：① Velocitune (ACL'25) 用学习速度动态调整域权重，通过同模型 scaling law 预测目标 loss，绕过 QuaDMix 跨模型外推问题——但 scaling law 稳定性不透明（逐域误差未报告，去掉 target loss → -4.1%）；② Data Mixing Agent (ACL'26) 是 Velocitune 同团队升级版，用 RL (CQL) 自动学习配比策略，benchmark 分数作 reward 完全绕过 val_loss 信号问题，跨模型+跨领域泛化（训一次用多次），3B 验证 +3.02% over RegMix，但一次性成本 1996 GPU 小时（384 轨迹）；③ DiReCT (ICML'26) annealing 阶段 Hessian 谱几何样本选择，100B 数据不可行（论文明确 future work），仅适用于冷却阶段小子集。**四篇联合对比**（含 ADAPT #22）已写入 `docs/ADAPT_深度分析_v2.md`。**结论**：Data Mixing Agent 是目前最对口的替代方案（域级 + benchmark reward + 跨模型泛化），但需评估 1996 GPU 小时成本和 50M→1.5B+ 规模迁移风险。新增文档 `docs/Velocitune_深度分析.md`、`docs/DiReCT_深度分析.md`、`docs/DataMixingAgent_深度分析.md`。总计 63 篇论文
 - **2026-08-17**: 新增 BETR 深度分析 (#64, Apple, arXiv 2025.07)。**核心发现**：① benchmark 相似度驱动文档级数据选择，3 步流程（embed → rank score → FastText filter），成本仅 ~2-4 GPUh，是所有方法中最低；② 500+ 模型 scaling law 验证，2.1x compute multiplier over DCLM-Baseline，MMLU +7.5 分；③ 过滤率幂律 F_opt(C)=4×10⁻⁵·C^0.25 — 小模型需 top 3% 激进过滤，大模型 top 30% 宽松，与 Phase Transitions 容量竞争理论一致；④ FastText (75.6% acc) 击败 302M LM classifier (82.4% acc) — 分类准确率不是关键；⑤ benchmark targeting > domain targeting（Noncore 60.9 > arXiv 52.6）；⑥ 被 Phase Transitions 论文引用，17 Semantic Scholar 引用。**适配评估**：文档级≠域级配比，不能替代 ClimbMix，但可作为低成本预处理步骤（BETR 过滤 → ClimbMix 配比 两阶段串联）。论文仅验证预训练，未验证 continual pre-training。新增文档 `docs/BETR_深度分析.md`。总计 64 篇论文
+- **2026-08-18**: 新增 Task-Agnostic Training Data Influence 深度分析 (#65, NAIST+NII+早稻田+东大+哥本哈根IT+东北大, **COLM 2026 录用**)。**核心发现**：① task-agnostic 数据贡献度量——不依赖下游任务，定义为"梯度更新让模型参数向最终预训练参数靠近的程度"；② 检查点近似（用相邻检查点参数差代替 batch 更新）无需重训，事后从公开 Pythia/PolyPythia 检查点直接估算；③ **中期贡献达峰**（~40k 步），早晚期较低；④ **文学→STEM 交叉反转**：早期文学类高贡献、STEM 低贡献，后期反转——为业界"后期增加 STEM 配比"提供归因层面实证；⑤ 高 PPL（困难）文本在中期贡献占比从 20%→25%，低 PPL 20%→15%；⑥ 末期 opponent（负贡献）样本升至 8~10%，暗示后期重质而非重量；⑦ task-specific (TracIn) 无法稳定复现文学→STEM 交叉——两种视角应互补。**可靠性验证**：检查点近似晚期 Pearson >0.94，跨 6 个模型规模+多种子一致（小模型阶段转换推迟）。**局限性**：观察性非因果、"贡献"≠下游性能、仅 Pythia+Pile 验证。**与配比项目相关性 ★★★★☆**：直接支撑分阶段配比策略，PPL 分桶可作质量信号补充。新增文档 `docs/TaskAgnosticInfluence_深度分析.md`。总计 65 篇论文
+- **2026-08-18**: 更新 #65 深度批判分析。**三层循环论证**：① 梯度幅度混淆——高 PPL→大梯度→对齐项线性增大→贡献偏高（论文未做控制实验）；② θ* 自指性——θ* 由被评估数据训出，样本梯度方向和"未来要走的方向"天然相关（对个体样本偏弱，域级成立）；③ 域比例偏向——数据多的域拉偏 θ*，该域贡献系统性偏高。**交叉反转 = loss 动态而非数据价值**：文学→STEM 交叉可用 loss 下降速度差异统一解释（先易后难），而非独立的数据价值信号——"STEM 后期贡献高"只是因为 STEM 当前 loss 还没降。**建设性结论**：该加什么数据看当前 loss（非循环），而非看贡献（循环），与 Velocitune (#61) 学习速度方法不谋而合。相关性评级 ★★★★☆→★★★☆☆（下调）。更新文档 `docs/TaskAgnosticInfluence_深度分析.md`
+- **2026-08-18**: 新增 DIDS (#66, HKUST+MetaX+Alibaba+浙师大+苏大, **EMNLP 2025**) 和 MIRA (#67, SJTU+UBC+Langboat+北航+IQuest, arXiv 2026.05) 深度分析。从 Velocitune 11 篇引用中筛选出最适合用户场景的方法。**DIDS 核心发现**：① FIM 指导的域影响度量（KL 散度二阶 Taylor 近似 → Fisher 对角近似）+ loss 轨迹指数衰减拟合 + 边际递减 → EMA 动态配比；② **直接 benchmark 对比 Velocitune 赢 3 分**（多任务 62.3 vs 59.3，单任务 63.7 vs 60.5）；③ 用 10% 数据（100k vs 929k）超过全量训练；④ **绕过 Velocitune 最大风险**——不需要 scaling law；⑤ 额外开销仅 1.9%，500M proxy 够用；⑥ 消融：FIM -2.9, loss 轨迹 -2.8, 梯度聚类 -1.8。**代码仓库深度分析**：两套不一致的 FIM 实现（可执行脚本用 Fisher kernel 内积 vs utils.py 用 KL quadratic 差分平方）；梯度聚类默认关闭（num_clusters=0）；更原则性变体（R² 限定潜力因子）在 utils.py 未使用；研究原型质量。**MIRA 核心发现**：① 中训练样本级筛选（非域级配比），自锚定 rubric 发现（Kimi-K2.6 教师 → 15 锚定维度/组 → Qwen3.5-35B-A3B MoE 学生蒸馏）；② 25B 半量匹配/超过 50B 全量（macro avg 64.20 vs 63.83）；③ 可靠性 mask 12% 源-维度对（MAE ≥ 1）；④ PPL/DSIR 有长度依赖，MIRA 长度鲁棒；⑤ 学生蒸馏成本 <4% 中训练成本（~250 vs ~7,680 H800 GPUh）。**定位**：DIDS 做域间配比，MIRA 做域内筛选——互补关系（MIRA 筛 → DIDS 配）。DIDS 相关性 ★★★★☆（域级+开源+赢 Velocitune+无 scaling law，但规模和代码质量顾虑），MIRA 相关性 ★★★☆☆（中训练匹配但层面不同+无代码无 venue）。新增文档 `docs/DIDS_深度分析.md`、`docs/MIRA_深度分析.md`。总计 67 篇论文
+- **2026-08-19**: 新增 STEM 能力涌现分析文档 `docs/STEM能力涌现分析.md`。**核心问题**：STEM（数学/推理）是规模涌现的能力吗？多大模型/多少数据才涌现？应用于本项目 nanochat-npu 1.5B 中训练的可行性判断。**综合三层共识**：① 经典涌现叙事（Wei 2022）GSM8K ~10²² FLOPs；② 指标假象修正（Schaeffer 2023）accuracy 阈值造成的阶跃假象但对下游 accuracy 目标仍成立；③ 相变理论（Phase Transitions #01, NeurIPS'25 Spotlight）`r_thres ∝ M^(-α)` 尖锐相变 + (M, r) 联合曲面 + 低于阈值训再久=0%。**业界锚点**：DeepSeekMath 1.3B + 150B 数学 token ≈ 21% GSM8K；7B + 280B 数学 ≈ 24%；Nexus 规模门控 GSM8K 增益 130M≈0 → 3B+15（STEM 收益 1B 以下几乎不存在）。**本项目判断**：基座 1.5B 预训练于 ClimbLab 1.2T（充分，800 tokens/param）；中训练 1.8B tokens（1.2× 参数量），3:7 配比 → 1.26B 数学 token，**仅为 DeepSeekMath 参考线（120-280B）的 ~1%**。配比方向正确（r_thres ∝ M^(-α) 支持小模型高 r，70% 合理），但数据量是生死瓶颈——**1.5B + 1.26B 数学 token 下 STEM 涌现基本不可能**，预期 GSM8K 个位数。当前中训练定位为"基座风味调整/数据管线验证"，真正 STEM 涌现需模型放大到 3B+ + 数学 token 提到 ~100B 量级。同时将 Phase Transitions (#01) 标记为 **[高价值/重要]** 并更新论文索引描述为其作为本项目 STEM 涌现分析理论根基
+- **2026-08-20**: 新增 QuaDMix 失败分析与相变理论启示文档 `docs/QuaDMix失败分析_相变理论启示.md`。**核心内容**：① **失败根因 = proxy gap（14M → 1.5B）**——Phase Transitions 理论解释：14M 与 1.5B 相变阈值不同（14M r_thres>0.30 vs 1.5B≈0.06-0.08）→ 不同 regime；背包问题对不同 M 有不同解 → 14M 最优"少给某些子域" vs 1.5B 最优"多给" → 方向相反 → 比 Random 还差。R² within-model（14M→14M）≠ cross-model transfer（14M→1.5B），gsm8k R²=0.751 但 QuadMix 反而最差 = 直接证据。② **Phase Transitions 论文完整信息**：两个相变（模型大小+配比）、幂律 r_thres ∝ S/M^1.283（α≈0.283）、训练步数随 1/r 超指数增长（r<0.4）、背包理论+边际价值、两个策略（随机子采样 4x + CKM 20x）、推理任务也有相变、proxy 警告原文+5 引用、continual pre-training 验证+early stopping 标准（val_loss +0.05）、计算成本表。③ **域级相变与 STEM trade-off**：每个域有自己的 r_thres（S 不同）；高数学配比损害其他 STEM 任务（背包 trade-off）；数学得分提升需足够 token 走完相变——r=0.7>>r_thres 在线性区但 1.26B 是参考 150B 的 ~1% → "刚跨阈值还没走完"；域状态分类表（远超阈值/刚跨/低于/已收敛）。④ **修正"小Proxy不可用"文档**：14M proxy 有信号（R²=0.30-0.84），不是随机噪声，但信号来自不同 regime 不传递到 1.5B accuracy。⑤ **行动方向**：修复 14M→1.5B 直接搜索（198→22 维, CLIMB 式 30→10→3）；Step 0 验证（30 min 推理判断 val_loss→accuracy 是否成立）；DomainPilot 兜底（无 proxy gap, 无 loss≠value, ~30 行 patch）；两条腿走路建议。新增文档 `docs/QuaDMix失败分析_相变理论启示.md`
 
 ## License
 
