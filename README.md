@@ -54,7 +54,9 @@ data-mix-insights/
 │   ├── MIRA_深度分析.md                                 # MIRA (2026) 中训练源感知 rubric 筛选，25B 半量匹配 50B 全量
 │   ├── STEM能力涌现分析.md                              # STEM 能力规模涌现分析：业界共识 + 相变定律 + DeepSeekMath 锚点 + nanochat-npu 1.5B 可行性判断
 │   ├── QuaDMix失败分析_相变理论启示.md                   # QuaDMix 1.5B 失败根因（proxy gap + 相变阈值差异 + 容量分配相反）+ Phase Transitions 论文核心信息 + 域级相变 trade-off + 修复方向
-│   └── 论文总表.md                                      # 全 67 篇论文统一汇总表（编号+梯队+标记+机构+Venue+文档路径+关键贡献）
+│   ├── LogFloor_深度分析.md                               # LogFloor (arXiv 2026.08) Proxy 动态瓶颈顺序跨尺度迁移 + 顺序消解实验 + loss 绕过 accuracy 涌现的局限
+│   ├── 核心未解决问题_相变与代理迁移.md                     # 综合分析：相变前信号能否预测相变后最优配比？各方法应对策略与失败分析，信息论视角的不可解性论证
+│   └── 论文总表.md                                      # 全 69 篇论文统一汇总表（编号+梯队+标记+机构+Venue+文档路径+关键贡献）
 └── README.md
 ```
 
@@ -62,7 +64,7 @@ data-mix-insights/
 
 ### 重点论文快速索引
 
-> 汇总所有标记论文（共 17 篇），附深度分析文档路径。**全部 67 篇论文统一总表见 [`docs/论文总表.md`](docs/论文总表.md)**（含梯队、标记、机构、Venue、文档路径）。
+> 汇总所有标记论文（共 18 篇），附深度分析文档路径。**全部 69 篇论文统一总表见 [`docs/论文总表.md`](docs/论文总表.md)**（含梯队、标记、机构、Venue、文档路径）。
 
 | # | 论文 | 标记 | Venue | 深度分析文档 | 一句话核心价值 |
 |---|------|------|-------|-------------|--------------|
@@ -83,6 +85,7 @@ data-mix-insights/
 | 54 | Kernel Surrogate | [新发现] | ICLR'26 | *(索引+changelog 2026-08-10)* | 核函数代理 > 线性代理 40%，可替代 LightGBM |
 | 65 | Task-Agnostic Influence | [有意思] | COLM'26 | `TaskAgnosticInfluence_深度分析.md` | task-agnostic 数据贡献度量（有循环论证批判，★★★☆☆） |
 | 39 | DomainPilot | [独立再发现] | arXiv | `DomainPilot_深度分析.md` | 域级 loss 引导两阶段优化，~30 行 patch，无 proxy 无 loss≠value 风险 |
+| 68 | LogFloor | [高价值] | arXiv | `LogFloor_深度分析.md` | Proxy 动态瓶颈顺序可跨尺度迁移（70M→12B），顺序消解 60.3%→10.3%→6.0%，但 loss 绕过 accuracy 涌现 |
 
 > **标记说明**：`[高价值/重要]` = 项目理论根基；`[高价值]` = 直接可用方法/数据；`[新发现]` = 新视角启发；`[有意思]` = 有价值但需批判看待；`[独立再发现]` = 不同搜索角度独立验证高相关。
 
@@ -124,6 +127,7 @@ data-mix-insights/
 | 63 | **Data Mixing Agent** | Microsoft | **ACL'26** | **[高价值]** RL 学习域配比策略（Velocitune 升级版）。2.1M agent + CQL 离线 RL + 50M proxy 384 轨迹（1996 GPUh 一次性）。benchmark 分数作 reward（绕过 val_loss 问题）。跨模型+跨领域泛化。3B 验证 +3.02% over RegMix |
 | 64 | **BETR: Benchmark-Targeted Ranking** | **Apple** | arXiv (2025.07) | **[高价值]** benchmark 相似度文档级数据选择。Arctic-Embed + rank scoring + FastText 三步流程，500+ 模型 scaling law 验证。2.1x CM over DCLM-Baseline（4.7x over 无过滤）。**最小模型需最激进过滤**（F_opt ∝ C^0.25，小模型 top 3%，大模型 top 30%）。FastText (75.6% acc) 击败 302M LM classifier (82.4% acc)。成本最低（~2-4 GPUh）。17 引用。被 Phase Transitions 论文引用。文档级 ≠ 域级，但可与 ClimbMix 串联使用（BETR 过滤 → ClimbMix 配比） |
 | 67 | **MIRA** | SJTU+UBC+Langboat+北航+IQuest | arXiv (2026.05) | 中训练源感知 rubric 筛选。自锚定 rubric 发现（Kimi-K2.6 教师 → 15 锚定维度/组 → Qwen3.5-35B 学生蒸馏）。25B 半量匹配 50B 全量（64.20 vs 63.83）。可靠性 mask 12% 源-维度对。样本级筛选非域级配比，与 DIDS 互补（MIRA 筛域内 → DIDS 配域间）。无代码无 venue |
+| 68 | **LogFloor** | Choi et al. (Stanford/KAIST, Cioffi) | arXiv (2026.08) | **[高价值]** Proxy 动态瓶颈顺序可跨尺度迁移。70M→12B replay 省 30.9%。顺序消解：正确 60.3%→静态 10.3%→逆转 6.0%→随机 6/8 命中。用 Qwen2.5-1.5B。**核心局限**：用 loss 绕过 accuracy 涌现，loss 顺序 ≠ accuracy 涌现顺序（STEM 相变未验证），用无相变任务（bAbI/MMLU）回避了核心问题 |
 
 ### 第三梯队：探索方向
 
@@ -155,6 +159,7 @@ data-mix-insights/
 | 48 | CoDA: Co-Adaptive LoRA | 4 作者 | arXiv (2026.7) | 无标签域参与度控制，competence+affinity 信号，熵正则化 QP，半数据超 uniform |
 | 49 | DataFlex | 北大 (Bin Cui) + Conghui He + Weinan E | arXiv (2026.3) | 统一数据中心训练框架（selection+mixture+reweighting），基于 LLaMA-Factory |
 | 50 | Survey #2: Data Mixing | Tianjin U (Deyi Xiong) | Data Intelligence (2026, 期刊同行评审) | 第三篇综述，bilevel on simplex 形式化，inverse data mixing 方向 |
+| 69 | Bayesian Domain Reweighting | 西安交大 (Zongben Xu) | arXiv (2026.07) | Dirichlet 分布 + Gamma 先验直接推断域权重，批评 scaling law/rank invariance 结构假设，声称比 search-based 方法用更少数据 |
 
 ### 第四梯队：相关方向（非数据配比但直接影响配比价值判断）
 
@@ -377,6 +382,34 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 
 **结论**：Nexus 是低成本、低风险的正交方法。它不替代数据配比优化，但可能显著降低对精确配比的依赖。建议立即验证。
 
+### 22. 核心未解决问题：相变前信号无法预测相变后最优配比
+
+综合 69 篇论文分析，数据配比领域存在一个**贯穿全局的理论鸿沟**：
+
+**问题**：在能力涌现（phase transition）之前，能否从小 proxy 信号预测相变之后的最优数据配比？
+
+**各方法的应对与失败**：
+
+| 方法 | 策略 | 失败机制 |
+|------|------|---------|
+| QuaDMix/DoReMi/RegMix | proxy 搜静态配比 | proxy 最优 ≠ target 最优（已验证失败） |
+| LogFloor (#68) | proxy 搜动态顺序 | 用无相变任务绕过；loss 顺序 ≠ accuracy 涌现顺序（未验证） |
+| DomainPilot | 不用 proxy，target scale loss | loss ≠ accuracy（Nexus 证明同 loss 差 15 分） |
+| Bayesian Reweight (#69) | 直接从数据推断 | 批评 scaling law 假设，但本质仍用 loss 信号 |
+| Phase Transitions (#01) | 理论预测相变阈值 | 只预测"何时涌现"≠预测"什么配比最优" |
+| BETR/Data Mixing Agent | 直接用 accuracy | 成本高或不做域级配比 |
+
+**为什么可能根本无法解决**（信息论视角）：
+- 相变后的最优配比可能依赖于**相变后才会出现的表示空间结构**
+- 如果该结构在相变前不存在或不可观测，任何基于相变前信号的方法在信息论意义上都不可能成功
+- Capacity Competition (#38) 理论解释：proxy（小容量）和 target（大容量）的容量竞争机制完全不同，最优配比必然偏移
+- Why Larger Models Learn More (#52) 实证：小模型把神经元分配给高频域，稀有复杂域被牺牲——不是"学得慢"而是"学不了"
+
+**核心判断**：
+> QuaDMix 的失败不是 bug 而是必然。proxy 搜索路径（无论静态还是动态）在有 phase transition 的能力上不可迁移。所有论文要么选择不需要预测的场景（LogFloor 用无相变任务），要么用 loss 绕开 accuracy 涌现（DomainPilot），要么用 target 信号在线调整（但这不是"预测"而是"反应"）。**这个鸿沟目前没有任何论文跨越。**
+
+详见 `docs/核心未解决问题_相变与代理迁移.md`
+
 ## 对 QuaDMix 的行动建议
 
 ### 立即行动
@@ -445,6 +478,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-08-19**: 新增 STEM 能力涌现分析文档 `docs/STEM能力涌现分析.md`。**核心问题**：STEM（数学/推理）是规模涌现的能力吗？多大模型/多少数据才涌现？应用于本项目 nanochat-npu 1.5B 中训练的可行性判断。**综合三层共识**：① 经典涌现叙事（Wei 2022）GSM8K ~10²² FLOPs；② 指标假象修正（Schaeffer 2023）accuracy 阈值造成的阶跃假象但对下游 accuracy 目标仍成立；③ 相变理论（Phase Transitions #01, NeurIPS'25 Spotlight）`r_thres ∝ M^(-α)` 尖锐相变 + (M, r) 联合曲面 + 低于阈值训再久=0%。**业界锚点**：DeepSeekMath 1.3B + 150B 数学 token ≈ 21% GSM8K；7B + 280B 数学 ≈ 24%；Nexus 规模门控 GSM8K 增益 130M≈0 → 3B+15（STEM 收益 1B 以下几乎不存在）。**本项目判断**：基座 1.5B 预训练于 ClimbLab 1.2T（充分，800 tokens/param）；中训练 1.8B tokens（1.2× 参数量），3:7 配比 → 1.26B 数学 token，**仅为 DeepSeekMath 参考线（120-280B）的 ~1%**。配比方向正确（r_thres ∝ M^(-α) 支持小模型高 r，70% 合理），但数据量是生死瓶颈——**1.5B + 1.26B 数学 token 下 STEM 涌现基本不可能**，预期 GSM8K 个位数。当前中训练定位为"基座风味调整/数据管线验证"，真正 STEM 涌现需模型放大到 3B+ + 数学 token 提到 ~100B 量级。同时将 Phase Transitions (#01) 标记为 **[高价值/重要]** 并更新论文索引描述为其作为本项目 STEM 涌现分析理论根基
 - **2026-08-20**: 新增 QuaDMix 失败分析与相变理论启示文档 `docs/QuaDMix失败分析_相变理论启示.md`。**核心内容**：① **失败根因 = proxy gap（14M → 1.5B）**——Phase Transitions 理论解释：14M 与 1.5B 相变阈值不同（14M r_thres>0.30 vs 1.5B≈0.06-0.08）→ 不同 regime；背包问题对不同 M 有不同解 → 14M 最优"少给某些子域" vs 1.5B 最优"多给" → 方向相反 → 比 Random 还差。R² within-model（14M→14M）≠ cross-model transfer（14M→1.5B），gsm8k R²=0.751 但 QuadMix 反而最差 = 直接证据。② **Phase Transitions 论文完整信息**：两个相变（模型大小+配比）、幂律 r_thres ∝ S/M^1.283（α≈0.283）、训练步数随 1/r 超指数增长（r<0.4）、背包理论+边际价值、两个策略（随机子采样 4x + CKM 20x）、推理任务也有相变、proxy 警告原文+5 引用、continual pre-training 验证+early stopping 标准（val_loss +0.05）、计算成本表。③ **域级相变与 STEM trade-off**：每个域有自己的 r_thres（S 不同）；高数学配比损害其他 STEM 任务（背包 trade-off）；数学得分提升需足够 token 走完相变——r=0.7>>r_thres 在线性区但 1.26B 是参考 150B 的 ~1% → "刚跨阈值还没走完"；域状态分类表（远超阈值/刚跨/低于/已收敛）。④ **修正"小Proxy不可用"文档**：14M proxy 有信号（R²=0.30-0.84），不是随机噪声，但信号来自不同 regime 不传递到 1.5B accuracy。⑤ **行动方向**：修复 14M→1.5B 直接搜索（198→22 维, CLIMB 式 30→10→3）；Step 0 验证（30 min 推理判断 val_loss→accuracy 是否成立）；DomainPilot 兜底（无 proxy gap, 无 loss≠value, ~30 行 patch）；两条腿走路建议。新增文档 `docs/QuaDMix失败分析_相变理论启示.md`。⑥ **新增"重点论文快速索引"表**：在论文索引顶部汇总所有 [高价值/重要]/[高价值]/[新发现]/[有意思]/[独立再发现] 标记论文（共 17 篇），附深度分析文档路径，便于快速定位重点论文。确认 arXiv:2608.13515（Task-Agnostic Influence, #65）已在项目中记录
 - **2026-08-20**: 新增 `docs/论文总表.md` — 全 67 篇论文统一汇总表（按编号排序，含梯队+标记+机构+Venue+文档路径+关键贡献），附统计摘要和标记/梯队说明。README 顶部新增免责声明（个人主观+特定场景+非官方）。README 重点索引表精简为链接到总表
+- **2026-08-24**: 新一轮 arXiv 搜索（data mixture / data selection / scaling law data），新增 2 篇论文 + 2 篇深度分析文档。**LogFloor (#68, arXiv:2608.14936)**：小 proxy 模型搜索数据配比的新视角——不搜静态配比，搜**动态瓶颈解决顺序**。70M→12B replay 省 30.9%。顺序消解实验极干净（正确 60.3%→静态塌缩 10.3%→逆转 6.0%→随机 6/8 命中），独立验证 QuaDMix "静态配比不可迁移"的失败归因。**核心局限**：用 log-loss 不用 accuracy 绕过 phase transition，用 bAbI/MMLU 无相变任务回避了核心问题；loss 下降顺序 ≠ accuracy 涌现顺序——恰好是 QuaDMix 撞的同一面墙。**Bayesian Domain Reweighting (#69, arXiv:2607.27928, 西安交大 Zongben Xu)**：Dirichlet+Gamma 先验直接推断域权重，批评 scaling law/rank invariance 结构假设，声称比 search-based 方法用更少数据（仅索引，待深读）。**新增综合分析文档** `docs/核心未解决问题_相变与代理迁移.md`：综合 69 篇论文，系统性梳理核心理论鸿沟——"相变前信号能否预测相变后最优配比"，论证各方法应对策略与失败机制，从信息论视角论证该问题可能根本无法解决（QuaDMix 失败不是 bug 而是必然）。新增文档 `docs/LogFloor_深度分析.md`。总计 69 篇论文
 
 ## License
 
