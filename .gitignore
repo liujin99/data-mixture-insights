@@ -26,3 +26,6 @@ papers/
 *.tmp
 *.bak
 *.log
+
+# opencode agent workspace
+.opencode/
