@@ -10,7 +10,7 @@
 | **arXiv** | 2504.13161（v1 2025-04-17，v2 2025-11-30） |
 | **机构** | NVIDIA（Shizhe Diao 等 14 人）+ Georgia Tech（Yingyan Lin） |
 | **数据开源** | ClimbLab 1.2T（20 语义簇）+ ClimbMix 400B（最优混合抽取） |
-| **venue** | arXiv preprint（附 NeurIPS checklist，v2 大修） |
+| **venue** | **NeurIPS 2025 接收**（abs 页 "Accepted to NeurIPS 2025"；v2 2025-11-30=camera-ready；2026-10-16 核实修正——原记"arXiv preprint 附 NeurIPS checklist"过时） |
 
 ## 框架两阶段
 
