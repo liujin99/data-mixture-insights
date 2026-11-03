@@ -1,7 +1,7 @@
 # Marin 535B Hero Run 与 Harrier 数据管线深度分析
 
 > **项目性质**：开源工程项目（非论文）。Stanford 起源（David Hall + Percy Liang，2024 年创建），现由 Open Athena 主导（约 10 FTE），资助方含 Google TPU Research Cloud、Huang Foundation、Siegel Family Foundation 等。
-> **Hero Run**：535B 总参 / 23B 激活 MoE，18T tokens，约 100 天，GB200 集群，2026-08-21 启动（写作时训练中）。全部代码（GitHub marin-community/marin）、实验讨论（issue 体系）、权重（HF）、训练语料构成、逐 checkpoint 指标（W&B）公开。
+> **Hero Run**：535B 总参 / 23B 激活 MoE，18T tokens（390,139 steps × 4K→16K 上下文），GB200 集群，2026-08-21 启动。**2026-10-30 状态：10-21 快照 step 302,999/390,139 = 77.7%，实际节奏 ~5.0k steps/天（全程约 79 天），收官 ETA ~11-07±2 天；seqlen 已于 ~step 252k 切 16K、phase-2（80%）推算已生效，详见 §8.6**。全部代码（GitHub marin-community/marin）、实验讨论（issue 体系）、权重（HF）、训练语料构成、逐 checkpoint 指标（W&B）公开。
 > **判级**：T1 **[高价值]**——混合搜索协议栈与聚类管线均为可直接采用的方法论；数值结论不迁移（目标函数为 macro BPB，非 STEM accuracy；尺度差 4 个数量级）。
 
 ---
@@ -14,7 +14,7 @@
 
 - **人员**：David Hall（EleutherAI 出身，Pythia/Marin 系）+ Percy Liang（Stanford CRFM）。embedding 模型为微软发布（harrier-oss-v1 家族，MIT 许可）。
 - **历史记录**：Marin 8B 在 19 项基座评测中对 Llama 3.1 8B 赢 16 项；129B-A16B MoE 落在预注册 loss 预测 1% 以内；Delphi scaling suite（训练至 1e23 FLOPs）预测 300× 更大模型误差 0.2% 以内。
-- **预注册文化**：hero run 提前注册 18T 目标 Paloma eval loss = 2.04；换混（mixture swap）先经缩放梯子验证再部署。
+- **预注册文化**：hero run 提前注册 18T 目标 Paloma eval loss = 2.04；换混（mixture swap）先经缩放梯子验证再部署；**run 进行中即出现三方公开预测赛**（官方/bethehand/mindscanlabs NAI，预注册终值各不同，见 §8.6.2）——预测科学的现场示范，结局前锁死评分口径。
 - **自我诚实声明**：issue #9126 明确写"swarm 帮助选择该混合，因此不是独立验证"；斜率跨宽度迁移、回测残差迁移等假设逐一标注。
 - **无同行评审**——但可复现性高于论文标准：权重 parquet、对照 CSV、analyze.py 脚本、六个源 run 全部公开可下载。
 - **可信度结论**：高于绝大多数 arXiv 论文（全程可审计）。风险不在造假，在工程结论的规模化外推（他们自己也这么标注）。
@@ -67,9 +67,10 @@
 ### 3.4 评测体系
 - Paloma（Stanford 靶向子集 benchmark，16 子集）为主指标，BPB（bits per byte）计量
 - **7 个 uncheatable held-out 数据集**：作为零权重验证组件嵌入每个梯子 rung——训练数据中严格零曝光，防指标污染
+- **多长度评估系列（#10711，2026-10-26 补）**：4K / 当前训练长度 / 65K / 262K 各自独立 metric 系列，评估上下文高于训练长度时延迟——起因是打包口径切换本身制造 ~0.03 系统差、262K 打包静默剔除短子集（见 §8.6.3/§8.6.4）
 - 主观观察：这套"训练内零权重 held-out"设计对 accuracy 评测同样适用（用户 nanochat 直评 accuracy 场景）
 
-## 4. 三阶段调度的数值（写作时 initial 已部署，main/cooldown 已规划于 PR #9162）
+## 4. 三阶段调度的数值（2026-10-30 状态：phase-1 全部已跑完；phase-2 边界=80% 即 step ~312k，按 ~10-23 前后推算已实际生效——梯子每个 rung 在 80% 处都有可见的小 loss bump 为佐证；权重数值源自 PR #9162 计划）
 
 | 维度 | initial (0-27.7%) | main (27.7-80%) | cooldown (80-100%) |
 |---|---|---|---|
@@ -189,6 +190,138 @@
 3. **外推+回测校正的预测机器实测可信**：60-80% 检查点线性外推 + 小宽度回测残差校正，129B 预注册命中 1% 以内（Delphi 套件外推 300× 更大模型误差 0.2%）。→ 用户版：go/no-go 判定可放心采用此机器（§8 第 4 条的实证背书）。
 4. **梯子是方案闸门**：外推预期明显差于上一代配方 → 打回重设计，省下 100 天大 run。梯子最贵的用途不是"确认能跑"而是**提前否决**。
 
+## 8.6 盯哨更新（2026-10-30，hero run 后 20% 冲刺期）
+
+### 8.6.1 时间线与进度
+
+- **进度**：10-21 快照 step 302,999/390,139 = **77.7%（~14T/18T）**；实际节奏 ~5.0k steps/天（8-21→10-21 共 61 天），全程约 79 天，收官 ETA **~11-07±2 天**
+- **seqlen 4K→16K 切换已落地**（~step 252k ≈ 64.6%，`qk_mult` 1.48）——原计划"4K→8K@50%，8K→65K@95%，尾部 262K"改为直上 16K；训练打包长度的切换连带评估打包口径切换（§8.6.3 的根源）
+- **phase-2（cooldown 换混，80% 边界即 step ~312k）推算已于 ~10-23 前后生效**（推算非实证：GitHub 懒加载折叠了 10 月上旬评论）；旁证：换混设计时梯子每个 rung 在 80% 处都有可见的小 loss bump
+- issue #8435 于 10-21 移入 Marin high-level 项目 **Long-lived**（冲刺期转长驻跟踪）
+- 花絮：d2048 梯子 rung 曾在 81% 处失败，团队选择**不恢复**、用前 81% 干净外推剩余 19%——梯子价值在方向与闸门、不在把每个 rung 跑完（与 §8.5.5 第 4 条同向）
+
+### 8.6.2 预注册预测赛扩至三组（对答案窗口 ~11-07）
+
+| 预测方 | 时间 | 终值预测 | 构成 |
+|---|---|---|---|
+| Marin 官方 | 8-19 | 2.039 | 梯子幂律拟合外推（4K 打包；显式声明是"全程 4K+同混"的假想情景，实际 seqlen/混均中途变） |
+| bethehand | （issue #9977） | 2.035 [2.023, 2.047] | 同族幂律方法独立实现（4K 口径） |
+| mindscanlabs | 10-21 | **A=1.979 [1.965,1.994]**；**B=1.935 [1.915,1.963]** | NAI 符号回归，**不给形式**（无 floor、无 power-law 假设）：A=梯子+hero 16K evals 锚定；B=纯梯子行 |
+
+- **B 比官方低 0.10 的来源不是数据差，是形式假设差**：双方用同一张梯子表，官方拟合预设 floor（下限），NAI 的搜索空间不含——"外推的渐近线怎么设"这一行手工假设制造了 0.10 分歧（§8.5.1/§8.5.2 形状问题的现场版：形状假设 > 数据数量）
+- 三组全部结局前锁死（NAI 另把修正评分方案于 10-25 结局前固化入库）——预注册文化的完整形态：预测、评分规则、修正规则都在看牌前定
+
+### 8.6.3 packing 口径：同一权重换尺子量出 ~0.03 系统差
+
+- bethehand 10-22 实测：同一 checkpoint（step 252k）**16K 评估比 4K 低 ~0.031**（`qk16k-a1-step252k` 臂 2.0929/2.0926 vs hero 4K 评估 2.1234；`qk_mult` 留 1.3 则 ~0.028；剔除 WikiText 偶然值后 0.032）
+- 后果：**4K 期做的预测（官方 2.039 / bethehand 2.035 / NAI B 1.935）对 16K 终值天然虚高 ~0.03**——"预测对错"里 0.03 是尺子差、不是方法差；且偏差可能随 16K 训练继续漂移
+- 处理（教科书级）：① mindscanlabs 10-25 结局前固化修正评分方案——按注册原文计分 + 并排报告 packing 修正版（4K-built 预测对 Y+Δ；Δ 取终 checkpoint 的 4K 重评值，缺则用 0.0306/0.0283 敏感性检查）；② Marin（dlwh）承诺跑完按 4K 重评**全部** checkpoint 供旧预测对账
+- **对用户启示**：评估口径（打包长度 / token 化 / 子集剔除规则）本身可制造 0.03~0.06 级假差异——**大于很多真实方法差异**。中途改口径的 run 必须：双口径发布 + 结局前锁死换算规则；7-8B 验证实验若任何中途评测配置变更，照此办理
+
+### 8.6.4 262K 扩展的评测静默失败（真 bug，10-26 已修）
+
+- 陷阱：PTB / WikiText-103 验证集各**短于单条 262,144-token 序列** → 零 token tag → loss 记 0.0 → Paloma 组均值**静默剔除它们、变 14 子集均值**（假跳 +0.06 ≈ 3%，足以触发 eval_regressed 假警报）；顶层 macro_loss 反向把 0 平均进去（假降 −0.14）。67B 的 65K→262K 切换实测双证：`eval/paloma/macro_loss` 2.1774→2.2150 而其余 14 子集仅 +0.0004
+- 修复（**#10711**，dlwh 10-26，不触活 run）：零 token tag 从顶层 loss/BPB 宏剔除；评估上下文高于当前训练长度时延迟；4K/16K/65K/262K **多长度评估系列**（各自独立 metric）；CPU 套件 3,297→**3,574 测试过**
+- **对用户启示**：评测基础设施的失败模式是"**静默降级**"而非报错——任何"指标突然变好"先查评测配置是否变了（与 #68 LogFloor、早期检查点排序不稳定同族教训；nanochat 直评链路同理，val 集预处理/打包/子集变更都属此类）
+
+## 8.7 整体流程架构与问答沉淀（2026-11-03 深挖，一图流）
+
+### 8.7.1 全流程架构图（从历史资产到收官对账）
+
+```
+━━━━━━ 历史资产（以前战役攒下的，本次复用）━━━━━━
+  qsplit240 战役：~242 条 run @ 60M/300M，随机配比
+        │ 拟合出
+        ▼
+  DSP 代理打分器：配方(200 格权重) → 预测 BPB（毫秒级）
+  ＋ launch 前梯子足迹：现役配方 × d512-d2048 各宽度全程 run
+    （→ scaling law、预注册 2.039、抓病、换混对照的现役侧基线）
+━━━━━━ 配比选拔漏斗（成本递增，便宜的层负责淘汰）━━━━━━
+ ① 虚拟海选：BO 拿 DSP 扫 200 维单纯形
+    候选配方代入公式打分，零训练成本 → 淘汰 99.9%
+ ② 单臂验证：提名候选在 d768 真跑验证（单臂、少量）
+    #8452 单调链在此层迭代改进候选
+ ③ swarm 决赛：d512 × 6 臂
+    从 d512 rung 的 10% 存档分叉（同卵六胞胎）：
+    挑战者×3种子 vs 现役×3种子 → 训到终点，只比最终 BPB
+ ④ 梯子终审：配方 × 宽度网格（d512→d1536 全程微缩）
+    a. 判决稳定性：d512 冠军在更大宽度还赢吗？
+       （code 子集 d512 −3.6% → d768/d1024 翻输，实证翻脸）
+    b. 60-80% 检查点外推＋小宽度回测校正 → hero 尺度收益预测
+    外推明显差 → 否决打回（闸门）；证据混合 → 权衡后 go
+━━━━━━ 主线（535B/23B 激活，GB200，只执行不思考）━━━━━━
+ 0% ────── 27.7% ────────── 80% ───────── 100%
+ [ A 初始 ][  B main  ][ C 或 B：cooldown ]
+ 换混只在边界点执行；no-go 的 fallback＝B 打满全程（零成本）
+ 全程监控：实际轨迹 vs 梯子预测轨迹（偏离报警）
+━━━━━━ 收官对账（~11-07）━━━━━━
+ 预测赛（三组预注册终值 × 双 packing 口径）
+ 换混收益 1.07× 验收 ＋ 4K 重评全部 checkpoint
+```
+
+实际时间线（与逻辑顺序不同步）：8-17 BO/d768 验证 → 8-18 剧本定稿（三阶段权重 json）→ 8-21 主线开跑 → 9-12 梯子终审落锤（1.07×，go）→ ~10-23 80% 边界执行换混 → ~11-07 收官。
+
+### 8.7.2 两个正交实验轴
+
+- **swarm ＝ 固定宽度（d512）扫配方 → 选拔；梯子 ＝ 固定配方扫宽度 → 验证**。配比的最终裁决在"配方 × 宽度"网格的交叉验证里
+- 梯子顶格 rung（~1.2B 激活）距 hero（23B 激活）~19× 外推缺口——预测赛 A/B 分歧（1.979 vs 1.935）的来源
+
+### 8.7.3 代理的边界与保鲜（FAQ 沉淀）
+
+- **代理是提名机器不是裁决机器**：部署尺度的裁决从不交给代理；60M→300M identity transfer 0.777 是实测衰减——正因量过，才设此规矩（QuaDMix 的失败恰是违反此规矩的对照案例）
+- **打分依据**：历史战役的 (配方， 实测成绩) 对拟合出的映射；每次打分的输入＝候选配方本身。"零训练"指打分那一刻，不是代理的一生
+- **两条保鲜路线**（应对"60M 拟合的曲线不适用更大模型"）：① DSP 重拟合＝形状抄旧战役、常数新宽度重定（结构参数少 → 少量新 run 即可）；② #8633 分层 GP＝内容响应跨战役共享 ＋ 各战役残差项各自记账（核按训练相位挂钩、先验均值内置平方 epochs 惩罚）
+- **GP 的实际位置**：不在成绩预测赛道（qsplit240 生产预测器是 DSP）；只出现在两个必须不确定性的地方——BO 采集（导航：下一个候选从哪出）与跨战役迁移（知识搬运）
+- **DSP 公式（2026-11-03 源码级核验，真实形式见 §8.7.6）**：全名 reduced-bias Domain Saturation-Penalty；每域四参数（收益幅度/惩罚幅度/饱和率/惩罚阈值）＋相位 γ＋遗忘 λ＋重复半径 r1；OOF 0.914。基础版无宽度变量（每档宽度单独拟合），宽度处理与 size×mixture 交互的显式建模（amp_b(N)/amp_p(N) 振幅）见 §8.7.6
+- **大小×格子交互是真实的、且会翻符号**（code 跨宽度翻脸、0.777、本项目文献 r_thres ∝ M^-1.283 同族）——代理刻画不了这个交互，梯子终审存在的原因
+
+### 8.7.4 主线/支线与换混决策（FAQ 沉淀）
+
+- 结构一句话：**剧本先行 ＋ 并行彩排确认 ＋ 固定边界执行**——不是实时寻优；中途乱切配方破坏所有外推与对照的可比性
+- **换混是优化项非必需品**：no-go 的 fallback＝现役配方打满全程，零成本；剧本带验证条款（dlwh：datamix 原则上可 mid-run 更新，但这次没这么玩）
+- **定价**＝事前把换混收益量化成可验收数字：d1536 上新旧配方各自外推到终点＋回测校正 → 新 2.55421 vs 旧 2.56377 → 1.07× 等算力加速（原始外推 1.18× 保守化）——预注册、跑完对账
+- 这次裁决的证据是混合的：swarm 实测终点支持 ＋ code 在 d768/d1024 翻脸 → 靠 d1536 校正预测权衡 go；依据是"预测的终点"，hero 真实终点收官才揭晓
+
+### 8.7.5 罗盘与验收（FAQ 沉淀）
+
+- **全程无 benchmark 信号**：牵引＝实际轨迹 vs 梯子预测轨迹；能力验收全部 post-hoc（8B 赢 Llama 3.1 16/19 是训完测的）
+- **为什么 BPB 不是 val loss**：Paloma 16 个异质子集，每 token loss 依赖分词器，BPB 按字节归一 → 子集可公平平均、跨模型可比
+- **held-out 设计对复现者是第一件事**：分布跟产品走 / 多子集＋零曝光双结构 / 口径管理当一等公民（罗盘本身会静默坏掉）；残余赌注＝held-out 分布 ≠ 产品分布，只能靠 post-hoc 往绩闭环校准
+- **与用户场景最大分岔**：STEM accuracy 目标必须在罗盘里放 accuracy 锚点（连续导向信号管中途、最终验收管终点，两者分离）
+
+### 8.7.6 DSP 真实公式与宽度处理（2026-11-03 源码级核验）
+
+**来源**：PR #6969 三件套之 research.md（design/mixing_via_embeddings 分支，head SHA d2a5a25）＋ swarm 分支 `calvin/swarm-olmo3-regmix-test` 下 `experiments/domain_phase_mix/exploratory/two_phase_many/`：`fit_dsp_canonical_variants_{60m,300m}.py`、`fit_variable_scale_dsp_nd.py`、`fit_grug_v4_aggregate_canonical_dsp.py`（hero 侧使用的拟合入口）。qsplit240 的 39 域语料＝Dolma3＋Dolmino＋Nemotron 分片＋SFT 集（`domains.py`）。
+
+**基础版公式**（每域 d）：
+
+```
+预测BPB = intercept − Σ_d b_d·signal_d + Σ_d p_d·penalty_d
+signal_d  = 1 − exp(−ρ_d · exposure_d)                 # 饱和收益
+penalty_d = softplus(log1p(exposure_d) − τ_d)²        # 阈值铰链惩罚（平方）
+exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
+            ＋ 遗忘 exp(−λ(1−p1)) 或 重叠红利 λ·min(e0,e1)
+重复度    = 1 + r1·(1 − exp(−excess/r1))             # 亚线性计重复
+```
+
+- 每域四参数（收益幅度 b_d、惩罚幅度 p_d、饱和率 ρ_d、惩罚阈值 τ_d）＋ 相位 γ×3 ＋ 遗忘 λ ＋ 重复半径 r1；家族对照：GRP＝power-family penalty（幂律族惩罚）、LightGBM 弱基线
+- **拟合两段式**：非线性参数（ρ/τ/γ/λ/r1）basinhopping 优化 → 线性头 (N)NLS；**profile objective＝RMSE ＋ 0.5×下尾乐观惩罚**——对预测最优端的乐观偏差显式加罚（防 argmin 外推的 winner's curse 内建设计，与本项目 D19 同族）
+
+**宽度（模型大小）三层处理**：
+1. 基础版**无宽度变量**：60M 与 300M 各自单独拟合（两个 fitter 文件）——"形状抄旧、常数新定"的落地形态
+2. 跨宽度迁移：identity 0.777；实测最优是 **anchored y60 ＋ γ(scale)**（锚定 60M 预测＋尺度校正项），胜过拟合连续跨尺度定律
+3. **变尺度扩展（ND scaling panel）——size×mixture 交互的显式建模**：
+   ```
+   y(N, D, w) = scale_head(N, D)                # 缩放基线头，只管水平
+              − Σ_i a_i·amp_b(N)·ΔS_i(w)        # 混合收益项，振幅是 N 的函数
+              + Σ_i p_i·amp_p(N)·ΔP_i(w)        # 混合惩罚项，振幅是 N 的函数
+   ```
+   Δ 特征对"同 (N,D) 按比例配比"**居中**——缩放头不得解释混合效应、混合项不得解释基线轨迹（"水平与形状分账"的形式化）；变体含 benefit/penalty 分别的 N 依赖振幅、**D 依赖曝光倍增器**（预算大小进曝光）。**"大模型小模型需要不同数据分布"＝混合效应振幅随 N 变化——正是该机制的正式实现**
+
+**"在哪里停止"的官方答案**（research.md 原文）：proxy run 在 22% 进度排名相关性仅 0.298（vs 终点），**"proxy runs must run near-full-length"**——中途信号不可靠是实测结论，验证 run 一律训到接近终点；中途需要判断时用 60-80% 检查点外推＋回测校正机器（§3.3）。
+
+**DSP/BO/GP 三者分工**：DSP/GRP＝打分器（配方→预测 BPB）；BO＝猎手（单纯形上决定下一个候选从哪出，采集函数 PI 族，#8452 把 PI 改进为单调/epsilon0 变体）；GP＝雷达（带预测＋不确定区间的模型），只出现在两个必须不确定性的地方——BO 采集（导航）与 #8633 跨战役迁移（搬运）；qsplit240 生产打分器是 DSP 而非 GP。
+
 ## 9. 来源（供回查）
 
 - 主页 marin.community；launch note：openathena.ai/blog/marin-535b-launch-note/（2026-09-03，David Hall）
@@ -198,4 +331,7 @@
 - 设计文档：#6969 mixing_via_embeddings（design/research/spec 三件套）；#8633（迁移 GP）；#8453（多轴标注 roadmap）
 - 簇总览页：GCS `marin-public/held/harrier-k40-cluster-overview/2026.08.18`；swarm 对照：GCS `h100-mix25-paloma` 系列
 - embedding 模型：HF `microsoft/harrier-oss-v1-{270m,0.6b,27b}`
-- 遗留未解：#8452 中 "PI" 的确切含义（BO 语境下大概率指 Probability of Improvement acquisition，与 monotonic regret / epsilon0 等 BO 术语同现，未完全核实）
+- **§8.6 盯哨来源（2026-10-30）**：预测赛——官方预注册（#8435，8-19，2.039）；bethehand 独立预测 issue #9977（2.035 [2.023,2.047]）；mindscanlabs NAI 双预测（10-21，A=1.979/B=1.935）与 10-25 修正评分方案（github.com/mindscanlabs/NAI-track-record，forecasts/marin-535b.md）；bethehand packing 实测与 phase-2 对比计划（10-22，github.com/bethehand/marin-hero-forecast，addenda/2026-10-22_phase2_plan.md）；W&B 公开数据快照至 step 302,999（2026-10-21 22:58 UTC）
+- **§8.6 修复与调度**：262K 扩展 PR #10618；262K 评测修复 PR #10711（零 token tag 剔除 + 多长度评估系列，10-26，3,574 测试过）；seqlen 切换（~step 252k，qk_mult 1.48）与 d2048 rung 81% 失败弃恢复：#8435 内 dlwh 讨论串
+- **§8.7.6 源码级来源（2026-11-03）**：PR #6969 三件套 research.md（分支 design/mixing_via_embeddings，head SHA d2a5a25）；swarm 分支 `calvin/swarm-olmo3-regmix-test` 的 `experiments/domain_phase_mix/exploratory/two_phase_many/`（DSP/GRP fitters：`fit_dsp_canonical_variants_{60m,300m}.py`、`fit_variable_scale_dsp_nd.py`、`fit_grug_v4_aggregate_canonical_dsp.py`）；qsplit240 资产与 39 域定义在 `experiments/domain_phase_mix/`（`domains.py`、`experiment.py`、`weight_sampler.py`）；swarm-transfer-calibration 与 partition-expressivity logbook 于同目录 `.agents/logbooks/`（research.md 引用）
+- 遗留未解：#8452 中 "PI" 的确切含义（BO 语境下大概率指 Probability of Improvement acquisition，与 monotonic regret / epsilon0 等 BO 术语同现，未完全核实）；phase-2 实际生效时间（10 月上旬评论被 GitHub 懒加载折叠，~10-23 为步速推算）
