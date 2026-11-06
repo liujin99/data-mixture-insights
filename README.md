@@ -2,9 +2,9 @@
 
 LLM 预训练数据配比算法的业界研究洞察项目。
 
-> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 142 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction). Focus scenario: 1.5B-model mid-training (~1.8B tokens) evaluated on STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), merge-as-proxy mixture search (MergeMix), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
+> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 142 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y). Focus scenario: 3B-A1 MoE mid-training (first validation rung of a 3B-A1 → 7B → 15B → 500B ladder) evaluated on STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB / UltraData), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
 
-> **免责声明**：本项目所有分析、评估和结论均为个人主观看法，针对特定场景（1.5B 模型 + ~1.8B token 中训练，STEM accuracy 评估）进行的判断，不代表任何官方立场，也不构成对任何论文或方法的权威评价。论文的梯队划分、价值标记和行动建议仅为本项目内部工作参考。
+> **免责声明**：本项目所有分析、评估和结论均为个人主观看法，针对特定场景（3B-A1 MoE 模型中训练〔3B-A1→7B→15B→500B 梯子首档验证档〕，STEM accuracy 评估）进行的判断，不代表任何官方立场，也不构成对任何论文或方法的权威评价。论文的梯队划分、价值标记和行动建议仅为本项目内部工作参考。
 
 ## 项目目标
 
@@ -26,42 +26,44 @@ data-mixture-insights/
 └── README.md
 ```
 
-## 可信度评估准则（2026-10-12 用户指定）
+## 可信度评估准则（2026-10-12 用户指定；2026-11-06 增补第 4、5 条）
 
-对论文/报告的评估，除既有可信度分层规则（**定理 > 受控机制/反例 > 方向性结论 > 具体数字**；"X 有用"正结论最易随规模蒸发，反例/算术账最耐用）外，以下三项为**准入级准则**，评估任何工作前必须核对：
+对论文/报告的评估，除既有可信度分层规则（**定理 > 受控机制/反例 > 方向性结论 > 具体数字**；"X 有用"正结论最易随规模蒸发，反例/算术账最耐用）外，以下五项为**评估准则**，评估任何工作前必须核对——第 1–4 条裁“可信”（准入级）、第 5 条裁“价值”（时效折损）；**梯队 = 可信 × 价值 × 场景**：
 
-1. **实验规模（重大参考因素）**：学术界常在小规模模型/数据上得出结论，**并不必然适用于大规模模型/数据**。必须显式记录实验规模（模型参数量+数据量+训练 tokens）并与工业界主流规模（>100B 参数/数十 T tokens）对照——相差 2 个数量级以上默认标 ⚠️ 规模外推风险；有多尺寸扫描（跨尺度验证）或工业规模佐证的可放宽。本项目目标场景锚点：1.5B 模型 / 1.8B tokens 中训练。
+1. **实验规模（重大参考因素）**：学术界常在小规模模型/数据上得出结论，**并不必然适用于大规模模型/数据**。必须显式记录实验规模（模型参数量+数据量+训练 tokens）并与工业界主流规模（>100B 参数/数十 T tokens）对照——相差 2 个数量级以上默认标 ⚠️ 规模外推风险；有多尺寸扫描（跨尺度验证）或工业规模佐证的可放宽。本项目目标场景锚点：3B-A1 MoE 中训练（3B-A1→7B→15B→500B 梯子首档验证档）。
 2. **作者与发布机构**：作者背景（理论/统计/工程）、机构类型（头部厂商实验室 / 知名学术组 / 初创 / 单作者无机构）是可信度的重要考量，录入时在行内标注。
 3. **业界关注度**：受业界关注程度（被大厂 TR 引用、工业采用、社区讨论度）是可信度的重要正信号；缺乏关注度的工作在引用其结论前须回溯一手证据。
+4. **开源可审计 + 社区采用（2026-11-06 用户新增，“Marin 线”）**：**完全开源**（代码 + 数据或权重，足以审计其核心主张；仅代码或仅权重 = 部分开源，不计）且**社区采用达标**（满足其一：GitHub star 千级量级〔Marin ≈4k 为参照〕；被独立第三方项目/工业管线实际采用〔记录采用方，如 CLIMB→nanochat 生态、UltraData→Puro-2B、OLMo microanneals→MAI-Thinking-1〕；发布 ≥6 个月仍持续维护与引用）的工作，认定为**可信、高参考价值**——可独立支撑 T1 准入，与“定理级 / 工业规模 / 强机构+强 venue”并列为第四条准入路径（T1 仍须同时过“直接命中场景”关：纯可信度不足抵价值/场景错位，例：DCLM #78 维持 T3）。**三条边界**：① 社区背书的是**工程资产与协议可复现性**，不自动背书科学结论——引用其结论时仍按“定理 > 受控机制/反例 > 方向性结论 > 具体数字”定证据强度；② **不解除规模警示**——开源+高 star ≠ 跨尺度结论成立（规模降档不因开源翻案）；③ **反向条款**——完全无开源佐证的“工业规模”自报不得独立支撑准入（#130 MergeMix 教训）。**新文条款**：发布 <6 个月默认只计“开源”不计“采用”（防发布脉冲），留升级触发器——star/第三方采用/时间检验任一达标即重评（例：#84 Puro-2B、#126）。
+5. **时效（2026-11-06 用户新增）：近 2 年内发布的工作参考价值高，超 2 年默认过期折损**——本领域发展快，知识易过期（数字/配方/管线实践层尤甚）。以首次发布日期（arXiv v1 / TR / Release）起算滚动 24 个月窗口：窗口内全额计值；出窗即标 ⚠️时效，“具体数字 / 配比配方 / 管线实践”层默认不再直接引用。**三条豁免**：① **定理与受控机制/反例层不随时间折损**（与证据类型排序联动——时效折损主要发生在排序右端）；② **开源资产不随论文过期**（数据/代码/权重按第 4 条独立评估、以仓库现状为准，例：ClimbMix/DCLM 语料仍为标准基建）；③ **被后继工作明确修正的旧结论降为“历史锚点”**并记录修正关系（如 #125 修正 Muennighoff“≤4 epoch”、#140 修正 isoFLOP 拟合偏差）。**配套**：18-24 个月条目标“出窗预警”；每次 sweep 附带时效扫描（出窗打标+修正关系核对）；行内日期字段为生效前提，未录日期的早期条目须补全。
 
 ## 论文索引
 
-> 四梯队共 142 篇，每行**一句话核心**：讲清这个工作最核心的结论/指导，或为什么对本项目（1.5B 模型中训练、数据配比）有高参考价值。详细内容、⚠️ 边界与梯队裁定注记以 [`docs/论文总表.md`](docs/论文总表.md) 为准（完整主表：梯队+标记+机构+Venue+文档路径+关键贡献）。
+> 四梯队共 142 篇，每行**一句话核心**：讲清这个工作最核心的结论/指导，或为什么对本项目（3B-A1 MoE 中训练、数据配比）有高参考价值。详细内容、⚠️ 边界与梯队裁定注记以 [`docs/论文总表.md`](docs/论文总表.md) 为准（完整主表：梯队+标记+机构+Venue+文档路径+关键贡献）。
 >
-> **梯队划分依据**《可信度评估准则》（实验规模 / 作者机构 / 业界关注度，2026-10-12）；个别行的升降档裁定及原因见 changelog。
+> **梯队划分依据**《可信度评估准则》（实验规模 / 作者机构 / 业界关注度 / 开源可审计+社区采用 / 时效；2026-10-12 制定、2026-11-06 增补第 4、5 条）；个别行的升降档裁定及原因见 changelog。
 >
 > **标记说明**：`[高价值/重要]` = 项目理论根基；`[高价值]` = 直接可用方法/数据；`[新发现]` = 新视角启发；`[有意思]` = 有价值但需批判看待；`[独立再发现]` = 不同搜索角度独立验证高相关。
 
-### 第一梯队：高可信度 + 高价值（准入：定理级 / 工业规模 / 强机构+强 venue）
+### 第一梯队：高可信度 + 高价值（准入：定理级 / 工业规模 / 强机构+强 venue / 完全开源+社区采用）
 
 | # | 论文 | 机构 | Venue | 一句话核心 |
 |---|------|------|-------|-----------|
 | 01 | **Phase Transitions in Data Mixing** | 清华 | NeurIPS'25 Spotlight | **[高价值/重要]** 配比存在相变：STEM 知识获取在阈值处突变（r_thres∝M^(-α)），不是平滑曲线能外推的——本库"小 proxy 预测不了涌现"的理论根基 |
-| 03 | Scaling Laws for Optimal Data Mixtures | Apple | arXiv | 把域配比与 loss 的关系做成参数化 scaling law、可外推可跨模态——"用拟合曲线代替扫配比"路线的代表 |
-| 04 | DeMix: Model Merging | 小红书+东大 | ICML'26 | 每域单独训专家再参数合并、替代联合配比训练：7 域×30B=211B tokens、1.7B/8B 双尺寸验证、数据集开源 |
+| 03 | Scaling Laws for Optimal Data Mixtures | Apple | arXiv (2025.07, 2507.09404) | 把域配比与 loss 的关系做成参数化 scaling law、可外推可跨模态——"用拟合曲线代替扫配比"路线的代表 |
+| 04 | DeMix: Model Merging | 小红书+东大 | ICML'26 | 每域单独训专家再参数合并、替代联合配比训练：7 域×30B=211B tokens、1.7B/8B 双尺寸验证、数据集开源；2026-11-06 准则4 半命中：数据集开源 ✓/社区采用未录（新文） |
 | 09 | CAMEL: Capacity-Aware Mixture Law | 清华 | arXiv | 把相变理论落成容量感知的配比律——Phase Transitions 的实践版（同系工作） |
-| 10 | Proxy Reliability | Princeton/Berkeley | ICLR'26 | 找到 proxy 失效的修复旋钮：调低 proxy 学习率可让小模型信号与大模型对齐——400M proxy 线的超参纪律 |
+| 10 | Proxy Reliability | Princeton/Berkeley/Stanford/VT | ICLR'26（arXiv 2512.24503，2025.12） | 找到 proxy 失效的修复旋钮：调低 proxy 学习率可让小模型信号与大模型对齐——400M proxy 线的超参纪律 |
 | 21 | PiKE: Adaptive Data Mixing | Google Research+USC | arXiv | 大规模预训练中任务梯度几乎不冲突，按梯度范数/方差自适应配权即可（冲突缓解方法基本无效）——1.9× 收敛加速 |
 | 27 | **Domain-Aware Scaling Laws** | MIT+Microsoft Research | arXiv (2026.7) | **[高价值]** 域间协同/竞争可量化（R²=0.91）且≠语义重叠——配比不能只看单域好坏，pairwise 特征可直接进 LightGBM |
-| 31 | PreSelect | HKUST+Vivo AI | **ICML'25** | 用 predictive strength（免训练统计量）+fastText 选数据，10× 计算缩减、开源——"不训 proxy 也能选"的轻量可靠线 |
+| 31 | PreSelect | HKUST+Vivo AI | **ICML'25**（arXiv 2503.00808，2025.03） | 用 predictive strength（免训练统计量）+fastText 选数据，10× 计算缩减、开源——"不训 proxy 也能选"的轻量可靠线 |
 | 37 | **InfoLaw** | ByteDance | **ICML'26** | **[高价值]** 信息论推导的 scaling law 同时建模配比权重与重复递减收益，7B/425B 验证误差 0.15%——配比+重复的统一框架 |
-| 38 | **Explaining Data Mixing Scaling Laws** | - | **ICML'26** | **[高价值]** 解释配比 scaling law 为何长这样（容量竞争+噪声消减两机制）——理论上背书"高质量该重仓"，也解释 proxy→target 为何失效 |
+| 38 | **Explaining Data Mixing Scaling Laws** | 北理工+清华 IIIS | **ICML'26** | **[高价值]** 解释配比 scaling law 为何长这样（容量竞争+噪声消减两机制）——理论上背书"高质量该重仓"，也解释 proxy→target 为何失效 |
 | 58 | **GLM-5** | 智谱 AI + 清华 | Tech Report (2026.2) | **[高价值]** 头部厂商唯一设专门 Mid-Training 章节的 TR（744B/28.5T）：三阶段上下文课程+160B SWE 数据——中训练结构的工业参照 |
 | 60 | **Nemotron 3 Ultra** | NVIDIA | Tech Report (2026.6) | **[高价值]** 数据配比最透明的大厂 TR（550B/20T）：19 类别两阶段比例全公开+定向注入消融价目表（100B tokens 合成 Q&A→GPQA +11.1）——目标尺度的参考答案 |
 | 73 | **MAI-Thinking-1** | Microsoft AI | Tech Report (2026.08) | **[高价值]** 千个 proxy 实证 rank non-invariance（小尺度赢家到大尺度反超）——"proxy 排名不可信"的最强工业证据；另有 memorization-aware 重复上限与完整配比表 |
-| 74 | **Nemotron-CLIMB** | NVIDIA | **NeurIPS 2025**（arXiv 2504.13161，2025.04） | **[高价值]** 本库基座的数据来源：ClimbLab 1.2T 语义聚类 20 簇+迭代搜索出 ClimbMix 400B，优于 DoReMi/RegMix——"语义聚类+bandit 搜索"的工业实现 |
-| 110 | **Marin 535B Hero Run / Harrier 数据管线** | Open Athena（Stanford 起源） | 开源工程项目（2026.08-09） | **[高价值]** 535B/18T 全程可审计的开源训练项目：40 域×5 质量桶混合空间+三层选权协议+uncheatable held-out——配比方法学的开源对照实验室 |
-| 130 | **MergeMix: Optimizing Mid-Training Data Mixtures via Learnable Model Merging** | 人大高瓴+蚂蚁集团 | arXiv (2026.01, 2601.17858，ICML 模板) | **[高价值]** 把模型合并权重当配比搜索的低耗代理（每域 5B token 专家=预算 2.5%）：8B/16B 工业 mid-training 超人工调参、成本降 100×，8B 配比直接用于 16B 仍有效——proxy 跨尺度少数正面证据 |
+| 74 | **Nemotron-CLIMB** | NVIDIA | **NeurIPS 2025**（arXiv 2504.13161，2025.04） | **[高价值]** 本库基座的数据来源：ClimbLab 1.2T 语义聚类 20 簇+迭代搜索出 ClimbMix 400B，优于 DoReMi/RegMix——"语义聚类+bandit 搜索"的工业实现；2026-11-06 准则4 命中（全开源+社区采用+本库一手复现）——双支柱；2027-04 出窗 watch（ClimbMix 资产+复现按时效豁免不折损） |
+| 101 | **UltraData: Tiered Data Management** | OpenBMB/面壁智能 (Yudong Wang 等) | arXiv (2026.02, 2602.09003) | **[高价值]** L0-L4 分层数据管理：L3 格式重构（QA/教科书化）才是数学跃迁来源（+9.24pp MATH500）、纯筛选增益小——"筛"与"改"的价值分界；2026-11-06 准则4 命中升 T1：论文+数据+代码全开源+HF Datasets Trending #1+被 Puro-2B 采用为 P2 最大数学源（第三方工业采用） |
+| 110 | **Marin 535B Hero Run / Harrier 数据管线** | Open Athena（Stanford 起源） | 开源工程项目（2026.08-09） | **[高价值]** 535B/18T 全程可审计的开源训练项目：40 域×5 质量桶混合空间+三层选权协议+uncheatable held-out——配比方法学的开源对照实验室；2026-11-06 准则4 命中（命名案例：全开源+~4k★ 社区采用） |
 | 132 | **SuperValid: Capability-Aligned OOD Validation** | 蚂蚁集团 | arXiv (2026.05, 2605.28179) | **[高价值]** IID 验证 loss 在配比变化时会漂、capability 级 OOD 验证集不漂（2T tokens 受控实锤）——扫配比期间用什么当监控信号的答案 |
 
 ### 第二梯队：高相关（未全达 T1 准入）
@@ -74,7 +76,7 @@ data-mixture-insights/
 | 14 | Synthetic Data in Pretraining | Meta | EMNLP'25 | 合成:自然 ≈ 30:70 是最优区——合成掺入比例的受控结论 |
 | 20 | Chameleon | EPFL | **ICML'25** | KRLS 领域权重、换目标时免重训迁移配比——实验最大仅 1.2B，按规模准则降级 |
 | 22 | ADAPT: Online Reweighting | Cambridge+Oxford | **ICLR'26** | 在线按训练动态重加权优于离线一次性选子集——"边训边调"路线的受控证据 |
-| 26 | **FastMix: Gradient Descent Mixing** | 腾讯混元+港大 | **ICLR'26** | **[高价值]** 可微 bilevel 优化把配比搜索降到 1 个 proxy（550× 加速）、§4.3 工业踩坑经验直接适用——预训练验证最大 1B，按规模准则降级 |
+| 26 | **FastMix: Gradient Descent Mixing** | 腾讯混元+港大 | **ICLR'26** | **[高价值]** 可微 bilevel 优化把配比搜索降到 1 个 proxy（550× 加速）、§4.3 工业踩坑经验直接适用——预训练验证最大 1B，按规模准则降级；2026-11-06 准则4 注记：代码开源 ✓/采用未达（研究代码） |
 | 30 | **WebGraphMix** | Princeton (Danqi Chen) | arXiv | 网页图中心度当 training-free 质量信号、与 fastText 正交（乘法组合 +1.5%）——零训练信号的正交补充 |
 | 36 | **RegMix-D: Dynamic Mixing** | U Tokyo+NII | arXiv (2026.6) | **[高价值]** RegMix 动态化：用 loss 轨迹回归替代终点 loss，128 个 25% 预算 proxy 超 512 个全预算 RegMix——proxy 搜索的 ROI 改进路径 |
 | 40 | **HDS: Holistic Data Scheduler** | Dang, Ma, Liao | **KDD'26** (S2 DBLP 确认) | 在线 RL（SAC）按三目标奖励调度数据，Pile 省 44% 迭代——调度轴的强化学习实现 |
@@ -85,27 +87,26 @@ data-mixture-insights/
 | 63 | **Data Mixing Agent** | Microsoft | **ACL'26** | **[高价值]** 用 RL 学配比策略、benchmark 分数当 reward（绕过 val_loss 不靠谱），+3.02% over RegMix——配比搜索的 agent 化 |
 | 64 | **BETR: Benchmark-Targeted Ranking** | **Apple** | arXiv (2025.07) | **[高价值]** 按 benchmark 相似度做文档级选择：~2-4 GPUh 全库成本、2.1× CM——最便宜的可用选择器；"最小模型要最狠过滤"的 scaling 结论 |
 | 65 | **Task-Agnostic Training Data Influence** | NAIST+NII 等 6 机构 | **COLM'26** | **[有意思]** task-agnostic 数据贡献度量——但有循环论证批判（θ* 内生性），对配比决策指导有限 |
-| 66 | **DIDS** | HKUST+MetaX+Alibaba 等 | **EMNLP'25** | **[高价值]** FIM+loss 轨迹动态配比，直接对比赢 Velocitune 3 分、10% 数据超全量——验证规模小（1B tokens）降级，方向价值保留 |
+| 66 | **DIDS** | HKUST+MetaX+Alibaba 等 | **EMNLP'25** | **[高价值]** FIM+loss 轨迹动态配比，直接对比赢 Velocitune 3 分、10% 数据超全量——验证规模小（1B tokens）降级，方向价值保留；2026-11-06 准则4 注记：代码开源 ✓/采用未达（1★/3 commits 原型级） |
 | 67 | **MIRA** | SJTU+UBC 等 | arXiv (2026.05) | 中训练源感知 rubric 筛选：25B 半量匹配 50B 全量——样本级筛选与域级配比互补 |
 | 68 | **LogFloor** | Stanford/KAIST | arXiv (2026.08) | **[高价值]** proxy 学到的"瓶颈顺序"可跨尺度迁移（70M→12B replay 省 30.9%）——但用 loss 绕过了 accuracy 涌现问题 |
 | 71 | Scaling Domain Data Repetition | 清华+字节 Seed | arXiv (2026.08) | 域级最优重复次数与 val loss 强负相关、同 TPP 可迁移——数据充裕区（本库场景）帮助有限 |
 | 72 | **Cross-Difficulty Optimization Dynamics** | 复旦 | arXiv (2026.08) | 跨难度知识迁移度量+动态采样——课程学习的优化动力学解释（post-training 场景） |
-| 75 | **OLMo 2** | Allen AI (Team OLMo) | arXiv (2024.12) | 数据+recipe+中间 checkpoint 全开源+annealing curriculum+checkpoint soups——可复算的中训练参照系 |
-| 76 | **Llama 3 Herd of Models** | Meta | arXiv (2024.07) | 15T tokens 预训练数据工程的最广泛引用参考：annealing 高质量收尾+质量分类器管线 |
-| 77 | Phi-4 Technical Report | Microsoft | arXiv (2024.12) | 合成数据配比当核心创新（"beyond distillation"）——合成为主路线的代表 TR |
-| 80 | SmolLM2: When Smol Goes Big | Hugging Face (Ben Allal et al.) | arXiv (2025.02) | 4 阶段 evolving mixture 的小模型开源参照——已 18 个月偏旧 |
+| 75 | **OLMo 2** | Allen AI (Team OLMo) | arXiv (2024.12) | 数据+recipe+中间 checkpoint 全开源+annealing curriculum+checkpoint soups——可复算的中训练参照系；2026-11-06 可信度 A（准则4 命中）+⚠️出窗预警（2024.12，1 个月内出窗；升 T1 议案按时效轴撤回：活内容已被 #73/#84/#137 继承） |
+| 77 | Phi-4 Technical Report | Microsoft | arXiv (2024.12) | 合成数据配比当核心创新（"beyond distillation"）——合成为主路线的代表 TR；2026-11-06 ⚠️出窗预警（2024.12，1 个月内出窗；合成 30:70 属数字层）；仅权重部分开源不计准则4 |
+| 80 | SmolLM2: When Smol Goes Big | Hugging Face (Ben Allal et al.) | arXiv (2025.02) | 4 阶段 evolving mixture 的小模型开源参照——已 18 个月偏旧；2026-11-06 ⚠️出窗预警正式化（2025.02，3 个月后出窗） |
 | 82 | **MobileLLM-R1** | Meta AI | **ICLR'26** (arXiv 2509.24945, 2025.09) | **[高价值]** 2T tokens 足够推理涌现（Qwen3 36T 的 11.7%）+cross-capability influence 配比法+两阶段配比表——中训练配比工业细节最全的论文之一 |
 | 83 | **MobileLLM-Pro** | Meta Reality Labs | arXiv (2025.11, 2511.06719) | offline 数据混合仿真+LOO continued tuning+配比表——静态仿真不如 R1 的迭代式 |
-| 84 | **Puro-2B** | 清华 PACMAN | arXiv (2026.08, 2608.27370) | **[高价值]** 消费卡复现 2B/1.4T（$6.9K）全开源：课程/CMA 数据配方贡献 2.40×（最大单项）、配比收益穿透 SFT（+1.77~2.02pp）——与本库场景同构的端到端参照 |
+| 84 | **Puro-2B** | 清华 PACMAN | arXiv (2026.08, 2608.27370) | **[高价值]** 消费卡复现 2B/1.4T（$6.9K）全开源：课程/CMA 数据配方贡献 2.40×（最大单项）、配比收益穿透 SFT（+1.77~2.02pp）——与本库场景同构的端到端参照；2026-11-06 注记：2027 复现第二席（T2 不变）；准则4 采用触发器（Apache 2.0 全开源 ✓/未满 6 个月采用不计） |
 | 88 | **Capacity-Dependent Data Selection for Reasoning** | Virginia Tech (Ruoxi Jia 组) | **COLM 2026** (arXiv 2026.08, 2608.13721) | **[高价值]** 数据难度是（数据×模型）配对属性：1.5B 学"够不着"的数据只会死记、8B 才反转——STEM 池别灌超难、打分用学生模型自己 |
-| 101 | **UltraData: Tiered Data Management** | OpenBMB/面壁智能 (Yudong Wang 等) | arXiv (2026.02, 2602.09003) | **[高价值]** L0-L4 分层数据管理：L3 格式重构（QA/教科书化）才是数学跃迁来源（+9.24pp MATH500）、纯筛选增益小——"筛"与"改"的价值分界 |
-| 111 | **AutoData: Agentic Search for Pre-training Data Selection** | Weco AI+UvA | arXiv (2026.09.17, 2609.19754，在投) | agent 在可执行算法空间搜选择器（底座与本项目栈同构）；核心发现"精炼池质量轴已死"（最优 vs 随机仅 ~0.1%）——Climb 级语料只有内容构成还有残值 |
+| 111 | **AutoData: Agentic Search for Pre-training Data Selection** | Weco AI+UvA | arXiv (2026.09.17, 2609.19754，在投) | agent 在可执行算法空间搜选择器（底座与本项目栈同构）；核心发现"精炼池质量轴已死"（最优 vs 随机仅 ~0.1%）——Climb 级语料只有内容构成还有残值；2026-11-06 准则4 注记：代码开源（MIT）✓/采用远未达（8★） |
 | 115 | **When do data mixtures improve scaling laws?** | ISTA+Yale | arXiv (2026.09, 2609.38011) | 理论：混合优于单数据集 ⟺ 辅助域谱重尾（互补覆盖）且规模适中增长——源选择=选互补覆盖而非堆冗余质量 |
-| 122 | **MDE: Optimizing Pre-training Data Mixtures with Mixtures of Data Expert Models** | Google DeepMind | arXiv (2025.02, 2502.15950, preprint) | **[高价值]** 验证目标选择>方法选择：end-task 验证 loss 与下游相关 0.844 vs 域 loss 0.282——换验证目标的收益远大于换方法 |
+| 122 | **MDE: Optimizing Pre-training Data Mixtures with Mixtures of Data Expert Models** | Google DeepMind | arXiv (2025.02, 2502.15950, preprint) | **[高价值]** 验证目标选择>方法选择：end-task 验证 loss 与下游相关 0.844 vs 域 loss 0.282——换验证目标的收益远大于换方法；2026-11-06 ⚠️出窗预警（2025.02，3 个月；ρ=0.844 属测量型机制证据，出窗时重审而非自动降档） |
 | 123 | **What Is a Repeated Token Worth?** | FloatAI+ETH Zurich+独立研究者 | arXiv (2026-10, 2610.05591, 无 venue) | 重复代价 ∝ (R-1)N/U 单变量定律：固定语料下更大模型更快到最优 epoch——过训练区的重复理论 |
 | 124 | **Repetition Mismatch: Why Data Mixture Experiments Don't Scale** | Imperial College London | **EMNLP 2026 Main**（arXiv 2606.07597） | **[新发现]** 小实验外推失败的元凶=重复率失配：子采样匹配目标重复率后 1/16 tokens 恢复最优配比（误差 0.85→0.10）——proxy 实验设计的必修修复 |
 | 125 | **Larger Datasets Can Be Repeated More** | 清华 PACMAN（#84 同组） | **ICLR 2026**（arXiv 2511.13421） | 定理级：大数据集更耐重复（有效复用率饱和值随 N 增长）——修正"≤4 epoch 无差"旧共识 |
-| 126 | **How Much Is an AI Token Worth?** | UMD+Pangram Labs 等 | arXiv (2026.09, 2609.40295) | wild AI 文本掺入会变号：数据饥饿模型先受益后受害、高预算模型立即有害——"先重复 human 再扩 AI 语料" |
+| 126 | **How Much Is an AI Token Worth?** | UMD+Pangram Labs 等 | arXiv (2026.09, 2609.40295) | wild AI 文本掺入会变号：数据饥饿模型先受益后受害、高预算模型立即有害——"先重复 human 再扩 AI 语料"；2026-11-06 准则4 采用触发器（WildAI 语料/800 模型/代码全量开源 ✓/两周新文） |
+| 130 | **MergeMix: Optimizing Mid-Training Data Mixtures via Learnable Model Merging** | 人大高瓴+蚂蚁集团 | arXiv (2026.01, 2601.17858，ICML 模板) | **[高价值]** 把模型合并权重当配比搜索的低耗代理（每域 5B token 专家=预算 2.5%）：8B/16B 工业 mid-training 超人工调参、成本降 100×，8B 配比直接用于 16B 仍有效——proxy 跨尺度少数正面证据；2026-11-06 准则4 反向条款降 T2（无代码/数据/权重、规模自报不可审计、v1 挂 9 个月无修订）——高价值标记与动态复评触发器保留（Q2 前放出代码/录用/第三方采用即重评） |
 | 131 | **Optimal Splitting of Language Models from Mixtures to Specialized Domains** | Apple（#03 原班） | arXiv (2026.03, 2603.19149) | scaling law 定"通用预训练→专门域 CPT"的最优切换点：早切≈全量、CPT from scratch 显著差——两阶段结构的 Apple 侧证据 |
 | 137 | **How Learning Rate Decay Wastes Your Best Data in Curriculum-Based LLM Pretraining** | 清华 PACMAN（#84/#125 同组） | arXiv 2511.18903（2025.11，v3 2026.05，无 venue） | **[高价值]** 升序质量课程必须配恒定 LR：标准衰减把课程收益吃掉（好数据压轴时 LR 已太低）——修复=温和衰减或 checkpoint 平均 |
 | 138 | **Bridging Compute- and Data-Optimal Pretraining** | Harvard+MIT CSAIL | arXiv 2607.25271（2026.07，无 venue） | token 有效性函数 η 给"重复/改写值多少新鲜 token"定价：池≫预算时重复只在局部簇发生——优化精力该花在选择轴 |
@@ -142,6 +143,7 @@ data-mixture-insights/
 | 49 | DataFlex | 北大 | arXiv (2026.3) | 统一数据中心训练框架（selection+mixture+reweighting） |
 | 50 | Survey #2: Data Mixing | Tianjin U | Data Intelligence (2026, 期刊同行评审) | 期刊综述：bilevel on simplex 形式化+inverse data mixing 方向 |
 | 69 | Bayesian Domain Reweighting | 西安交大 (Zongben Xu) | arXiv (2026.07) | Dirichlet+Gamma 先验直接推断域权重——贝叶斯路线，批评 scaling law 结构假设 |
+| 76 | **Llama 3 Herd of Models** | Meta | arXiv (2024.07) | 15T tokens 预训练数据工程的最广泛引用参考：annealing 高质量收尾+质量分类器管线；2026-11-06 准则5 降 T3（已出窗 4 个月：数字层〔15T 配比/质量分类器实践〕过期、机制层〔高质量收尾 annealing〕已被在窗 TR 覆盖）——“最广泛引用”历史锚点注记保留 |
 | 78 | DataComp-LM (DCLM) | 多机构 (Li, Fang et al.) | arXiv (2024.06) | 240T 语料受控实验框架（412M-7B）——数据管线比较的标准基建 |
 | 79 | Data Mixing Survey #3 | CUHK-SZ | arXiv (2026.03) | 41 页综述：Static vs Dynamic 分类法，覆盖 DoReMi/RegMix/BiMix/Chameleon/Domain2Vec 等 |
 | 81 | Tulu 3 | Allen AI + UW (Lambert et al.) | arXiv (2024.11) | post-training 配比方法论：skill 上界模型+配比逼近；8B 与 70B 最优配比不同 |
@@ -645,6 +647,10 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-10-30（Marin 盯哨：hero run 冲刺 80%，预测赛扩至三组+packing 修正协议）**：① 进度：10-21 快照 step 302,999/390,139（**77.7%，~14T/18T**）；按 ~5.2k steps/天推算 **cooldown 换混（phase-2，step ~312k）应已于 ~10-23 前后发生**（推算非实证，GitHub 懒加载折叠了 10 月上旬评论）、收官 ETA ~11-07±2 天（16K 打包仅慢 ~3%），11-11 官方对答案日仍有效；② **seqlen 4K→16K 切换已落地**（~step 252k、qk_mult 1.48；原计划"4K→8K@50%"改为直上 16K）；③ **预注册预测三组并存**：官方 8-19 2.039（4K 打包）；bethehand #9977 2.035 [2.023,2.047]；**mindscanlabs（NAI 符号回归系统）10-21 新入局：A=1.979 [1.965,1.994]（ladder+hero 16K evals 锚定）、B=1.935 [1.915,1.963]（ladder-only，不假设 floor/power law 形式——比官方低 0.10 全部来自 floor 假设差）**；④ **packing 混淆被钉死**：bethehand 实测同权重 16K 评估比 4K 低 ~0.031（qk16k-a1-step252k 臂 2.0929/2.0926 vs 4K 2.1234；qk_mult 留 1.3 则 -0.028）→ 4K 期预测对 16K 终值天然虚高 ~0.03；mindscanlabs 10-25 结局前固化修正评分方案（4K-built 预测对 Y+Δ，Δ 取终 checkpoint 4K 重评否则用 0.0306）；Marin 承诺跑完后按 4K 重评全部 checkpoint——**对答案日升级为三组预测 × 双 packing 口径的公开预测科学实验**；⑤ 262K 扩展评估坑（bethehand 10-25 发现：PTB/WikiText-103 短于单条 262,144-token 序列 → 零 token tag 使 Paloma 静默变 14 子集均值、假跳 +0.06 触发 eval_regressed）：dlwh 10-26 #10711 修复（零 token tag 剔除 + 4K/当前/65K/262K 多长度评估系列、65K 打包上限，3,574 测试过、不触活 run）；⑥ issue 10-21 移入 Marin high-level Long-lived。对用户启示：**MDE（#122）"验证目标选择>方法选择"的极端版现场教学——同一 run 的三个预注册预测差 0.10，分歧全在 floor 假设与 packing 口径，终值口径（4K vs 16K）本身制造 0.03 系统差**。本条已同步沉淀为 `docs/Marin535B_Harrier_深度分析.md` §8.6 盯哨更新（8.6.1 时间线/8.6.2 预测赛三组/8.6.3 packing 口径/8.6.4 262K 静默失败），该文档头部状态、§1 预注册文化、§3.4 多长度评估系列、§4 三阶段状态、§9 来源一并更新至 10-30。下次盯哨：~11-07 收官窗口。总计 142 篇论文（标记 43 篇）
 
 - **2026-11-03（Marin 深挖问答沉淀：§8.7 整体流程架构一图流）**：用户对配比选择机制连环九问（DSP 真实公式与宽度因素/GP 实际位置/虚拟海选打分依据/d768 截断比例/定价含义/no-go 逻辑/历史资产/主线支线关系），全部沉淀进深读档案 **§8.7 整体流程架构与问答沉淀**：① **8.7.1 全流程架构图**（历史资产[qsplit240→DSP 打分器＋launch 前梯子足迹] → 虚拟海选[BO 代入公式打分，淘汰 99.9%] → d768 单臂验证[#8452 单调链在此迭代] → swarm 决赛[d512×6 臂、10% 存档分叉、训到终点比 BPB] → 梯子终审[配方×宽度网格：判决稳定性＋外推回测定价] → 主线[固定边界 27.7%/80% 执行，no-go fallback=现役打满全程] → 收官对账[预测赛×双 packing 口径＋1.07× 验收]）＋实际时间线（8-17/8-18/8-21/9-12/~10-23/~11-07）；② 8.7.2 两正交轴（swarm 固定宽度扫配方=选拔、梯子固定配方扫宽度=验证，裁决在配方×宽度网格；梯子顶格 ~1.2B 激活距 hero 23B ~19× 外推缺口=预测赛 A/B 分歧来源）；③ 8.7.3 代理边界与保鲜（提名机器非裁决机器、0.777 实测衰减、打分输入=候选配方本身、DSP 重拟合[形状抄旧常数重定] vs #8633 分层 GP[内容响应共享+各战役残差]、GP 只管 BO 导航与跨战役搬运、DSP 无内建宽度变量、**大小×格子交互实测翻符号=代理刻画不了=梯子存在理由**，与本项目 r_thres∝M^-1.283 同族）；④ 8.7.4 主线/支线与换混决策（剧本先行+并行彩排+固定边界执行；换混是优化项；定价=1.07× 事前可验收预测[原始 1.18× 保守化]；本次证据混合靠 d1536 校正预测权衡 go——依据是"预测的终点"）；⑤ 8.7.5 罗盘与验收（全程无 benchmark 信号、BPB 字节归一原理、held-out 设计三规则[分布跟产品走/多子集+零曝光/口径管理]、与用户场景最大分岔=accuracy 锚点）。**修正一处转述不严谨**：d768 验证 run 截断比例无记录（#8452 在 step 1712 读数），"10% 分叉"仅属 swarm/d512 协议。**追加（同日源码级核验）**：GitHub web 通道间歇故障下经 API/raw 通道抓到 PR #6969 research.md（SHA d2a5a25）与 swarm 分支 DSP fitter 源码——**DSP 真实公式落定（§8.7.6）**：全名 reduced-bias Domain Saturation-Penalty，形式＝intercept − Σb_d·(1−exp(−ρ_d·exposure)) ＋ Σp_d·softplus(log1p(exposure)−τ_d)²，每域四参数＋相位γ＋遗忘λ＋重复半径 r1（亚线性计重复）；拟合两段式（basinhopping＋NNLS），**目标函数自带下尾乐观惩罚（RMSE+0.5×optimism——防 argmin 外推的 D19 同族内建设计）**；GRP＝power-family penalty；**宽度三层处理**：基础版无宽度变量（60M/300M 分别拟合）→ anchored y60+γ(scale) 迁移（实测胜过连续定律）→ **变尺度扩展 y(N,D,w)=scale_head(N,D)−Σa_i·amp_b(N)·ΔS_i+Σp_i·amp_p(N)·ΔP_i**（Δ 对同 (N,D) 按比例配比居中；size×mixture 交互＝混合效应振幅随 N 变化的显式建模，另有 D 依赖曝光倍增器变体）；**"停止位置"官方答案**：proxy run 必须接近全长（0.298@22% 实测），中途判断用 60-80% 外推＋回测；hero 侧拟合入口 fit_grug_v4_aggregate_canonical_dsp.py；DSP/BO/GP 三者分工沉淀（打分器/猎手/雷达）；qsplit240 的 39 域＝Dolma3+Dolmino+Nemotron+SFT（复现者无此资产须自跑入门战役或分层迁移，climbmix 226 实测点＝我们的对应资产）。总计 142 篇论文（标记 43 篇）
+
+- **2026-11-06（用户准则裁定：增补第 4、5 条准则）**：① 第 4 条**“开源可审计 + 社区采用”（Marin 线）**：完全开源（代码+数据或权重、足以审计核心主张；仅代码或仅权重=部分开源不计）+ 社区采用达标（GitHub star 千级量级〔Marin ≈4k 为参照〕/被独立第三方项目或工业管线实际采用〔记录采用方〕/发布 ≥6 个月持续维护引用，三选一）→ 认定为**可信、高参考价值**，可独立支撑 T1 准入，与“定理级/工业规模/强机构+强 venue”并列第四条路径（T1 仍须同时过“直接命中场景”关，例：DCLM #78 维持 T3）；三条边界：社区背书工程资产与协议可复现性不自动背书科学结论（证据强度仍按定理>受控机制>方向性>数字）、不解除规模警示（开源降档不翻案）、反向条款——无开源佐证的“工业规模”自报不得独立支撑准入；新文条款：<6 个月默认只计开源不计采用、留升级触发器。② 第 5 条**“时效”**：首发日起算滚动 24 个月窗口，出窗标 ⚠️时效、“具体数字/配比配方/管线实践”层默认不再直接引用；三条豁免（定理与受控机制层不折损/开源资产不随论文过期/被后继修正的旧结论降为历史锚点并记录修正关系）；18-24 个月标出窗预警、sweep 附带时效扫描、行内日期字段为生效前提。**前四条裁“可信”、第 5 条裁“价值”——梯队=可信×价值×场景。** README 准则节/索引引言/英文 blurb/总表梯队说明与免责声明五处同步。
+
+- **2026-11-06（按第 4/5 条复审 T1/T2 全 59 篇 + 13 篇开源状态实查 + 场景锚点更新）**：**梯队 3 项**：① **#101 UltraData 升 T2→T1**（准则4 全命中：论文+数据+代码全开源、HF Datasets Trending #1、被 #84 Puro-2B 采用为 P2 最大数学源=独立第三方工业采用；在窗 9 个月+高价值标记+1.2B 场景重合——可信/价值/场景三轴全过）；② **#130 MergeMix 降 T1→T2**（反向条款：无代码/数据/权重、8B/16B 规模自报不可审计、v1 挂 9 个月无修订——2026-10-13 升档依据失效；高价值标记保留〔merge-as-proxy 正对 QuaDMix 失败根因〕+动态复评触发器）；③ **#76 Llama 3 降 T2→T3**（准则5：2024.07 已出窗 4 个月——数字层〔15T 配比/质量分类器实践〕过期，机制层〔高质量收尾 annealing〕已被 #58/#60/#73/#101 在窗来源覆盖；“最广泛引用”历史锚点注记保留）。**注记 12 项**：#74（准则4 命中双支柱+**2027-04 出窗 watch**：ClimbMix 资产+本库一手复现按豁免不折损）、#110（准则4 命中/命名案例）、#04（半命中：数据集开源/采用未录）〔T1〕；#75 OLMo 2（可信度 A+⚠️出窗预警 2024.12——**升 T1 议案按时效轴撤回**，活内容已被 #73 microanneals 采用/#84 CMA/#137 继承）、#77/#80/#122 出窗预警（#122 ρ=0.844 属测量型机制证据，出窗重审非自动降档）、#84（采用触发器+**2027 复现第二席**注记）、#126（采用触发器）、#111/#66/#26（开源✓采用未达）〔T2〕；#76/#77 部分开源不计。**13 篇开源状态实查（arXiv 全文/GitHub/HF，2026-11-06）**：0 篇准则4 命中——完全开源采用未达：#82（代码+权重+recipe 全量、95★、HF 360M 59.5k 月下载）、#11（代码+标注器权重、131★）、#124（代码、2★ 新文）；仅权重：#42（HF 7,967 月下载，无训练代码/语料）；闭源 9 篇：#37/#132/#10/#88/#63/#64/#143/#137/#36——**2026 年配比论文开源率极低（3/13），工业界只发论文不发资产**。**元数据修正/补全**：#10 真实标题《Can Small Training Runs Reliably Guide Data Curation? Rethinking Proxy-Model Practice》（arXiv 2512.24503，2025.12，Princeton/Berkeley/Stanford/VT）；#64 BETR=arXiv 2507.12466《Language Models Improve When Pretraining Data Matches Target Tasks》（2025.07）；#63=2507.15640（2025.07）；#36=2606.18663（2026.06）；#37=2605.02364（2026.05）；#03=2507.09404（2025.07）；#31=2503.00808（2025.03）；#21=arXiv 2025（月份待核）；**#38 机构补录：北理工（Rui Dai）+清华 IIIS（Shuran Zheng）**（定理级豁免保 T1）；#05/#12/#13 日期待核（docs 无 arXiv ID）。**场景锚点更新**：1.5B dense/1.8B tokens → **3B-A1 MoE 中训练（3B-A1→7B→15B→500B 梯子首档验证档）**——README 英文 blurb/免责声明/准则 1/索引引言+总表免责声明/Takeaway 头同步（核心洞察与行动建议正文成文于 1.5B 期，按新锚点重读）。**统计**：T1 17→17（-#130+#101）、T2 42→41、T3 53→54（+#76）、总 142 与标记数不变。
 
 ## License
 
