@@ -112,7 +112,6 @@ data-mixture-insights/
 | 138 | **Bridging Compute- and Data-Optimal Pretraining** | Harvard+MIT CSAIL | arXiv 2607.25271（2026.07，无 venue） | token 有效性函数 η 给"重复/改写值多少新鲜 token"定价：池≫预算时重复只在局部簇发生——优化精力该花在选择轴 |
 | 143 | **TiKMiX: Take Data Influence into Dynamic Mixture for Language Model Pre-training** | 字节（QuaDMix 同团队） | arXiv 2508.17677（2025.08，v1，无 venue，补档） | **[高价值]** 免 proxy 在目标模型上 0.1B tokens 直测 Group Influence 定配比（比 loss 观察 50× 便宜）——QuaDMix 团队自己转向动态路线的标志 |
 | 145 | **Data Schedules and Learning Rate Schedules Should Be Designed Together** | 清华 PACMAN+鹏城实验室 | arXiv (2026.10, 2610.29348) | **[高价值]** PT→MT 数据调度×LR 调度必须联设：衰减 LR 下早混入 MT 数据更优、恒定 LR 下反转；LR 衰减应在 MT 进场后开始；MoE 渐进入场避免路由失衡尖峰——#137 同组续作，3B 级 MoE 中训练结构直接参照 |
-| 147 | **Hinted Scaling Laws** | Stanford | arXiv (2026.11, 2611.02270) | **[新发现]** hint 把 benchmark 变连续难度谱→小模型可外推：1e20 FLOPs 拟合预测 1e23 GSM8K 误差 3pp（标准法差 13pp）——门3“小模型 accuracy 读不出趋势”的测量层解法（ScalingBench 互补） |
 | 155 | **Olmix: Data Mixing Throughout LM Development** | Allen AI | **ICML 2026**（arXiv 2602.12237，2026.02） | 配比方法设计空间系统实证+域集演化时的 mixture reuse（5 次更新 74% 省算力、+11.6% 下游）——配比结论可继承性问题（AI2 班底框架级 benchmark，补档） |
 | 156 | **The Finetuner's Fallacy** | ISTA+CMU+Meta 等 34 人 | arXiv (2026.03, 2603.16177) | 专门域数据从预训练起掺入（SPT）优于留给微调：1.75× token 效率、1B SPT>3B 标准、过拟合 scaling law 定最优重复——“域数据尽早进场”受控证据（调度三连之一） |
 | 157 | **Replaying Pre-training Data Improves Fine-tuning** | Stanford | arXiv (2026.03, 2603.04964) | 微调/中训练回放通用数据反而提升目标域（1.87×/2.06× 数据效率，8B 实证）——PT replay 线来源（#145 给出其 LR 边界），30% 非 STEM 陪跑收益的量化参照 |
@@ -176,7 +175,8 @@ data-mixture-insights/
 | 140 | **Problems with Chinchilla Approach 2** | Columbia+UT Austin+Amazon | arXiv 2603.22339（2026.03，无 venue） | isoFLOP 抛物线拟合有系统性偏差（套 Llama 3 公开数据=参数少投 6.5%）——一切 scaling law 外推的引用纪律 |
 | 141 | **Unified Data Selection for LLM Reasoning（HES）** | USTC+阿里+NUS | arXiv 2605.22389（2026.05，无 venue） | 样本 top 0.5% 最高熵 token 的熵和当免训练质量信号：top 20%≈全量、0.6B 打分≈8B 自选——熵轴比风格轴更接近训练效用 |
 | 144 | **GRAPE: Group Robust Multi-target Adaptive Pretraining** | EPFL（Jaggi 组） | arXiv 2505.20380（2025.05，无 venue） | 多目标稳健动态配比（group DRO×梯度对齐，0.7B 用 40% fewer tokens 达 uniform 水平）——静态法多目标脆弱的对照 |
-| 146 | **LinMix: Data Mixing as Linear Domain Attribution** | 华沙大学+Credible AI+Vienna | NeurIPS'26 Workshop（arXiv 2610.37390，2026.10） | **[高价值]** 顶点采样替代 Dirichlet 做 proxy 混合实验：288 域只有顶点支持线性拟合、4B 上 MBPP 相对 RegMix +46%——r-scan 采样协议层修复（#70/#124 同层第三处收敛；准则 1/2 降 T3，2026-11-09 用户裁定） |
+| 146 | **LinMix: Data Mixing as Linear Domain Attribution** | 华沙大学+Credible AI+Vienna | NeurIPS'26 Workshop（arXiv 2610.37390，2026.10） | **[高价值]** 顶点采样替代 Dirichlet 做 proxy 混合实验：288 域只有顶点支持线性拟合、4B 上 MBPP 相对 RegMix +46%——r-scan 采样协议层修复（#70/#124 同层第三处收敛；准则 1/2 降 T3，2026-11-09 用户裁定）。**⚠️ 与 CLIMB 一手经验张力（2026-11-09 用户提出）**：#74 CLIMB 用 Dirichlet（20-21 簇粒度）配比优化有效——LinMix 自己也承认 24 粗域时"各方法都能拟合"；其"Dirichlet 崩"仅在高维细域（288）+贴 prior 条件下成立，**结论边界=细簇参数化时的采样警告，非普适否定** |
+| 147 | **Hinted Scaling Laws** | Stanford | arXiv (2026.11, 2611.02270) | **[新发现]** hint 把 benchmark 变连续难度谱→小模型可外推：1e20 FLOPs 拟合预测 1e23 GSM8K 误差 3pp（标准法差 13pp）——门3"小模型 accuracy 读不出趋势"的测量层工具（**T3 裁定 2026-11-09 用户：评测方法论，非配比本体**） |
 | 148 | **Advancement or Acceleration? How Data Curation Improves LLM Training** | 疑字节系（待核） | arXiv (2026.10, 2610.36983) | **[有意思]** 策展=提升还是加速的形式化：Δ-test（策展前可算的训练/目标 loss 差）非零→收益持久、Δ≈0→随预算消失——投入策展/配比搜索前的事前判据（连 #111/#122） |
 | 149 | **Rewriting Scaling Laws for Synthetic Data** | Stanford | arXiv (2026.10, 2610.31867) | 合成改写最优占比随算力增长（<10%→32% @1e22）、22B 外推 33× 误差 1.1%——#14 合成 30:70 的 scaling-law 版（合成轴暂不聚焦，备查） |
 | 150 | **A Scaling Theory of Multi-Epoch Pretraining** | Bordelon 系 | arXiv (2026.11, 2611.03590) | 多 epoch 晚期过拟合理论+集成（logit 平均）延缓最优停点、固定数据下 ensemble 分配律——重复轴 #123/#125/#138 理论补强 |
@@ -545,7 +545,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 
 ### 30. 零分以下仍有梯度：hinting 让相变前信号可测（2026-11-09 新增，#147 深读）
 
-**Hinted Scaling Laws (#147, Stanford tatsu-lab, arXiv 2611.02270)**（深读：`docs/HintedScalingLaws_深度分析.md`）：
+**Hinted Scaling Laws (#147, Stanford tatsu-lab, arXiv 2611.02270——2026-11-09 用户裁定 T2→T3：评测方法论，非配比本体；[新发现] 保留)**（深读：`docs/HintedScalingLaws_深度分析.md`）：
 
 - **原语**：hint（按难度揭示部分解/teacher logit 混合）把 benchmark 变成难度连续谱——小模型 accuracy 随 hint 水平平滑上升，且 (规模, hint) 平面上 iso-accuracy 等高线近似平行对角线（**提示与规模线性互换**）；floored sigmoid 联合律 6 参数，≤1e20 FLOPs 拟合外推 1e23 的 GSM8K 误差 3pp（标准律差 13pp），中位误差 21pp→4.3pp
 - **对 §22（相变前信号）的含义**：#01 说阈值下 accuracy 恒零、门3 说小模型读数无梯度——本篇给出**测量层的第一操作方案**：不是小模型没信号，是评测没给信号显形的梯度；Proposition 1 定理化"什么样的 hinting 有信息"（必须按底层能力分离 pre-emergence 模型，"直接给答案"式 hint 零信息）
@@ -556,7 +556,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 
 **LinMix (#146, 华沙 Credible AI+维也纳, arXiv 2610.37390, NeurIPS'26 Workshop)**（深读：`docs/LinMix_深度分析.md`）：
 
-- **顶点采样**：proxy 混合按 Greedy fill 填到 cap 或置零（+配对反向排列去相关）——D-最优、零超参；Dirichlet 的定理级代价（Theorem 1：贴 prior 欠分散 1/c × 尾部饥饿 d^(p−1)，BPB 变动小 5×=没信号可回归）。**与 #70 Scheffé、#124 重复率子采样三处独立收敛：proxy 实验设计该用经典统计设计，Dirichlet 出局**
+- **顶点采样**：proxy 混合按 Greedy fill 填到 cap 或置零（+配对反向排列去相关）——D-最优、零超参；Dirichlet 的定理级代价（Theorem 1：贴 prior 欠分散 1/c × 尾部饥饿 d^(p−1)，BPB 变动小 5×=没信号可回归）。**与 #70 Scheffé、#124 重复率子采样三处独立收敛：细簇参数化时该用经典统计设计。⚠️ 2026-11-09 用户按 CLIMB 一手经验修正边界**：#74 CLIMB 用 Dirichlet（20-21 簇粒度）配比优化有效、LinMix 自证 24 粗域各方法持平——**"Dirichlet 崩"仅在高维细域（288）+贴 prior 条件下成立，粗簇层（≲24 域）Dirichlet 实战可用；读作"可用性随维度退化的警告"，非普适否定**
 - **合成方案（r-scan 采样协议就此集齐）**：顶点群定主效应（哪些域正归因，β 可解释）+ 内部/轴向点测交互（#70）——两段式；LinMix 的顶点最优结构性测不到混合区最优点（#27/#130：交互真实、math 最优点在内部），**内部点扫描不可省**；重复轴双旋钮 κ（硬 cap）+isoelastic r（软曲率）
 - **数字边界**：价值全在细域（288 域 Dirichlet ρ≤0.39 vs 顶点+线性照常、ARC +13.8%；**24 粗域各方法差别小**）；4B 上 MBPP +46%/MATH +31.6% vs 最佳基线，且 RegMix 的 GSM8K 混合低于 prior（不分化 vs LinMix 目标定向分化）；BPB 目标+学术规模+workshop venue——**协议全引、配比数字不引**
 
@@ -701,6 +701,8 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-11-09（深读 2/3：#147 Hinted Scaling Laws）**：完成 `docs/HintedScalingLaws_深度分析.md`（2611.02270v1 全文 HTML 通读），新增核心洞察 **§30**，总表 #147 行补深读注记。**元数据修正**：原行"无代码"有误——**代码+数据已开源** `tatsu-lab/hinted-scaling-laws`（9★、2026-10-31 建、无 license 标注）。**深读新内容**：①三种 hinting 实例化（truncation/masking/logit mixing——后者须同 tokenizer teacher）；②联合律 L(C,H)=max(F, L+(A−L)σ(β₁C+β₂H+β₃)) 6 参数，(C,H) 等高线≈平行对角线=**hint 与规模线性互换**；③**排名应用**：hint-prior（混合 H̄+z 加权 λ=8）单 hinted rollout/题≈5 个 unhinted 判别力（Kendall's τ +0.33 AIME/+0.27 HLE）——r-scan 近零候选的默认排名协议；④**Proposition 1（定理层）**：unhinted-determined 的 hinting（以概率 H 给答案）对零分模型集零信息——好 hinting 必须按底层能力分离 pre-emergence 模型（门3"小模型没信号"的精确化：是评测没给梯度）；⑤**多种子硬要求**（单种子 10.2pp vs 多种子 3.3pp；Delphi 作者补训 2 新预算点×3 种子）；外推在目标算力 ~0.2% 收敛、0.03% 最差 6.6pp；⑥**Delphi 梯子=外部验证集资产**（447M→25B/12 预算/多种子开源——r-scan 信号先 hinted 复核再上 7B/15B 大档）；⑦agentic 扩展（回放成功轨迹前段，未验证；UK AISI cyber-range $3-5k/rollout 下 5× 节省是真金白银）；⑧与 ScalingBench 失败模式正交（改考卷 vs 改读数口径）可双读数交叉验证。**边界**：保序≠保距（头部决策需 unhinted 复核）、交换率线性为经验假设、hinting 不回答"该配什么"。深读队列：#146。
 
 - **2026-11-09（深读 3/3：#146 LinMix——r-scan 采样协议层）**：完成 `docs/LinMix_深度分析.md`（2610.37390v1 全文 HTML 通读），新增核心洞察 **§31**，总表 #146 行补深读注记。**深读新内容**：①方法三件套经典化——Greedy fill 顶点采样（D-最优、零采样超参）+**配对反向排列**（run 2i 复用 2i−1 逆排列，支持集互补去相关）+OLS 线性归因（β 中心化=相对平均域的边际贡献）+isoelastic 效用（Prop 1 正归因域定支持集/曲率 r 内部配预算、Cor 1 闭式解）；②**Theorem 1 定理级钉死 Dirichlet 代价**：贴 prior 欠分散因子 1/c × 尾部饥饿 d^(p−1)，且贴 prior 的 Dirichlet 混合 BPB 变动比顶点小 5×——"没信号可回归"；③**数字边界**：24 粗域各方法差别小（ARC 仅 +2.8%、CPile 略输 RegMix）、价值全在 288 细域（Dirichlet ρ≤0.39 vs 顶点照常）；4B（10× target、80B tokens、40 域）MBPP .444 vs RegMix .304（+46%）、MATH +31.6%，**RegMix 的 GSM8K .135 低于 prior .214**（三目标混合不分化 vs LinMix 目标定向分化最强）；④30M 群线性归因给 60M/100M 排名 ρ≥0.95、一半顶点群胜全量 Dirichlet 群；⑤**顶点解的结构性盲区（对 r-scan 最重要）**：顶点识别主效应、最少行使域间交互，而 #27/#70/#130 一致表明交互真实——**LinMix 回答不了"最优 r 是否在内部"**；r-scan 协议合成=顶点群定主效应+内部点测交互两段式（与 #70 Scheffé 拼装）；⑥重复轴双旋钮：κ 硬 cap（κ≈n/b_target=目标尺度不重复）+r 软曲率（连 #123/#125）；⑦4B 语料用了 **#158 Nemotron-CC-Math**（库内资产第三方采用又一数据点）。**深读队列全部完成（#145→#147→#146）**：三篇共出洞察 §29/§30/§31——3BA1 的 MoE 配方（ZL+延迟衰减）、读数协议（hinted 阶梯）、采样协议（顶点+内部点）三个组件就位。
+
+- **2026-11-09（用户裁定二则：#147 降 T3 + #146 与 CLIMB 一手经验的张力）**：① **#147 Hinted Scaling Laws T2→T3**：评测方法论原语，非配比本体（[新发现] 标记保留——工具价值不变；README T2 表→T3 表迁移、§30 注记、总表行+统计同步：T2 47→46、T3 60→61）；② **#146 LinMix"Dirichlet 出局"结论边界修正**：用户指出**#74 CLIMB 用 Dirichlet（按簇 token 数初始化、消融优于均匀）在 20-21 语义簇粒度上配比优化有效**，与 LinMix 表面相反——核查 LinMix 原文：其自证 24 粗域"各方法都能拟合"（ARC 仅 +2.8%、CPile 略输 RegMix），"崩"仅在 288 细域+贴 prior 条件下成立（ρ≤0.39）；**正确读法=Dirichlet 可用性随维度退化（粗簇层 ≲24 域可用〔CLIMB 一手证据+LinMix 自证双确认〕、100+ 细域定理级崩），细簇参数化时的采样警告而非普适否定**——已同步 LinMix 深读文档挑刺⑥/落地推演(a)/深读结论、总表 #146 行、README §31、T3 表 #146 行注记。**方法论沉淀**：一手反例是划定论文结论适用边界的最高效手段——本次 CLIMB 经验把 LinMix 的主张从"采样协议修复"收缩到"高维条件警告"，价值定位更准。
 
 ## License
 
