@@ -377,6 +377,28 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 
 **DSP/BO/GP 三者分工**：DSP/GRP＝打分器（配方→预测 BPB）；BO＝猎手（单纯形上决定下一个候选从哪出，采集函数 PI 族，#8452 把 PI 改进为单调/epsilon0 变体）；GP＝雷达（带预测＋不确定区间的模型），只出现在两个必须不确定性的地方——BO 采集（导航）与 #8633 跨战役迁移（搬运）；qsplit240 生产打分器是 DSP 而非 GP。
 
+## 8.8 盯哨更新（2026-11-09：hero run 收官与对账）
+
+### 8.8.1 收官数字（issue #8435，11-05 bot 汇总帖）
+- 535B-A23B hero run 完成：**390,251 步 / 18.0T tokens**。最终 dropless Paloma macro：**4K 重评口径 1.982**（ladder 100% 预测 2.039，超预测 0.057；官方注明预测未计入 phase-2 换混与 16K/65K 训练——4K 打包假设下的保守值）；65K 训练口径 1.960；uncheatable macro 1.503（4K）/1.478（65K）。
+- loss 对预测线的分段行为：~65% 前 hero 与 per-5% ladder 拟合贴合；16K 切换（~step 252k）+ 改进 datamix 后持续领先预测线。MFU 从 ~21% 提升至 ~33%（六次 kernel 改造+两次上下文切换）。
+- 梯子侧：27.7B rung 在 81% 处硬件故障未恢复；ladder 在 80% 换 phase-2 混合后 loss 上升，hero 换不同 phase-2 混合后 loss 下降（两套 phase-2 配方的现场对照）。
+
+### 8.8.2 预测赛对账（11-11 正式对答案）
+- 三组预注册预测 vs 实际 4K 口径 1.982：官方 8-19 预测 2.039（高估 0.057）；bethehand #9977 2.035 [2.023, 2.047]（高估 0.053）；**mindscanlabs A 1.979 [1.965, 1.994]（误差 0.003，几乎命中）**。
+- §8.6.2 预判成立：预测分歧全在 floor 假设与 packing 口径；且**预注册协议对“中途改配方”存在覆盖缺口**——换混+扩窗两个主动干预未入预测，误差主源是协议覆盖而非 scaling law 本身失效。对用户：预注册设计必须声明“中途干预”的处理规则（干预发生时预测应作废还是修正口径）。
+
+### 8.8.3 Checkpoint 合并（对库内权重平均家族最重要）
+- 末段 11 个 checkpoint（385,500-390,251，每 500 步）等权平均+超球面 rescale → **clean Paloma −0.0030 / uncheatable −0.0033 / 全 23 eval 改善**，按 ladder law L=1.5+84.8·C^−0.09 折算 ≈**7% 免费算力**；等权>EMA（0.5/0.8 十点 EMA 均略逊）、**11 个仍未饱和**（“越宽越平越好”）；hyperball rescale 实测无差（普通平均已天然在 0.9995 球半径）；步进噪声仅 ±0.0003（合并收益高一个数量级）。
+- 工程细节：MuonH/AdamH 按 optimizer 不变轴分球（2D 权重整阵一球/stacked 权重每层一球/**每层整个 384 专家库一球**），Adam 叶子（embedding/router/norm 增益/attention gate）普通平均；合并权重+390,251 的 optimizer state/QB betas 存为可续训 checkpoint，逐叶 checksum 验证。
+- **库内连线**：权重平均家族第四处独立确认（#84 Puro CMA——课程+恒定 LR 才有效、#130 MergeMix WSM——合并当搜索代理、#137——温和衰减/平均替代衰减），**首次 535B 工业规模、首次作为正式资产**（262K 扩展起点）而非事后修饰——“衰减段附近的 checkpoint 拿来平均”在 BPB 目标下同样成立。
+
+### 8.8.4 262K 扩展与剩余流程
+- 从合并 checkpoint 出发：两候选配方（Global 1.84〔qk_mult 1.66+long scale 1.108〕vs log floor 65536²）各 3,240 步/149.5B tokens 至 step 393,491，LR 线性 5%→1% peak；**7 个 100 步臂在 held-out 上无分离**（clean macro 差距 0.0004 < 抖动 0.0002-0.0007）→ 按“无分离即不换”执行 Global 1.84；合并起点增益在 100 步内从 ~0.003 缩至 ~0.0017（单 seed，诚实标注）。
+- 流程收尾（§8.7.1 最后一格）：预测赛 × 双 packing 口径 × 1.07× 换混验收落定；剩余动作=262K 收尾+SFT/RL 加载合并 checkpoint 验证+4K 全 checkpoint 重评兑现承诺。
+
+（下次盯哨：**11-11 对答案日**——三组预测正式裁决+packing 修正方案执行+后续 SFT/RL 计划。）
+
 ## 9. 来源（供回查）
 
 - 主页 marin.community；launch note：openathena.ai/blog/marin-535b-launch-note/（2026-09-03，David Hall）
