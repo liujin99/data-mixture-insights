@@ -61,7 +61,7 @@
 3. **规模**：30M-100M proxy/1B-4B dense target；**MoE 未测**；但实验量大（23+10+4 个 target run、2000+ proxy run）
 4. **venue**：NeurIPS 2026 **Workshop**（AtScale）——非主会；0★ 新代码
 5. **诚实处**：自曝 Dirichlet 调参协议（条件数最小化）是自己发明的补丁、不等 cap 的最优性留白、标准误缩放系数的 ablation 建议都来自附录
-6. **⚠️ 与 CLIMB 一手经验的张力（2026-11-09 用户提出，重要边界）**：#74 CLIMB（NVIDIA，NeurIPS'25，T1）用 **Dirichlet 采样**（按簇 token 数初始化；其消融还显示优于均匀采样）在 **20-21 语义簇**粒度上做配比搜索，**优化有效**（超 DoReMi/RegMix 基线，用户一手复现同向）——与"Dirichlet 出局"表面相反。实为**边界互补**：LinMix 自己承认 24 粗域时"各方法都能拟合"（ARC 仅 +2.8%、CPile 略输），其"崩"仅在高维细域（288 域、贴 prior 采样）成立。**正确读法：LinMix 的主张是"Dirichlet 可用性随维度退化"，不是"Dirichlet 普适无效"——粗簇层（≲24 域）Dirichlet 可用（CLIMB 一手证据 + LinMix 自证双确认），细簇参数化时须换顶点/经典设计**
+6. **⚠️ 与 CLIMB 一手经验的张力（2026-11-09 用户提出，重要边界——已扩展为专门分析 `docs/Dirichlet采样可用性边界.md`）**：#74 CLIMB（NVIDIA，NeurIPS'25，T1）用 **Dirichlet 采样**（按簇 token 数初始化；其消融还显示优于均匀采样）在 **20-21 语义簇**粒度上做配比搜索，**优化有效**（超 DoReMi/RegMix 基线，用户一手复现同向）——与"Dirichlet 出局"表面相反。实为**边界互补**：LinMix 自己承认 24 粗域时"各方法都能拟合"（ARC 仅 +2.8%、CPile 略输），其"崩"仅在高维细域（288 域、贴 prior 采样）成立。**正确读法：LinMix 的主张是"Dirichlet 可用性随维度退化"，不是"Dirichlet 普适无效"——粗簇层（≲24 域）Dirichlet 可用（CLIMB 一手证据 + LinMix 自证双确认），细簇参数化时须换顶点/经典设计**
 
 ## 对用户场景的落地推演（r-scan 采样协议——本篇对本项目的全部意义）
 

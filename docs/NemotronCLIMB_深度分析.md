@@ -23,7 +23,7 @@
 **阶段 2 迭代 bootstrap 搜索（ClimbMix 构建法）**：
 - 形式化为 bilevel 优化（Eq.1-2），预测器 f_θ(α) 近似"配比→性能"
 - **3 轮迭代、64/32/16 个候选=112 次搜索**；每轮 LightGBM 用历史全部 (配比, 性能) 对重训，预测器剪掉预计差的候选，只有 top 候选进入完整 proxy 训练
-- 采样：Dirichlet（按各簇 token 数初始化，Abl.init 验证优于均匀 Random 60.41 vs 60.21）
+- 采样：Dirichlet（按各簇 token 数初始化，Abl.init 验证优于均匀 Random 60.41 vs 60.21）——**注（2026-11-09）**：此 20-21 簇粒度上 Dirichlet 有效，是 `docs/Dirichlet采样可用性边界.md` 的正面锚点（与 #146 LinMix"288 细域 Dirichlet 崩"不矛盾——失效是 d×prior 偏斜度的联合条件，粗簇层不触发）
 - LightGBM 设置：L1/L2 正则、max depth 4、min 5 samples/leaf、early stopping 20 轮
 - **C.1 自述**："can be regarded as an extension of RegMix, using a much larger proxy model and larger cluster data"
 
