@@ -384,8 +384,10 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - loss 对预测线的分段行为：~65% 前 hero 与 per-5% ladder 拟合贴合；16K 切换（~step 252k）+ 改进 datamix 后持续领先预测线。MFU 从 ~21% 提升至 ~33%（六次 kernel 改造+两次上下文切换）。
 - 梯子侧：27.7B rung 在 81% 处硬件故障未恢复；ladder 在 80% 换 phase-2 混合后 loss 上升，hero 换不同 phase-2 混合后 loss 下降（两套 phase-2 配方的现场对照）。
 
-### 8.8.2 预测赛对账（11-11 正式对答案）
-- 三组预注册预测 vs 实际 4K 口径 1.982：官方 8-19 预测 2.039（高估 0.057）；bethehand #9977 2.035 [2.023, 2.047]（高估 0.053）；**mindscanlabs A 1.979 [1.965, 1.994]（误差 0.003，几乎命中）**。
+### 8.8.2 预测赛对账（11-11 正式对答案；mindscanlabs 11-05 已自评，11-10 补录修正）
+- 三组预注册预测 vs 实际 4K 口径 1.982：官方 8-19 预测 2.039（高估 0.057）；bethehand #9977 2.035 [2.023, 2.047]（高估 0.053）；mindscanlabs A 1.979（对 4K 口径差 0.003——但这是 packing 修正口径，非其注册评分口径，见下）。
+- **mindscanlabs 自评（11-05，其注册目标=65K 训练口径 y=1.9602〔step 390,250 run 自身 eval〕）**：A 误差 0.019；**A 区间 [1.965,1.994] 低沿未罩住（差 0.0045）→ H2 未确认**；**直线基线 1.970（run 自身 16K evals 外推）误差 0.009 反超 A → H3 未确认**；B 区间 [1.915,1.963] 罩住 y（非注册假设）；H1/H4（A、B 均比官方 2.039 近）确认。packing 修正版（4K 对齐，实测 Δ=0.0227 → y+Δ=1.9829）：修正 H1/H4 均成立（A 0.0039 vs 官方 0.056）。作者自评诚实注记："A 区间过窄；直线基线更好；一次结果只是一次检验"——**run 自身近期轨迹的朴素外推优于拟合律**（无 regime 变化时），与 10-10 记录的 David Hall forecast-only 重拟合互证。
+- **262K 扩展的评分谱系裁定（11-06 结果前注记）**：注册 run=Marin 宣布完成的 390,251 步/18T；扩展自合并权重出发超出注册范围 → 上述评分有效。另一读法（扩展属同谱系）下 262K 终评去 PTB/WikiText-103 将触发"Paloma 子集变化"条款而不评分——预注册协议对"收尾后追加训练"的边界又一覆盖缺口。
 - §8.6.2 预判成立：预测分歧全在 floor 假设与 packing 口径；且**预注册协议对“中途改配方”存在覆盖缺口**——换混+扩窗两个主动干预未入预测，误差主源是协议覆盖而非 scaling law 本身失效。对用户：预注册设计必须声明“中途干预”的处理规则（干预发生时预测应作废还是修正口径）。
 
 ### 8.8.3 Checkpoint 合并（对库内权重平均家族最重要）
@@ -409,6 +411,7 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - 簇总览页：GCS `marin-public/held/harrier-k40-cluster-overview/2026.08.18`；swarm 对照：GCS `h100-mix25-paloma` 系列
 - embedding 模型：HF `microsoft/harrier-oss-v1-{270m,0.6b,27b}`
 - **§8.6 盯哨来源（2026-10-30）**：预测赛——官方预注册（#8435，8-19，2.039）；bethehand 独立预测 issue #9977（2.035 [2.023,2.047]）；mindscanlabs NAI 双预测（10-21，A=1.979/B=1.935）与 10-25 修正评分方案（github.com/mindscanlabs/NAI-track-record，forecasts/marin-535b.md）；bethehand packing 实测与 phase-2 对比计划（10-22，github.com/bethehand/marin-hero-forecast，addenda/2026-10-22_phase2_plan.md）；W&B 公开数据快照至 step 302,999（2026-10-21 22:58 UTC）
+- **§8.8.2 自评来源（2026-11-10 补录）**：mindscanlabs/NAI-track-record forecasts/marin-535b.md 已评分（11-05 commit "Marin forecast scored: y = 1.9602; H1, H4 confirmed" + 官方双数字确认；11-06 262K 扩展谱系注记 commit）；Marin 官方收官汇总 #8435 comment 6670507901（11-05）、262K 扩展决定 comment 6696441295（11-06）；run 结束日 2026-11-05。11-10 复查：bethehand 仓库自 10-22 后无更新；marin repo 11-09 后仅工程 PR（grug kernel 族/SkyRL 指标/task-curation/hero SFT 专家负载静态放置 #11149），官方与 bethehand 终裁未出
 - **§8.6 修复与调度**：262K 扩展 PR #10618；262K 评测修复 PR #10711（零 token tag 剔除 + 多长度评估系列，10-26，3,574 测试过）；seqlen 切换（~step 252k，qk_mult 1.48）与 d2048 rung 81% 失败弃恢复：#8435 内 dlwh 讨论串
 - **§8.7.6 源码级来源（2026-11-03）**：PR #6969 三件套 research.md（分支 design/mixing_via_embeddings，head SHA d2a5a25）；swarm 分支 `calvin/swarm-olmo3-regmix-test` 的 `experiments/domain_phase_mix/exploratory/two_phase_many/`（DSP/GRP fitters：`fit_dsp_canonical_variants_{60m,300m}.py`、`fit_variable_scale_dsp_nd.py`、`fit_grug_v4_aggregate_canonical_dsp.py`）；qsplit240 资产与 39 域定义在 `experiments/domain_phase_mix/`（`domains.py`、`experiment.py`、`weight_sampler.py`）；swarm-transfer-calibration 与 partition-expressivity logbook 于同目录 `.agents/logbooks/`（research.md 引用）
 - 遗留未解：#8452 中 "PI" 的确切含义（BO 语境下大概率指 Probability of Improvement acquisition，与 monotonic regret / epsilon0 等 BO 术语同现，未完全核实）；phase-2 实际生效时间（10 月上旬评论被 GitHub 懒加载折叠，~10-23 为步速推算）
