@@ -399,10 +399,32 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - **库内连线**：权重平均家族第四处独立确认（#84 Puro CMA——课程+恒定 LR 才有效、#130 MergeMix WSM——合并当搜索代理、#137——温和衰减/平均替代衰减），**首次 535B 工业规模、首次作为正式资产**（262K 扩展起点）而非事后修饰——“衰减段附近的 checkpoint 拿来平均”在 BPB 目标下同样成立。
 
 ### 8.8.4 262K 扩展与剩余流程
-- 从合并 checkpoint 出发：两候选配方（Global 1.84〔qk_mult 1.66+long scale 1.108〕vs log floor 65536²）各 3,240 步/149.5B tokens 至 step 393,491，LR 线性 5%→1% peak；**7 个 100 步臂在 held-out 上无分离**（clean macro 差距 0.0004 < 抖动 0.0002-0.0007）→ 按“无分离即不换”执行 Global 1.84；合并起点增益在 100 步内从 ~0.003 缩至 ~0.0017（单 seed，诚实标注）。
+- 从合并 checkpoint 出发：两候选配方（Global 1.84〔qk_mult 1.66+long scale 1.108〕vs log floor 65536²）各 3,240 步/149.5B tokens 至 step 393,491，LR 线性 5%→1% peak；**7 个 100 步臂在 held-out 上无分离**（clean macro 差距 0.0004 < 抖动 0.0002-0.0007）→ 按“无分离即不换”执行 Global 1.84；合并起点增益在 100 步内从 ~0.003 缩至 ~0.0017（单 seed，诚实标注）。（**11-09 终局修正见 §8.9.2**：log floor 挑战者分支以 MRCR −0.0029〔Holm p<.001×7〕胜出成为最终 262K 结果——“执行 Global 1.84”仅探针阶段默认决定，分支照跑且翻盘）
 - 流程收尾（§8.7.1 最后一格）：预测赛 × 双 packing 口径 × 1.07× 换混验收落定；剩余动作=262K 收尾+SFT/RL 加载合并 checkpoint 验证+4K 全 checkpoint 重评兑现承诺。
 
-（下次盯哨：**11-11 对答案日**——三组预测正式裁决+packing 修正方案执行+后续 SFT/RL 计划。）
+（下次盯哨：**11-11 对答案日**——三组预测正式裁决+packing 修正方案执行+后续 SFT/RL 计划。→ 已执行，见 §8.9。）
+
+## 8.9 盯哨更新（2026-11-11 对答案日：两定一悬+262K 终局+SFT 开局）
+
+### 8.9.1 预测赛记分板
+- 官方（8-19 ladder 预测 2.039）：11-05 收官 bot 汇总已出（4K 口径 1.982、超预测 0.057，§8.8.1）。
+- mindscanlabs（A=1.979/B=1.935）：11-05 已自评并同日贴入 #8435（§8.8.2 修正版：注册口径 y=1.9602 下 H1/H4 成立、H2/H3 未成立）。
+- bethehand（2.035 [2.023,2.047]）：**终裁仍未出**——仓库 10-22 后零提交，phase-2/end-of-run 分析计划未兑现；留触发器盯其仓库 commit。
+- 小结：已出记分均验证 §8.6.2/§8.8.2 预判——换混+扩窗干预未入预测的系统性偏差；预注册协议对中途干预的覆盖缺口在两组记分上坐实。
+
+### 8.9.2 262K 扩展终局（11-09 晚 #8435 bot 帖）
+- 设计澄清：两配方从合并 checkpoint 各跑分支至 step 393,491（各 3,240 步/149.5B tokens、LR 线性 5%→1% peak）——**Global 1.84=默认主线，log floor 65536²=“赢了才合并”挑战者分支**；100 步探针不分离时执行默认，但分支照跑（证据：marin-logbooks #37）。
+- **终局：log floor 65536² 胜出**——MRCR 全上下文 NLL 0.0223 vs 0.0252（**−0.0029，Holm p<.001 于全部 7 个 checkpoint**）；clean macro 262K 1.6434 vs 1.6433、recovery 0.982 vs 0.981（不显著）。最终 262K 资产=hero-lce-log65536sq-step390k 的 step-393491 checkpoint。
+- 作者自注边界：各单 seed；区间只覆盖文档采样不含训练噪声；**晚期 MRCR 增益大部分在去掉 evidence 后仍在（非检索特异）**；log scaling 的导出/serve 支持未落地、SFT/RL 加载合并 checkpoint 未测试。
+- **方法论：100 步探针分辨不出 3,240 步后的配方差异**——短探针外推长程差异的实证反例（r-scan 长臂设计同理：短臂无分离≠配方无差异，显著性要跑到目标程长才有说服力）。
+- 库内连线：合并 checkpoint 作为扩展起点产出最终资产（§8.8.3“首次作为正式资产”兑现到底）；两配方以 held-out 多 checkpoint 显著性裁决=多臂对照文化的延续。
+
+### 8.9.3 SFT/RL 开局（11-11 当日动态）
+- **#11188（11-11）10.05 SFT 混合数据审查**：Grug-67B-A2B 262K SFT run 的混合=216 个 SFT token store（79.65%）+391 个**预训练回放缓存（20.35%）**——PT replay 已进 SFT 混合（#157 回放线的 SFT 阶段实例，微调/中训练/SFT 三阶段全覆盖）；~80% 为其他开源模型生成文本。7,503 文档按份额加权抽样（max(4, round(share×6000))、seed 1；>16k token 审首 12k+尾 4k）人工审查出**四类系统性缺陷**：①长推理以猜测收尾冒充答案、②长上下文回放混入低价值/污染文档、③数据转换伪影、④agent 轨迹无证据宣称成功；前三类过滤器触及过半混合来源、多数可脚本化。
+- RL 侧基建先行：SkyRL typed recipes 四连 PR+Snowball gate 结果上 dashboard（#9717/#9749/#10642/#10643/#10740/#10863），无结果帖。
+- 对用户：份额加权抽样+缺陷分类+脚本过滤的 **SFT 混合审查模板可直接抄**（与 #101/#112“SFT 后测/语料质量”互证）。
+
+（下次盯哨：bethehand 终裁或 Marin SFT/RL 首个结果帖，取先到者。）
 
 ## 9. 来源（供回查）
 
@@ -415,6 +437,7 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - embedding 模型：HF `microsoft/harrier-oss-v1-{270m,0.6b,27b}`
 - **§8.6 盯哨来源（2026-10-30）**：预测赛——官方预注册（#8435，8-19，2.039）；bethehand 独立预测 issue #9977（2.035 [2.023,2.047]）；mindscanlabs NAI 双预测（10-21，A=1.979/B=1.935）与 10-25 修正评分方案（github.com/mindscanlabs/NAI-track-record，forecasts/marin-535b.md）；bethehand packing 实测与 phase-2 对比计划（10-22，github.com/bethehand/marin-hero-forecast，addenda/2026-10-22_phase2_plan.md）；W&B 公开数据快照至 step 302,999（2026-10-21 22:58 UTC）
 - **§8.8.2 自评来源（2026-11-10 补录）**：mindscanlabs/NAI-track-record forecasts/marin-535b.md 已评分（11-05 commit "Marin forecast scored: y = 1.9602; H1, H4 confirmed" + 官方双数字确认；11-06 262K 扩展谱系注记 commit）；Marin 官方收官汇总 #8435 comment 6670507901（11-05）、262K 扩展决定 comment 6696441295（11-06）；run 结束日 2026-11-05。11-10 复查：bethehand 仓库自 10-22 后无更新；marin repo 11-09 后仅工程 PR（grug kernel 族/SkyRL 指标/task-curation/hero SFT 专家负载静态放置 #11149），官方与 bethehand 终裁未出
+- **§8.9 盯哨来源（2026-11-11）**：262K 终局 bot 帖（#8435 最新评论，11-09 18:35）与两分支决定帖（11-06 21:41）；扩展全程证据 marin-logbooks #37（logbooks/37-hero-262k/notebook.md，commit c2307cd）；跟踪 issue #11056；SFT 数据审查 issue #11188（11-11）；RL 基建 PR 族（SkyRL typed recipes #9717/#9749/#10642/#10643、Snowball #10740/#10863）；bethehand/marin-hero-forecast 11-11 仍零更新
 - **§8.6 修复与调度**：262K 扩展 PR #10618；262K 评测修复 PR #10711（零 token tag 剔除 + 多长度评估系列，10-26，3,574 测试过）；seqlen 切换（~step 252k，qk_mult 1.48）与 d2048 rung 81% 失败弃恢复：#8435 内 dlwh 讨论串
 - **§8.7.6 源码级来源（2026-11-03）**：PR #6969 三件套 research.md（分支 design/mixing_via_embeddings，head SHA d2a5a25）；swarm 分支 `calvin/swarm-olmo3-regmix-test` 的 `experiments/domain_phase_mix/exploratory/two_phase_many/`（DSP/GRP fitters：`fit_dsp_canonical_variants_{60m,300m}.py`、`fit_variable_scale_dsp_nd.py`、`fit_grug_v4_aggregate_canonical_dsp.py`）；qsplit240 资产与 39 域定义在 `experiments/domain_phase_mix/`（`domains.py`、`experiment.py`、`weight_sampler.py`）；swarm-transfer-calibration 与 partition-expressivity logbook 于同目录 `.agents/logbooks/`（research.md 引用）
 - 遗留未解：#8452 中 "PI" 的确切含义（BO 语境下大概率指 Probability of Improvement acquisition，与 monotonic regret / epsilon0 等 BO 术语同现，未完全核实）；phase-2 实际生效时间（10 月上旬评论被 GitHub 懒加载折叠，~10-23 为步速推算）
