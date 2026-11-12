@@ -436,7 +436,7 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 
 **效果评测（SFT 桥协议）**：同一份实验性 agent SFT（33B tokens/2K 步）分别套在 base 与 MT 后 checkpoint——"可靠预测完整 post-training 后表现"，**工业级 SFT 桥实践**（与本项目三轨制讨论直接互证）。结果：DeepSWE 6.4→10.4、BrowseComp 微升、Multilingual/Pro 在 run-to-run 波动（~1 分）内；**主效应=跨 harness 稳健性**：5 个非标准 harness 全胜（SWE-bench Verified 平均 +8.6、Terminal-Bench 2.1 平均 +6.8、最大 Codex 48.4→61.8）——**MT 的价值主要不在标准 benchmark 分数，在"换 harness 不塌"**。
 
-**完整配方在伴生论文**：Singhal et al. 2026《Priming Base Models for Agentic Post-Training: An Open Midtraining Recipe》（arXiv 2610.22019，10-15 提交）——逐数据源构建/过滤/消融全公开，Lightning 上 500B token MT 实验。**该文曾漏网**：落在 10-10 与 10-17 两轮 sweep 之间的窗口缝隙，且标题用无连字符 "midtraining"（11-11 缝隙补扫确认缝隙内仅此一篇在轴）。已录 #161，深读队列下一位。
+**完整配方在伴生论文**：Singhal et al. 2026《Priming Base Models for Agentic Post-Training: An Open Midtraining Recipe》（arXiv 2610.22019，10-15 提交）——逐数据源构建/过滤/消融全公开，Lightning 上 500B token MT 实验。**该文曾漏网**：落在 10-10 与 10-17 两轮 sweep 之间的窗口缝隙，且标题用无连字符 "midtraining"（11-11 缝隙补扫确认缝隙内仅此一篇在轴）。已录 #161，**2026-11-11 深读完成**：`OpenMidtrainingRecipe_深度分析.md`（五要点：SFT 桥评测协议/工具响应 mask 差 10 分/LR 尺寸分档+回放 20%/轨迹增益大头但封顶/配比全表+逐源纪律；升 T1 建议待裁）。
 
 ### 7.2 蒸馏刷新（§2.2）
 3.5 Base 不从头训：从 3 系 Base 初始化后**蒸馏 1T tokens**（Lightning←Super 3 Base：top-128 logits、forward KL 0.9+CE 0.1+sink token；Super←Ultra 3 Base：Skew Reverse KL α=0.1；LR 1e-5→1e-4（10% peak）→线性回 1e-5；MoE load-balance 系数 1e-5）——"换代=蒸馏"的低成本模型更新路径，蒸馏轴备查。
