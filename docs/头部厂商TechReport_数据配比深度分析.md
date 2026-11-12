@@ -454,6 +454,12 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 5. SFT 桥：固定实验 SFT（2K 步量级）当完整 post-training 表现的早期信号
 6. 评测口径：标准 benchmark 可能不动（run-to-run ~1 分），**跨 harness 稳健性才是 MT 主效应**——评测设计要含"换 harness 不塌"维度
 
+### 7.5 榜单对位核查（2026-11-12，SWE-bench Verified 官方提交榜）
+
+- **官方榜上无名**：swebench.com Verified 榜 75 个模型条目中**零 Nemotron 3.5 条目**——NVIDIA 从未提交该系列（历史唯一 NVIDIA 相关提交=2025-04 Nemotron-CORTEXA agent 脚手架，挂别家底模，非模型本体）；Terminal-Bench 榜 JS 渲染无法静态核查。印证"TR 只跟自己比"的不打榜定位。
+- **纸面对位**（⚠️ 协议不同仅可粗看）：榜头 Claude 4.5 Opus 79.2 / Doubao-Seed-Code 78.8 / Gemini 3 Pro 77.4 / GPT-5 74.4；最强开源提交 Kimi K2 71.2 / Qwen3-Coder-480B 69.6 / GLM-4.6 68.2。Super 74.3（自家 OpenHands 3-rollout 口径）纸面 ≈GPT-5 档、高于全部开源提交；Lightning 64.5 ≈GLM-4.5（64.2）档，**同规格唯一对位条目 Qwen3-Coder-30B-A3B 60.4**（纸面 +4.1，但系 2025-02 老提交不可直接比）。
+- **打折理由**：榜单各条目 harness/尝试次数不同（头部基本 Attempts 2+）；跨 harness 差可达数分（本文 Table 7 自显最大 +13.4）——纸面对位只可读作"不落后于开源第一梯队"的弱证据。**画像结论：中上水平+最透明披露，非榜上王者；参考答案价值与此排位无关。**
+
 ## 附录：论文 URL
 
 - DeepSeek-V4: https://arxiv.org/abs/2606.19348
