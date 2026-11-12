@@ -408,6 +408,52 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 
 ---
 
+## 7. Nemotron 3.5 Super/Lightning（NVIDIA, 2026-10-28 回看定向抽取）
+
+> 回看背景：11-09 sweep 曾以"家族由 #60 代表"搁置本 TR；11-11 用户裁定执行回看。抽取范围=§2.5 中训练 + §2.2 蒸馏刷新 + §2.3 Indic CPT 配比消融；其余（MTP/量化/推理部署）轴外。arXiv 2610.38095，Super 235B / Lightning 30B-A3B（Mamba-Transformer 混合 MoE）。
+
+### 7.1 中训练配方（§2.5——本 TR 最高价值段）
+
+**定位哲学（三明治逻辑）**：PT 在短上下文跑、几乎见不到 agent 交互，而软件工程自然数据（完整仓库、PR+issue、commit 史、构建日志）太长进不去 PT；SFT 几乎全是合成数据且太长会损害后续 RL 可训练性。**中训练卡在两者之间：长上下文+自然数据+少量 agent 轨迹，行为塑造留给 post-training**——对 3B-A1 的直接启示：MT 装"知识与格式"，不装"行为"。
+
+**数据配比（Table 4，训练 token 份额）**：
+
+| 数据源 | 说明 | 份额 |
+|---|---|---|
+| Issue–PR | GitHub issues 带仓库上下文+合并补丁 | 41% |
+| Repositories | 完整仓库（import 相关联文件放一起） | 20% |
+| Agentic traces | 多 scaffold 轨迹，**工具响应 loss-mask** | 10% |
+| Commit diffs | 多文件提交+逐文件编辑史 | 3% |
+| Build/CI logs | 原始构建与持续集成日志 | 1% |
+| **预训练回放** | Phase-2 预训练混合 | **20%** |
+| 长上下文数据 | LC 阶段数据 | 5% |
+
+- 自然数据保留原始格式、不加 chat 模板；agent 轨迹是唯一 SFT 式数据，压小份额、只训模型自己的轮次
+- 全部数据对 SWE-bench/Terminal-Bench 去污染+去密钥
+- **PT 回放 20%=回放线第三处工业实例**（#157 微调/中训练 + Marin SFT 20.35% + 此处），跨三家收敛
+
+**训练协议**：从 LC checkpoint 出发 65.4B tokens @ 256K；**LR 重置+线性 warmup 至 1e-5（≈2× PT 终值）后恒定**（无衰减）；256K 训练损伤 RULER-1M → 追加 ~9B token 长上下文恢复段（恢复段预算 ≈ MT 的 14%）——**MT 可损伤相邻能力，恢复段是标配动作**。
+
+**效果评测（SFT 桥协议）**：同一份实验性 agent SFT（33B tokens/2K 步）分别套在 base 与 MT 后 checkpoint——"可靠预测完整 post-training 后表现"，**工业级 SFT 桥实践**（与本项目三轨制讨论直接互证）。结果：DeepSWE 6.4→10.4、BrowseComp 微升、Multilingual/Pro 在 run-to-run 波动（~1 分）内；**主效应=跨 harness 稳健性**：5 个非标准 harness 全胜（SWE-bench Verified 平均 +8.6、Terminal-Bench 2.1 平均 +6.8、最大 Codex 48.4→61.8）——**MT 的价值主要不在标准 benchmark 分数，在"换 harness 不塌"**。
+
+**完整配方在伴生论文**：Singhal et al. 2026《Priming Base Models for Agentic Post-Training: An Open Midtraining Recipe》（arXiv 2610.22019，10-15 提交）——逐数据源构建/过滤/消融全公开，Lightning 上 500B token MT 实验。**该文曾漏网**：落在 10-10 与 10-17 两轮 sweep 之间的窗口缝隙，且标题用无连字符 "midtraining"（11-11 缝隙补扫确认缝隙内仅此一篇在轴）。已录 #161，深读队列下一位。
+
+### 7.2 蒸馏刷新（§2.2）
+3.5 Base 不从头训：从 3 系 Base 初始化后**蒸馏 1T tokens**（Lightning←Super 3 Base：top-128 logits、forward KL 0.9+CE 0.1+sink token；Super←Ultra 3 Base：Skew Reverse KL α=0.1；LR 1e-5→1e-4（10% peak）→线性回 1e-5；MoE load-balance 系数 1e-5）——"换代=蒸馏"的低成本模型更新路径，蒸馏轴备查。
+
+### 7.3 Indic CPT 与 Lightning 配比消融（§2.3）
+- 语料：Nemotron-Pretraining-Indic-v1 ≈**2.83T 生成 token**（Gemma-4-31B-it 翻译 Nemotron-CC 英文源、22 语言 34 种配置；语料+生成管线将开源）
+- **Lightning 3.5 固定预算配比扫描**：200B token 预算，10%/20%/30% Indic 份额 → 四基准均值（MILU/MMLU-Pro/ARC-C/GSM8K）63.1/64.6/65.6（base 45.5），单调升至 30% 且明示"未确立最优份额"——**目标尺度固定预算 r-scan 的工业模板**（30B-A3B 用户量级）
+- 伴生报告《Scaling Synthetic Pre-training Data and Evaluation for Indic LLMs》将出（翻译模型对比+Nano 3 数据源消融+AI4Bharat 人评套件）
+
+### 7.4 对 3B-A1 的可直接引用清单
+1. MT 定位：装知识/格式，不塑造行为（行为归 SFT/RL）
+2. 配比结构：域自然数据 ~65% + **PT 回放 20%** + LC 数据 5% + SFT 式数据 ≤10%（工具响应 loss-mask）
+3. LR 锚点：重置+2× PT 终值+恒定（与 #145"衰减应在 MT 进场后"并存为两个对照锚点——场景不同〔256K 域注入 vs 数学 MT〕，实验做对照臂）
+4. 恢复段：MT 后补短程相邻能力恢复
+5. SFT 桥：固定实验 SFT（2K 步量级）当完整 post-training 表现的早期信号
+6. 评测口径：标准 benchmark 可能不动（run-to-run ~1 分），**跨 harness 稳健性才是 MT 主效应**——评测设计要含"换 harness 不塌"维度
+
 ## 附录：论文 URL
 
 - DeepSeek-V4: https://arxiv.org/abs/2606.19348
@@ -415,3 +461,5 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 - Qwen3: https://arxiv.org/abs/2505.09388
 - Nemotron 3 Ultra: https://arxiv.org/abs/2606.15007
 - Nemotron 3 Super: https://arxiv.org/abs/2604.12374
+- Nemotron 3.5 Super/Lightning: https://arxiv.org/abs/2610.38095
+- Singhal et al.（MT 完整配方伴生论文，#161）: https://arxiv.org/abs/2610.22019

@@ -55,7 +55,7 @@
 ### 3.2 三层选择机制
 1. **initial 阶段（0-27.7%，step 108,000 前）**：贝叶斯优化产出（run 名 `harrier-bo-20260817-monotonic-regret-quality-technical-d768-seed0`，"quality_technical" 候选，d768 梯子选出）
 2. **main + cooldown 阶段**：**d512 mixture-search swarm**（`h100-d512-from10pct-store-4d2e363d`）——**共享前缀协议**：六个 run（新混 3 种子 + 旧混 3 种子）全部从同一 step-393 checkpoint（10% 基线训练后）恢复，各自在候选混合下训练剩余预算至终点，比较**最终** BPB（非代理预测）
-3. **单调性提升链**（PR #8452「Promote monotonic PI weights for Harrier mix」，8-19 合并；2026-11-10 PR 正文核验）：用 d768 梯子（run 系列 `rav-ladder-d768-v2`）比较 **epsilon0-monotonic-PI 候选** vs **epsilon0-PI 候选**（同 57rows BO 历史、同 candidate1）——step 1712 处 dropless 聚合 BPB 1.05726→1.05059、uncheatable BPB 0.93675→0.92418，双口径同向 → 胜者权重**晋格为 Harrier 正典配比（15T pretrain＋3.75T cooldown）——即 #8435 所称「Aug-19 datamix 更新」的本体**；候选保持 store 与相位预算不变，**最大模拟桶曝光 2.96 epochs**（重复度硬上限）。PI＝Probability of Improvement（BO 采集函数）；epsilon0＝改进余量 ε 取 0（合理解读，PR 未展开定义）；monotonic＝候选只准相对基线单调改进的护栏（run 名 monotonic-regret；无护栏时 BO 因打分噪声与探索机制**确会提议比已验证基线更差的点**——护栏防"已验证的进步被噪声回退"，D19/信区域不信点同族）
+3. **单调性提升链**（PR #8452「Promote monotonic PI weights for Harrier mix」，8-19 合并；2026-11-10 PR 正文核验）：用 d768 梯子（run 系列 `rav-ladder-d768-v2`）比较 **epsilon0-monotonic-PI 候选** vs **epsilon0-PI 候选**（同 57rows BO 历史、同 candidate1）——step 1712 处 dropless 聚合 BPB 1.05726→1.05059、uncheatable BPB 0.93675→0.92418，双口径同向 → 胜者权重**晋格为 Harrier 正典配比（15T pretrain＋3.75T cooldown）——即 #8435 所称「Aug-19 datamix 更新」的本体**；候选保持 store 与相位预算不变，**最大模拟桶曝光 2.96 epochs**（重复度硬上限）。PI＝Probability of Improvement（BO 采集函数）；epsilon0＝改进余量 ε 取 0（合理解读，PR 未展开定义）；monotonic＝候选只准相对基线单调改进的护栏（run 名 monotonic-regret；无护栏时 BO 因打分噪声与探索机制**确会提议比已验证基线更差的点**——护栏防"已验证的进步被噪声回退"，D19/信区域不信点同族）。**护栏加在提名/晋格关口（选择阶段）而非搜索阶段**（2026-11-12 用户追问澄清）：虚拟探索照旧自由（零成本），但被提名去物理验证的候选必须落在"预测不差于已验证基线"的区域；无约束 argmin 提名＝挑打分器最乐观的点＝winner's curse 老窝，约束把提名摁回已验证好区的邻域——与拟合下尾罚/定价保守化（1.18×→1.07×）/外推回测校正同属一以贯之的"**乐观税**"哲学：最乐观的那个点永远要打折
 
 ### 3.3 换混的事前验证（issue #9126，方法论上最完整的一段）
 - **缩放梯子**：d512/d768/d1024/d1536 全程训练，旧混 vs 新混对照
@@ -63,6 +63,7 @@
 - **结果**：d1536 调整后预测 final macro loss 2.55421 / BPB 0.92256 vs 旧混基线 2.56377 / 0.92507 → **1.07× 等算力加速**（原始外推 1.18×，校正后保守化）
 - **swarm 实测**：macro Paloma −0.62%、uncheatable −1.43%（C++ −5.11%、Python −2.09%、arXiv physics −2.96%）；但梯子 d768/d1024 上 macro 仅 +0.41%/+0.70% 且 **code BPB 回归**——宽度间不一致性如实呈现
 - **等算力换算**：speedup = (old BPB / new BPB)^(1/α)，按子集幂律斜率，macro α=0.040007
+- **定价三步拆解（2026-11-12 教学沉淀）**：①两臂在 d1536 各自 60-80% 检查点外推终点（同一把尺上的差价，不是绝对水平）；②回测校正**不是拍安全系数**——用已完成宽度（d768/d1024）的"60-80% 外推 vs 真实终点"实测偏差修正，校准来自测量；③换算单位＝钱的语言：BPB 差 0.27% 无直觉，"等算力加速"人人懂。**平坦尾部放大器**：α=0.04 → 指数 1/α=25，0.27% 的 BPB 差 ≈ 7% 算力差（手验 (0.92507/0.92256)^25 = 1.0703）——loss 空间的小数字＝算力空间的大数字；1.07×＝可验收线（预注册、跑完对账，§8.8.4 已落定）
 
 ### 3.4 评测体系
 - Paloma（Stanford 靶向子集 benchmark，16 子集）为主指标，BPB（bits per byte）计量
