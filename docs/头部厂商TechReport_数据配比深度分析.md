@@ -460,6 +460,13 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 - **纸面对位**（⚠️ 协议不同仅可粗看）：榜头 Claude 4.5 Opus 79.2 / Doubao-Seed-Code 78.8 / Gemini 3 Pro 77.4 / GPT-5 74.4；最强开源提交 Kimi K2 71.2 / Qwen3-Coder-480B 69.6 / GLM-4.6 68.2。Super 74.3（自家 OpenHands 3-rollout 口径）纸面 ≈GPT-5 档、高于全部开源提交；Lightning 64.5 ≈GLM-4.5（64.2）档，**同规格唯一对位条目 Qwen3-Coder-30B-A3B 60.4**（纸面 +4.1，但系 2025-02 老提交不可直接比）。
 - **打折理由**：榜单各条目 harness/尝试次数不同（头部基本 Attempts 2+）；跨 harness 差可达数分（本文 Table 7 自显最大 +13.4）——纸面对位只可读作"不落后于开源第一梯队"的弱证据。**画像结论：中上水平+最透明披露，非榜上王者；参考答案价值与此排位无关。**
 
+### 7.6 第三方评测核查（2026-11-12，Artificial Analysis 三指数，经 OpenRouter 板块）
+
+- **可得性**：LMArena / Terminal-Bench 均 JS 渲染无法静态抓取；OpenRouter rankings 页内嵌 AA 三面板（intelligence 57 模型 / coding 153 / agentic 110）。
+- **Nemotron 全家三指数全线中下-垫底**：intelligence——3.5 Super VL #41（13.6）、3 Ultra #45（11.8）、3.5 Lightning #51/57（5.5），头部 Claude Fable 5.2 64.6；coding——3 Ultra #65（49.3）、3 Super #86（37.7）、3.5 Lightning #100（26.8），头部 Fable 5.1 81.6；agentic——3 Ultra #49（20.1）、3.5 Lightning #74（3.5）、3 Super #79（1.7），头部 Fable 5.1 57.9。**同规格对位（30B-A3B 级，coding）：Qwen3.5-35B-A3B 37.0 / Qwen3.6-35B-A3B 41.9 vs Lightning 26.8——输同档 Qwen 两位数**。
+- **与 SWE-bench 纸面对位的尖锐反差及三个调和点**：① OR 上 Lightning 为 `20260807` 版（早于 10 月 MT 论文），论文 64.5 系"MT 配方+自家 agentic SFT 后"数字，OR 所测可能非同版；**3.5 Super 纯文本版（论文主角）完全不在 AA 覆盖**（仅 VL 变体）；② 口径不同（AA coding=非 agentic 代码基准、AA agentic=自家套件固定 harness，跨 harness 差 +13 自证）；③ 3 Ultra intelligence 11.8 连 Kimi K3 Low 17.4 都不如——无法全赖口径，真实画像=**不做榜单优化 post-training、不提交榜单，第三方指数自然难看**（与卖卡+卖栈的商业模式自洽）。
+- **引用规则（本轮最重要的操作性结论）**：Nemotron **配方结论可抄**（消融=同协议相对比较，不受影响）**、效果数字不引用**（绝对分数=自家协议+特定版本，第三方口径下同款家族明显更弱）。
+
 ## 附录：论文 URL
 
 - DeepSeek-V4: https://arxiv.org/abs/2606.19348
