@@ -175,6 +175,19 @@
 | 数据配比透明度 | ★★★★★ | **19 类别比例公开**，最透明 |
 | 可操作性 | ★★★★★ | 两阶段切换 + SFT-in-pretrain + 消融数据丰富 |
 
+### 2.8 同侪对位 + MOPD 后训练 + 第三方口径核查（2026-11-12 复读正文，应用户"看看 Nemotron Ultra"）
+
+**七列同侪对位表**（Ultra vs MiniMax-2.7-230B-A10B / GLM-5.1-744B-A40B / Kimi-K2.6-1T-A32B / Qwen-3.5-397B-17B / DS-v4-Pro / DS-v4-Flash，自家 harness 单协议）：
+
+- **中游偏下、agentic 最弱**：SWE-V 70.7 与 SWE-Multi 67.7 **双垫底**（GLM-5.1 76.2 / Kimi 75.7 / DSv4-Pro 74.5）；BrowseComp 44.4、HLE 26.7、GDPVal 46.7、OmniScience-acc 24.1 皆倒数两名内；TB 2.1 56.4（第 3）、MMLU-Pro 86.8（第 4）、LCB v6 89.0（第 4）、IOI 570（第 3/5 有值）、GPQA 87.0（第 5，同侪 86.1-91.0 挤成一团）。Kimi K2.6 与 DSv4 系霸榜。
+- **赢的两列全是纪律型维度**：OmniScience 非幻觉 **78.7 全场第一**（第二名 MiniMax 74.4，DSv4 系 2.8-5.7 对照惨烈）；IFBench 81.7 第二（仅次 DSv4-Flash 82.0）——反幻觉/指令遵循强、榜单应试弱，与"不对榜单优化"自洽。
+- **真实卖点=吞吐非精度**：摘要明卖 vs GLM-5.1 **5.9×** / Kimi **4.8×** / Qwen-3.5 **1.6×** 推理吞吐（8K in/64K out）"on-par accuracy"——hybrid Mamba-Attention 省 KV cache + NVFP4；模型=推理效率展示品（卖卡卖栈的延伸）。输掉的行照登=透明度实至名归。
+- **修正 §7.5 推广语**："TR 只跟自己比"系 3.5 TR 特征；本 TR 七列同侪表公开且自曝短板——单协议同侪表的可信度 > 第三方指数。
+
+**MOPD 后训练机器**（2026-08 初析未覆盖段，本轮补录）：SFT + 多环境 RLVR + **MOPD（Multi-teacher On-Policy Distillation）**——RLVR 学生全域 rollout、域教师（SWE/终端/GDPval/聊天/通用推理）对 rollout 密集打分、异步流水线；两轮迭代、第二轮教师从 MOPD1 学生再分支（师生共同进化）、无教师覆盖域由 RLVR 学生自教。**数据引擎大量用别家开源模型**（DeepSeek-V3.2/V4/R1、GPT-OSS-120B、Minimax-M2.5、Qwen3-Coder-480B 当教师/轨迹生成器；通用推理教师自报"追平 DS-v4-Pro (High)"）。机制发现两条：① **教师优势必须落在学生已能采样的轨迹支撑集内**——MOPD 在 agentic 域恢复强（部分 benchmark 反超教师）、HLE 恢复弱（教师增益来自学生没见过的离策略数据时，在线蒸馏失灵）；② sampled-token 目标 > 全分布匹配（离支撑前缀上教师 logit 失准）。SWE 教师 RL 反作弊纪律：容器仓库重写为 base commit 等价新克隆（未来 commit **物理删除**）+ 运行时命令过滤封 git 恢复/网络拉取；未完成轨迹 loss-mask、畸形推理/工具调用负 advantage。**与 #161 三明治的连接**：NVIDIA 版"SFT/RL 层"的旗舰级实现——#161 的 MT 喂进的就是这套。开源声明：base/post-trained/quantized 三档 checkpoint + 训练数据 + recipe 声称 HF 全放（HF 通道当日不通未核，**待核项**——若实为准则 4 强命中）。
+
+**AA 11.8 的测量学教训（修订 §7.6 ③）**：自报 GPQA 87.0 / MMLU-Pro 86.8（同侪第 5/第 4）vs AA intelligence 11.8（#45/57）——第三方指数把同侪中游模型测成垫底，**开放权重第三方测量的系统性风险坐实**（NVFP4 原生权重出自家栈的 serving 量化/模板/推理模式触发）；AA 数字降级"仅趋势参考"。水平终判以同侪表为准：**开源旗舰中游偏下、agentic 垫底、纪律型第一**。四层拆解补注：第 1-2 层（基座×后训练）相对同侪未达顶是自家协议下的事实，第 4 层（不应试）只解释榜单缺席、不解释同侪排名。
+
 ---
 
 ## 3. Qwen3（Alibaba, 235B/22B, 36T tokens）
@@ -456,7 +469,7 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 
 ### 7.5 榜单对位核查（2026-11-12，SWE-bench Verified 官方提交榜）
 
-- **官方榜上无名**：swebench.com Verified 榜 75 个模型条目中**零 Nemotron 3.5 条目**——NVIDIA 从未提交该系列（历史唯一 NVIDIA 相关提交=2025-04 Nemotron-CORTEXA agent 脚手架，挂别家底模，非模型本体）；Terminal-Bench 榜 JS 渲染无法静态核查。印证"TR 只跟自己比"的不打榜定位。
+- **官方榜上无名**：swebench.com Verified 榜 75 个模型条目中**零 Nemotron 3.5 条目**——NVIDIA 从未提交该系列（历史唯一 NVIDIA 相关提交=2025-04 Nemotron-CORTEXA agent 脚手架，挂别家底模，非模型本体）；Terminal-Bench 榜 JS 渲染无法静态核查。印证"TR 只跟自己比"的不打榜定位（**2026-11-12 修正**：此特征属 3.5 TR；3 Ultra TR 自带七列开源同侪对位表且输多赢少照登，见 §2.8——"只跟自己比"应收窄为"不对外提交榜单"）。
 - **纸面对位**（⚠️ 协议不同仅可粗看）：榜头 Claude 4.5 Opus 79.2 / Doubao-Seed-Code 78.8 / Gemini 3 Pro 77.4 / GPT-5 74.4；最强开源提交 Kimi K2 71.2 / Qwen3-Coder-480B 69.6 / GLM-4.6 68.2。Super 74.3（自家 OpenHands 3-rollout 口径）纸面 ≈GPT-5 档、高于全部开源提交；Lightning 64.5 ≈GLM-4.5（64.2）档，**同规格唯一对位条目 Qwen3-Coder-30B-A3B 60.4**（纸面 +4.1，但系 2025-02 老提交不可直接比）。
 - **打折理由**：榜单各条目 harness/尝试次数不同（头部基本 Attempts 2+）；跨 harness 差可达数分（本文 Table 7 自显最大 +13.4）——纸面对位只可读作"不落后于开源第一梯队"的弱证据。**画像结论：中上水平+最透明披露，非榜上王者；参考答案价值与此排位无关。**
 
@@ -464,7 +477,7 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 
 - **可得性**：LMArena / Terminal-Bench 均 JS 渲染无法静态抓取；OpenRouter rankings 页内嵌 AA 三面板（intelligence 57 模型 / coding 153 / agentic 110）。
 - **Nemotron 全家三指数全线中下-垫底**：intelligence——3.5 Super VL #41（13.6）、3 Ultra #45（11.8）、3.5 Lightning #51/57（5.5），头部 Claude Fable 5.2 64.6；coding——3 Ultra #65（49.3）、3 Super #86（37.7）、3.5 Lightning #100（26.8），头部 Fable 5.1 81.6；agentic——3 Ultra #49（20.1）、3.5 Lightning #74（3.5）、3 Super #79（1.7），头部 Fable 5.1 57.9。**同规格对位（30B-A3B 级，coding）：Qwen3.5-35B-A3B 37.0 / Qwen3.6-35B-A3B 41.9 vs Lightning 26.8——输同档 Qwen 两位数**。
-- **与 SWE-bench 纸面对位的尖锐反差及三个调和点**：① OR 上 Lightning 为 `20260807` 版（早于 10 月 MT 论文），论文 64.5 系"MT 配方+自家 agentic SFT 后"数字，OR 所测可能非同版；**3.5 Super 纯文本版（论文主角）完全不在 AA 覆盖**（仅 VL 变体）；② 口径不同（AA coding=非 agentic 代码基准、AA agentic=自家套件固定 harness，跨 harness 差 +13 自证）；③ 3 Ultra intelligence 11.8 连 Kimi K3 Low 17.4 都不如——无法全赖口径，真实画像=**不做榜单优化 post-training、不提交榜单，第三方指数自然难看**（与卖卡+卖栈的商业模式自洽）。
+- **与 SWE-bench 纸面对位的尖锐反差及三个调和点**：① OR 上 Lightning 为 `20260807` 版（早于 10 月 MT 论文），论文 64.5 系"MT 配方+自家 agentic SFT 后"数字，OR 所测可能非同版；**3.5 Super 纯文本版（论文主角）完全不在 AA 覆盖**（仅 VL 变体）；② 口径不同（AA coding=非 agentic 代码基准、AA agentic=自家套件固定 harness，跨 harness 差 +13 自证）；③ 3 Ultra intelligence 11.8 连 Kimi K3 Low 17.4 都不如——无法全赖口径，真实画像=**不做榜单优化 post-training、不提交榜单，第三方指数自然难看**（与卖卡+卖栈的商业模式自洽）。**11-12 复读 3 Ultra TR 后修订**：其同侪表自报 GPQA 87.0/MMLU-Pro 86.8（§2.8），AA 11.8 主要是**开放权重第三方测量的伪影**（NVFP4 权重出栈的 serving 量化/模板/推理触发）——AA 指数对开放权重降级为仅趋势参考；真实水平以同侪表为准=中游偏下、非幻觉第一。
 - **引用规则（本轮最重要的操作性结论）**：Nemotron **配方结论可抄**（消融=同协议相对比较，不受影响）**、效果数字不引用**（绝对分数=自家协议+特定版本，第三方口径下同款家族明显更弱）。
 - **"配方垃圾？"质询（2026-11-12，成立与否）**：不成立——第三方分数 = 基座 × 配方 × post-training × 榜单优化四层相乘，Nemotron 分数差主要打击第 1/4 层（3 Ultra 无 MT 配方时 intelligence 已 11.8；不提交榜单不做调优），配方层外部零验证（主角模型不在 AA 覆盖、OR 版本早于配方）。**反证**：配方骨架（自然 SWE 数据+issue-PR+轨迹+长上下文+回放）系全行业收敛做法（Qwen3-Coder-Next 256K 数 T token MT/Kimi-Dev 150B/GLM-5 160B SWE），同骨架他家第三方分数不差（Kimi K2 SWE-V 71.2/GLM-5.3 agentic 53.1/Qwen3.8 Max 56.0）——骨架不是问题。**真内核三条**：① 从未被证明最优（手调+无搜索+无剂量扫描）；② 跨 base/跨域迁移未验证（#133：30B agentic 域≠3B-A1 数学域，照抄前必自验）；③ 绝对分数不可当目标线。**定位=设计空间的一个人手调样本点+方法论工具箱，非标准答案**（结构/LR/mask/桥协议直接抄，配比数值当先验，效果自测）。
 
