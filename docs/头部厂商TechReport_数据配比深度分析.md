@@ -466,6 +466,7 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 - **Nemotron 全家三指数全线中下-垫底**：intelligence——3.5 Super VL #41（13.6）、3 Ultra #45（11.8）、3.5 Lightning #51/57（5.5），头部 Claude Fable 5.2 64.6；coding——3 Ultra #65（49.3）、3 Super #86（37.7）、3.5 Lightning #100（26.8），头部 Fable 5.1 81.6；agentic——3 Ultra #49（20.1）、3.5 Lightning #74（3.5）、3 Super #79（1.7），头部 Fable 5.1 57.9。**同规格对位（30B-A3B 级，coding）：Qwen3.5-35B-A3B 37.0 / Qwen3.6-35B-A3B 41.9 vs Lightning 26.8——输同档 Qwen 两位数**。
 - **与 SWE-bench 纸面对位的尖锐反差及三个调和点**：① OR 上 Lightning 为 `20260807` 版（早于 10 月 MT 论文），论文 64.5 系"MT 配方+自家 agentic SFT 后"数字，OR 所测可能非同版；**3.5 Super 纯文本版（论文主角）完全不在 AA 覆盖**（仅 VL 变体）；② 口径不同（AA coding=非 agentic 代码基准、AA agentic=自家套件固定 harness，跨 harness 差 +13 自证）；③ 3 Ultra intelligence 11.8 连 Kimi K3 Low 17.4 都不如——无法全赖口径，真实画像=**不做榜单优化 post-training、不提交榜单，第三方指数自然难看**（与卖卡+卖栈的商业模式自洽）。
 - **引用规则（本轮最重要的操作性结论）**：Nemotron **配方结论可抄**（消融=同协议相对比较，不受影响）**、效果数字不引用**（绝对分数=自家协议+特定版本，第三方口径下同款家族明显更弱）。
+- **"配方垃圾？"质询（2026-11-12，成立与否）**：不成立——第三方分数 = 基座 × 配方 × post-training × 榜单优化四层相乘，Nemotron 分数差主要打击第 1/4 层（3 Ultra 无 MT 配方时 intelligence 已 11.8；不提交榜单不做调优），配方层外部零验证（主角模型不在 AA 覆盖、OR 版本早于配方）。**反证**：配方骨架（自然 SWE 数据+issue-PR+轨迹+长上下文+回放）系全行业收敛做法（Qwen3-Coder-Next 256K 数 T token MT/Kimi-Dev 150B/GLM-5 160B SWE），同骨架他家第三方分数不差（Kimi K2 SWE-V 71.2/GLM-5.3 agentic 53.1/Qwen3.8 Max 56.0）——骨架不是问题。**真内核三条**：① 从未被证明最优（手调+无搜索+无剂量扫描）；② 跨 base/跨域迁移未验证（#133：30B agentic 域≠3B-A1 数学域，照抄前必自验）；③ 绝对分数不可当目标线。**定位=设计空间的一个人手调样本点+方法论工具箱，非标准答案**（结构/LR/mask/桥协议直接抄，配比数值当先验，效果自测）。
 
 ## 附录：论文 URL
 
