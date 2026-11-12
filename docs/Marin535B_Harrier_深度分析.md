@@ -55,7 +55,7 @@
 ### 3.2 三层选择机制
 1. **initial 阶段（0-27.7%，step 108,000 前）**：贝叶斯优化产出（run 名 `harrier-bo-20260817-monotonic-regret-quality-technical-d768-seed0`，"quality_technical" 候选，d768 梯子选出）
 2. **main + cooldown 阶段**：**d512 mixture-search swarm**（`h100-d512-from10pct-store-4d2e363d`）——**共享前缀协议**：六个 run（新混 3 种子 + 旧混 3 种子）全部从同一 step-393 checkpoint（10% 基线训练后）恢复，各自在候选混合下训练剩余预算至终点，比较**最终** BPB（非代理预测）
-3. **单调性提升链**（issue #8452）：用 d768 梯子比较"epsilon0 单调 PI 候选"vs 原 PI 候选——step 1712 处 dropless 聚合 BPB 1.05726→1.05059、uncheatable BPB 0.93675→0.92418；候选保持 store 与相位预算不变，**最大模拟桶曝光 2.96 epochs**（重复度硬上限）
+3. **单调性提升链**（PR #8452「Promote monotonic PI weights for Harrier mix」，8-19 合并；2026-11-10 PR 正文核验）：用 d768 梯子（run 系列 `rav-ladder-d768-v2`）比较 **epsilon0-monotonic-PI 候选** vs **epsilon0-PI 候选**（同 57rows BO 历史、同 candidate1）——step 1712 处 dropless 聚合 BPB 1.05726→1.05059、uncheatable BPB 0.93675→0.92418，双口径同向 → 胜者权重**晋格为 Harrier 正典配比（15T pretrain＋3.75T cooldown）——即 #8435 所称「Aug-19 datamix 更新」的本体**；候选保持 store 与相位预算不变，**最大模拟桶曝光 2.96 epochs**（重复度硬上限）。PI＝Probability of Improvement（BO 采集函数）；epsilon0＝改进余量 ε 取 0（合理解读，PR 未展开定义）；monotonic＝候选只准相对基线单调改进的护栏（run 名 monotonic-regret；无护栏时 BO 因打分噪声与探索机制**确会提议比已验证基线更差的点**——护栏防"已验证的进步被噪声回退"，D19/信区域不信点同族）
 
 ### 3.3 换混的事前验证（issue #9126，方法论上最完整的一段）
 - **缩放梯子**：d512/d768/d1024/d1536 全程训练，旧混 vs 新混对照
@@ -314,6 +314,15 @@ flowchart TB
  换混收益 1.07× 验收 ＋ 4K 重评全部 checkpoint
 ```
 
+**证据强度阶梯**（每层只回答一个问题，越往后越贵越硬；短证据只配低风险决策——0.298@22% 的制度化分层。2026-11-10 用户裁定入档：比流程图更直观的表述）：
+
+```
+迭代期：d768 × 1712 步 × 双口径配对    便宜——只用于改进候选设计
+决赛：  d512 × 6 臂 × 训到终点          贵——定谁赢
+法庭：  旧 vs 新 × d512-d1536 全程      更贵——定"翻不翻脸"
+终局：  hero 实际轨迹 vs 预测轨迹        对账——预测赛与 1.07× 验收
+```
+
 实际时间线（与逻辑顺序不同步）：8-17 BO/d768 验证 → 8-18 剧本定稿（三阶段权重 json）→ 8-21 主线开跑 → 9-12 梯子终审落锤（1.07×，go）→ ~10-23 80% 边界执行换混 → ~11-07 收官。**配方搜索大头在 launch 前完成；开跑后支线只做终审验证＋轨迹监控**（结构性能力允许 mid-run 更新配方，但这次没这么玩——中途改剧本破坏外推可比性）。
 
 ### 8.7.2 两个正交实验轴
@@ -329,6 +338,8 @@ flowchart TB
 - **GP 的实际位置**：不在成绩预测赛道（qsplit240 生产预测器是 DSP）；只出现在两个必须不确定性的地方——BO 采集（导航：下一个候选从哪出）与跨战役迁移（知识搬运）
 - **DSP 公式（2026-11-03 源码级核验，真实形式见 §8.7.6）**：全名 reduced-bias Domain Saturation-Penalty；每域四参数（收益幅度/惩罚幅度/饱和率/惩罚阈值）＋相位 γ＋遗忘 λ＋重复半径 r1；OOF 0.914。基础版无宽度变量（每档宽度单独拟合），宽度处理与 size×mixture 交互的显式建模（amp_b(N)/amp_p(N) 振幅）见 §8.7.6
 - **大小×格子交互是真实的、且会翻符号**（code 跨宽度翻脸、0.777、本项目文献 r_thres ∝ M^-1.283 同族）——代理刻画不了这个交互，梯子终审存在的原因
+- **"回流"不是打分器在线自学（2026-11-10 用户追问沉淀）**：三层分清——① BO 打分历史（每张候选的分数，自动累积、供采集函数导航）；② DSP 参数（**只有物理实测**到来才重新拟合，批量人工触发——虚拟循环打出的几千个分数**不进训练集**：用模型输出训练模型自己＝自我强化回路，Marin 不干）；③ 公式结构（CV 说换才换）。信息边界：虚拟循环跑再多轮，真实信息量仍是"242 个实测点＋结构先验"；只有物理 run 才增加真知识。**重拟合节拍＝战役尺度非在线**（60M/300M 两个 fitter 文件即两次重拟合的产物；hero 执行期物理漏斗的产出用于裁决、未回炉）；"印手册"（拟合）与"查手册"（打分）两阶段在时间上完全分离。**漏斗点为何不进手册**：d768/d512/梯子的实测点每宽度仅 1-2 个（撑不起 162 参数重估）、宽度与手册宽度（60M/300M）对不上、迭代期短程读数（1712 步）本就是噪声——漏斗点的用途＝校准检查（预言 vs 实测偏差）＋下场战役资产（research.md 重映射提案，未见执行）；**为拟合设计的 run（qsplit240：密集、同宽度、全长）与为决策设计的 run（漏斗：稀疏、跨宽度、各有问题要答）用途分工，不是所有 run 都该进打分器**
+- **"提名根本不对，验证再严也挑不出真实最优"（2026-11-10 用户追问沉淀——先代理后验证架构的固有软肋）**：逻辑成立且无法归零，四层保护压概率——① 提名链同宽度段有实测背书（OOF Spearman 0.914）、跨宽度段 0.777（anchored/amp 校正后残余）由物理法庭兜底；② 校准检查失败本身是信号（提名实测远差于预言 → 触发怀疑链，非硬着头皮换）；③ no-go fallback 封死下行（最坏＝卫冕打满，不比不搜索差）；④ 真敌是**系统性形状偏差**（相变学成平滑——§8.5.2）而非随机误差，对策＝结构族对照（GRP 幂律 vs DSP 饱和）＋held-out＋部署尺度验证。核心算术：对照物是随机物理搜索（39 维空间一年 242 点，命中≈0）而非不存在的理想搜索；且工程目标＝验证过的显著改进，非全局最优（top 候选间差本就是 0.001-0.01 BPB 量级）
 
 ### 8.7.4 主线/支线与换混决策（FAQ 沉淀）
 
@@ -365,7 +376,7 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - 每域四参数（收益幅度 b_d、惩罚幅度 p_d、饱和率 ρ_d、惩罚阈值 τ_d）＋ 相位 γ×3 ＋ 遗忘 λ ＋ 重复半径 r1；家族对照：GRP＝power-family penalty（幂律族惩罚）、LightGBM 弱基线
 - **拟合两段式**：非线性参数（ρ/τ/γ/λ/r1）basinhopping 优化 → 线性头 (N)NLS；**profile objective＝RMSE ＋ 0.5×下尾乐观惩罚**——对预测最优端的乐观偏差显式加罚（防 argmin 外推的 winner's curse 内建设计，与本项目 D19 同族）
 
-**宽度（模型大小）三层处理**：
+**宽度（模型大小；行话：d＝隐藏维度，d512→d6144 越大模型越大，60M/300M 则是参数量口径）三层处理**：
 1. 基础版**无宽度变量**：60M 与 300M 各自单独拟合（两个 fitter 文件）——"形状抄旧、常数新定"的落地形态
 2. 跨宽度迁移：identity 0.777；实测最优是 **anchored y60 ＋ γ(scale)**（锚定 60M 预测＋尺度校正项），胜过拟合连续跨尺度定律
 3. **变尺度扩展（ND scaling panel）——size×mixture 交互的显式建模**：
@@ -440,4 +451,4 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - **§8.9 盯哨来源（2026-11-11）**：262K 终局 bot 帖（#8435 最新评论，11-09 18:35）与两分支决定帖（11-06 21:41）；扩展全程证据 marin-logbooks #37（logbooks/37-hero-262k/notebook.md，commit c2307cd）；跟踪 issue #11056；SFT 数据审查 issue #11188（11-11）；RL 基建 PR 族（SkyRL typed recipes #9717/#9749/#10642/#10643、Snowball #10740/#10863）；bethehand/marin-hero-forecast 11-11 仍零更新
 - **§8.6 修复与调度**：262K 扩展 PR #10618；262K 评测修复 PR #10711（零 token tag 剔除 + 多长度评估系列，10-26，3,574 测试过）；seqlen 切换（~step 252k，qk_mult 1.48）与 d2048 rung 81% 失败弃恢复：#8435 内 dlwh 讨论串
 - **§8.7.6 源码级来源（2026-11-03）**：PR #6969 三件套 research.md（分支 design/mixing_via_embeddings，head SHA d2a5a25）；swarm 分支 `calvin/swarm-olmo3-regmix-test` 的 `experiments/domain_phase_mix/exploratory/two_phase_many/`（DSP/GRP fitters：`fit_dsp_canonical_variants_{60m,300m}.py`、`fit_variable_scale_dsp_nd.py`、`fit_grug_v4_aggregate_canonical_dsp.py`）；qsplit240 资产与 39 域定义在 `experiments/domain_phase_mix/`（`domains.py`、`experiment.py`、`weight_sampler.py`）；swarm-transfer-calibration 与 partition-expressivity logbook 于同目录 `.agents/logbooks/`（research.md 引用）
-- 遗留未解：#8452 中 "PI" 的确切含义（BO 语境下大概率指 Probability of Improvement acquisition，与 monotonic regret / epsilon0 等 BO 术语同现，未完全核实）；phase-2 实际生效时间（10 月上旬评论被 GitHub 懒加载折叠，~10-23 为步速推算）
+- 遗留未解：phase-2 实际生效时间（10 月上旬评论被 GitHub 懒加载折叠，~10-23 为步速推算）。（2026-11-10 已销项：#8452 "PI"＝Probability of Improvement——PR 正文核验，对照 run 对即 `epsilon0-pi` vs `epsilon0-monotonic-pi`，胜者 8-19 晋格正典配比，见 §3.2）
