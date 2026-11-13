@@ -2,7 +2,7 @@
 
 LLM 预训练数据配比算法的业界研究洞察项目。
 
-> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 159 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a 7-seat T1 canon organized as an operational "how to do data mixture" chain (Nemotron 3 Ultra / Nemotron 3.5+Singhal / Nemotron-CLIMB / InfoLaw / SuperValid / MAI-Thinking-1 / Marin 535B). Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
+> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 159 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a 5-seat T1 canon organized as an operational "how to do data mixture" chain (Nemotron 3 Ultra / Nemotron 3.5+Singhal / Nemotron-CLIMB / MAI-Thinking-1 / Marin 535B), all passing a strict authority bar (frontier-lab or fully-auditable industrial scale). Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
 
 > **免责声明**：本项目所有分析、评估和结论均为个人主观看法，针对特定场景（3B-A1 MoE 模型中训练〔3B-A1→7B→15B→500B 梯子首档验证档〕，STEM accuracy 评估）进行的判断，不代表任何官方立场，也不构成对任何论文或方法的权威评价。论文的梯队划分、价值标记和行动建议仅为本项目内部工作参考。
 
@@ -17,25 +17,25 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 3. **相变现象**：数据配比中的相变如何影响训练效果？
 4. **质量信号**：如何定义和量化数据质量？
 
-## 核心参考（T1 精选 canon；2026-11-12 设立，2026-11-13 用户重定为"怎么做数据配比"操作链）
+## 核心参考（T1 精选 canon；2026-11-12 设立，2026-11-13 重定为"怎么做数据配比"操作链并收敛为 5 席）
 
-> 全库 159 篇中精选 **7 席（8 篇，全部 T1）**，按配比工作的**操作顺序**组织：抄参照→搜/拟合→监控→信号纪律→验收。享有深读级维护与主参照地位；席位调整=用户裁定。
-> **2026-11-13 重构**：GLM-5（价值在结构/LR 见证，无配比操作内容）、UltraData（数据准备层非配比）退出 canon——保留 T1 与深读文档；InfoLaw、SuperValid 入替。
+> 全库 159 篇中精选 **5 席（6 篇，全部 T1）**，按配比工作的操作顺序组织，**每席须过权威性关**（Marin/MAI/Nemotron Ultra 级：头部厂商或强机构+工业规模+可审计披露）。享有深读级维护与主参照地位；席位调整=用户裁定。
+> 演革：11-13 上午 GLM-5/UltraData 退出（无配比操作内容/属数据准备层）→ InfoLaw/SuperValid 短暂入替 → **同日用户重申权威性原则后撤下**，收敛为 5 席。
 
 | 操作链 | 工作 | 它教你怎么做 | 深读落点 |
 |---|---|---|---|
-| ① 抄参照·预训练 | **Nemotron 3 Ultra**（#60） | PT 比例长什么样——19 类两阶段先验+定向注入价目表（100B→GPQA +11.1） | 头部厂商 doc §2+§2.8 |
-| ② 抄参照·中训练 | **Nemotron 3.5 + Singhal**（#160+#161） | MT 配比全表（域 ~75%+**回放 20%**+LC 5%+轨迹封顶）+固定预算 r-scan（10/20/30%）+**SFT 桥**（配比收益必须桥后测） | `OpenMidtrainingRecipe_深度分析.md`+头部厂商 §7 |
-| ③ 搜 | **Nemotron-CLIMB**（#74） | 唯一完整开源搜索流水线：语义聚类→proxy→LightGBM→迭代 bandit；CPT 配比尖锐形+成本账（112 次≈5040 GPUh） | `NemotronCLIMB_深度分析.md` |
-| ④ 拟合（替代扫描） | **InfoLaw**（#37） | 配比×重复统一信息论律：拟合后直接预测最优配比，7B/425B 误差 0.15% | 核心洞察 §17（**待深读**） |
-| ⑤ 边配边监控 | **SuperValid**（#132） | IID val loss 随配比漂——capability 级 OOD 验证集构造配方（2T 受控） | 核心洞察 §26（**待深读**） |
-| ⑥ 信号纪律 | **MAI-Thinking-1**（#73） | 什么不能信：千 proxy 排名不可信+memorization-aware 重复上限 | `MAI_Thinking_1_深度分析.md` |
-| ⑦ 验收 | **Marin 535B**（#110） | held-out/预注册/三层权重协议——配比结论的可审计闭环 | `Marin535B_Harrier_深度分析.md` |
+| ① 抄参照·预训练 | **Nemotron 3 Ultra**（#60，NVIDIA，550B/20T） | PT 比例长什么样——19 类两阶段先验+定向注入价目表（100B→GPQA +11.1） | 头部厂商 doc §2+§2.8 |
+| ② 抄参照·中训练+监控+验收 | **Nemotron 3.5 + Singhal**（#160+#161，120B 双尺寸/500B token） | MT 配比全表（域 ~75%+**回放 20%**+轨迹封顶）+固定预算 r-scan+**四组回归护栏**（边训边监控的权威实践）+**SFT 桥**（配比收益必须桥后测） | `OpenMidtrainingRecipe_深度分析.md`+头部厂商 §7 |
+| ③ 搜 | **Nemotron-CLIMB**（#74，NVIDIA，准则 4 双命中） | 唯一完整开源搜索流水线：语义聚类→proxy→LightGBM→迭代 bandit；CPT 配比尖锐形+成本账 | `NemotronCLIMB_深度分析.md` |
+| ④ 信号纪律 | **MAI-Thinking-1**（#73，微软，frontier 千 proxy） | 什么不能信：proxy 排名不可信+memorization-aware 重复上限 | `MAI_Thinking_1_深度分析.md` |
+| ⑤ 验收 | **Marin 535B**（#110，535B/18T 全程可审计） | held-out/预注册/三层权重协议——配比结论的可审计闭环 | `Marin535B_Harrier_深度分析.md` |
 
-**边界**：
-- 操作细节随行引用（不占席）：#124 子采样匹配重复率（proxy 实验设计必修）、#125/#123 重复上限、#145 课程×LR 联设、#131 CPT 切换点、MDE（验证目标选择>方法选择）。
-- 退出者：GLM-5（`GLM5_深度分析.md`）、UltraData（`UltraData_深度分析.md`）——T1 常备。
-- 理论随行层：Phase Transitions / Shift is Good / Explaining DMSL——七席的"为什么"。
+**边界与撤席记录**：
+- **撤席（2026-11-13 用户重申权威性原则）**：InfoLaw（权威够〔ByteDance+ICML'26〕但 7B/425B 验证规模低于 canon 各席 1-2 个量级；"拟合代扫描"无权威厂商生产采用）→ T1 常备；SuperValid（2T 受控实用，但蚂蚁非头部模型厂/无 venue/无开源审计）→ T1 常备随行。**由此确认的发现：权威级"拟合代扫描"实践者不存在——头部实际做法=手调+消融+护栏+桥（①②③全席自证）。**
+- 监控步不单设席：护栏实践在 ②（NVIDIA 四组）、held-out 在 ⑤（Marin）；SuperValid/MDE 作随行引用。
+- 随行操作细节（不占席）：#124 子采样匹配重复率、#125/#123 重复上限、#145 课程×LR、#131 CPT 切换点、MDE（验证目标选择）。
+- 早前退出者：GLM-5（结构/LR 见证）、UltraData（数据准备层）——T1 与深读文档保留。
+- 理论随行层：Phase Transitions / Shift is Good / Explaining DMSL。
 
 ## 目录结构
 
@@ -747,6 +747,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-11-12（核心参考 canon 设立：T1 精选 7 席，用户裁定）**：应用户指令——项目定位为**业界方法洞察分析、不做实验**（"3B-A1 实验草案"撤出待办），在 T1（19 篇）内精选少量最高参考价值工作作为**着重分析+后续主参照**。README 新增"核心参考"段（置于核心问题之后）：①Nemotron 3 Ultra（预训练配方"是什么"）/ ②**Nemotron 3.5+Singhal**（中训练配方+消融+SFT 桥，头号直接参照）/ ③GLM-5（跨厂商 MT 确认）/ ④MAI-Thinking-1（proxy 不可信工业铁证）/ ⑤Nemotron-CLIMB（搜索方法+基座来源）/ ⑥Marin 535B（审计纪律）/ ⑦UltraData（数学"筛 vs 改"）。**席位调整=用户裁定**；边界注记：NVIDIA 三席系披露最多非实力最强、第二梯队（SuperValid/MDE/InfoLaw/Solar/MergeMix/MobileLLM-R1）与理论随行层（Phase Transitions/Shift is Good/Explaining DMSL）不占席。深读现状盘点：6/7 席已有深读级文档，**GLM-5 仅头部厂商 doc §1（下一深读对象）**；英文简介计数修正 156→159 并同步 canon 描述。
 - **2026-11-13（GLM-5 canon 级深读：席位保留+角色精确化；七席全部深读级覆盖完成）**：应用户"确保 canon 优中选优"指令，网络恢复后全文深读（底档 /tmp/opencode/glm5.html，703KB），新增 `docs/GLM5_深度分析.md`。**核心发现**：① **三明治跨厂商同构**——PT 4K 27T→MT 三阶段窗口课程（32K/1T→128K/500B→200K/50B）→DSA 20B，与 NVIDIA（PT 8K→MT 256K）独立同构，中训练阶段结构系行业共识；② **LR 营地对立**——MT 从 PT 终值**连续线性衰减 4e-5→1e-5**（非重置恒定），#145"延迟衰减"/#161"重置恒定"之外的第三案工业实证（注意 Muon 优化器/谱系耦合，#133 引用纪律）；③ **无 PT 回放披露**——vs NVIDIA 20%（"40% 无增益"消融支撑）：回放必要性的活分歧样本；④ **DSA 效率账**——MT 后 20B token 稀疏注意力适配（复用 MT 数据+超参）追平 MLA、仅 DSv3.2（943.7B）1/47；RULER 表 +150B 联训后短窗反超 +0.49~+1.72；⑤ **Post-training**——错误段保留但 loss-mask（连 #161 轨迹哲学）、GRPO+IcePop 去 KL、**OPCD**（前序各阶段 ckpt 当教师在线蒸馏防阶段遗忘；3 Ultra MOPD 平行实现）、自家 GLM-4.7 当难度门（#88）；⑥ **评测姿态对照**——GLM 主动打榜（自报 AA/LMArena SOTA、SWE-V 77.8）vs NVIDIA 从不提交：AA 口径的两种用法（主动对齐 vs 被动伪影）。**六问六答席位裁定**（11-12 所列判据逐条兑现）：MT 数据侧零消融/零比例/零回放披露、200K 溢出主张无表——**席位保留、角色精确化**=跨厂商结构见证+LR 另一极+回放分歧样本+打榜对照（非配方参考答案）；引用清单（窗口课程/LR 全套数字/DSA 账/SWE 池-质旋钮/错误段 mask/OPCD）与不引清单（配比数值〔无〕/溢出主张/自报分数当目标线）落深读 §8。头部厂商 doc 新增 §1.5 指针；canon 表席位 3 与 T1 表 #58 行同步。**canon 七席至此全部有深读级文档。**
 - **2026-11-13（canon 重定方向："怎么做数据配比"操作链；换席 GLM-5/UltraData→InfoLaw/SuperValid）**：应用户澄清"我需要的是告诉我怎么做数据配比"——canon 从"支柱问题参考答案"重切为**操作链**：①抄参照·PT（Nemotron 3 Ultra 19 类先验）→②抄参照·MT（Nemotron 3.5+Singhal 全配比+r-scan+SFT 桥）→③搜（CLIMB 流水线）→④拟合替代扫描（**InfoLaw 入替**：配比×重复统一律，7B/425B 误差 0.15%）→⑤边配边监控（**SuperValid 入替**：capability 级 OOD 验证集配方，2T 受控）→⑥信号纪律（MAI proxy 排名不可信）→⑦验收（Marin held-out/预注册）。**退出**：GLM-5（结构/LR 见证、无配比操作内容——深读文档与 T1 保留）、UltraData（数据准备层非配比——同保留）；退出者在各自深读文档加注。新入两席（InfoLaw/SuperValid）暂无独立深读文档（现有分析在核心洞察 §17/§26），为后续深读对象。README canon 段+英文简介同步。
+- **2026-11-13（canon 权威性收敛：InfoLaw/SuperValid 撤席，5 席定稿）**：用户重申 canon 原则——"必须是权威的、可信度高的、有实际参考价值的工作"（举例 Marin/MAI/Nemotron Ultra）。两新席对照该标准**均低一档，撤**：InfoLaw（ByteDance+ICML'26 权威够，但 7B/425B 验证规模低于 canon 各席 1-2 个量级，"拟合代扫描"路线无权威厂商生产采用，与库内 rank non-invariance/相变谨慎立场相悖）→ T1 常备；SuperValid（2T 受控实用，但蚂蚁非头部模型厂、无 venue、无开源审计）→ T1 常备随行。**canon 定稿 5 席**：①3 Ultra（PT 参照）→②3.5+Singhal（MT 参照+护栏+SFT 桥）→③CLIMB（搜索）→④MAI（信号纪律）→⑤Marin（验收）——全席过权威关（NVIDIA×3/微软/全开源可审计）；监控步并入②⑤、拟合步撤空。**撤席附带发现：权威级"拟合代扫描"实践者不存在——头部实际做法=手调+消融+护栏+桥（①②③全席自证）**。README canon 段重写+英文简介同步。
 
 ## License
 
