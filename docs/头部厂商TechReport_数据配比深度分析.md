@@ -200,6 +200,16 @@
 
 ---
 
+### 2.8.1. recipe repo 目检（2026-11-16 尾巴清仓——低优先级尾巴升级为超预期收获）
+
+`NVIDIA-NeMo/Nemotron`（"Developer Asset Hub"，2349★，11-12 仍活跃）训练配方在 `docs/nemotron/ultra3/`（pretrain/sft/mopd/quantization 四阶段，产品线另有 lightning35/super35/nano3/omni3 全套同款）：
+- **PT 配比可执行化（二档证据升级）**：两相配比编码为 `config/data_prep/data_blend_raw_{phase1,phase2}.json`（权重对齐 TR Figure 4）+ Ray tokenize CLI（`nemotron ultra3 data prep pretrain`）——19 类两相配比从"TR 图"升级为"可执行 JSON+CLI"；新数据用 Specialized-v1.2/Legal-v1 已放 repo。
+- **诚实边界三条**：① **LC 阶段不含**（数据非开源），给复刻配方：从 Phase 2 ckpt 起 CPT，~46% LC+54% Phase 2、**恒 LR 2.5e-6**、~33B tokens、**92% 迭代@1M+8%@4K（仅数学/码 SFT 式）**、不用 RULER 式数据（LC 阶段恒定低 LR 与 Singhal 恒定哲学同族）；② **MOPD 全链不可复现**——每教师 ckpt 与迭代-1 MOPD ckpt 未开源，`mopd.md` 只给"单趟代表性参考"（Student RLVR→小教师面→一趟 MOPD）；③ 未开源类目如实列 `_missing_categories`（code/CC-Code/academic/crawl++；**Code-v3 只放 repo manifest 不放 tokenized text**）。
+- **后训练管线序全披露**：Base → SFT → RLVR → MOPD warmup → MOPD（×N）→ **MTP boosting**（新环节：MTP 增强收尾）。
+- **mopd.md 操作细节（RL/MOPD 环节二档升级）**：**general teacher=Student RLVR 自身**、其余教师槽缺省回退 general（"无教师覆盖域学生自教"的操作化）；**agent→teacher 路由表**（math judge/equivalence/mcqa/ns_tools/code_gen→reasoning；swe_pivot/terminal harnesses/droid/structured outputs/freeform/citation→SWE；GenRM→RLHF；IF/abstention/multichallenge→IFBench）；**blend 第三方数学行为占位符+`fill_placeholders.py` 从原始 HF 数据集恢复**（合规重分发模式）；**验证集协议=每 blend 末 100 行**；Stage 1 RLVR 两阶段（49k/128 步→65k/~50 步，rlvr1→rlvr2 换 blend，长度惩罚 0.15→0.08，GBS 8192=512×16，advantage clip ±20）；**NL2BASH 裁判=Qwen3-235B-A22B-FP8**（"别家模型当裁判/数据引擎"再+1）；SWE 环境构建带 verify gate（gold patch 应用+FAIL_TO_PASS/PASS_TO_PASS 过滤才发布镜像）；默认 224 节点拓扑（64 训练+128 vLLM+12 Gym+20 教师）。
+- **Singhal（#161）脚本触发器未兑现维持**：repo 无 MT 阶段文档（各产品线只有 pretrain/sft/rl/quantize；data/ 下仅通用 curation/sdg）、arXiv 2610.22019 仍 v1（10-15）——"未来版本放出脚本+元数据"未兑现，触发器=arXiv v2 / repo 新增 MT 文档 / Megatron-Bridge 新资产。
+
+
 ## 3. Qwen3（Alibaba, 235B/22B, 36T tokens）
 
 > arXiv: 2505.09388v1 | 2025.5 | Qwen Team
@@ -493,7 +503,7 @@ S2 本质上是中训练——在通用预训练后聚焦推理能力增强。LR
 **完整配方在伴生论文**：Singhal et al. 2026《Priming Base Models for Agentic Post-Training: An Open Midtraining Recipe》（arXiv 2610.22019，10-15 提交）——逐数据源构建/过滤/消融全公开，Lightning 上 500B token MT 实验。**该文曾漏网**：落在 10-10 与 10-17 两轮 sweep 之间的窗口缝隙，且标题用无连字符 "midtraining"（11-11 缝隙补扫确认缝隙内仅此一篇在轴）。已录 #161，**2026-11-11 深读完成**：`OpenMidtrainingRecipe_深度分析.md`（五要点：SFT 桥评测协议/工具响应 mask 差 10 分/LR 尺寸分档+回放 20%/轨迹增益大头但封顶/配比全表+逐源纪律；升 T1 建议待裁）。
 
 ### 7.2 蒸馏刷新（§2.2）
-3.5 Base 不从头训：从 3 系 Base 初始化后**蒸馏 1T tokens**（Lightning←Super 3 Base：top-128 logits、forward KL 0.9+CE 0.1+sink token；Super←Ultra 3 Base：Skew Reverse KL α=0.1；LR 1e-5→1e-4（10% peak）→线性回 1e-5；MoE load-balance 系数 1e-5）——"换代=蒸馏"的低成本模型更新路径，蒸馏轴备查。
+3.5 Base 不从头训：从 3 系 Base 初始化后**蒸馏 1T tokens**（Lightning←Super 3 Base：top-128 logits、forward KL 0.9+CE 0.1+sink token；Super←Ultra 3 Base：Skew Reverse KL α=0.1；LR 1e-5→1e-4（10% peak）→线性回 1e-5；MoE load-balance 系数 1e-5）——"换代=蒸馏"的低成本模型更新路径，蒸馏轴备查。**2026-11-16 recipe repo 佐证补录**：① Lightning 出身细节补全（Nano 3 Base 初始化+Super 3 MTP 头〔LatentMoE 投影融合进专家 up/down 后剪枝：hidden 4096→2688、专家中间维 2688→1856、路由专家 512→128〕+**100B MTP 热身〔backbone 冻结只训 MTP 头〕**+1T 蒸馏）；② **模型卡与 TR 冲突**——卡称">20T NVFP4+MTP 层 CPT、无蒸馏"、TR 称蒸馏——NVIDIA 自己的 recipe 文档表态"follow the tech report"（一档/二档冲突时信 TR 的活样本）；③ 开源参考配方 `lightning35 pretrain`=从零随机初始化+**全 1.0 均匀权重 blend（23 子集×4 家族）+明说"不代表生产配比"**——开源参考配方≠生产配方，"定比例=手调"再添二档注脚。
 
 ### 7.3 Indic CPT 与 Lightning 配比消融（§2.3）
 - 语料：Nemotron-Pretraining-Indic-v1 ≈**2.83T 生成 token**（Gemma-4-31B-it 翻译 Nemotron-CC 英文源、22 语言 34 种配置；语料+生成管线将开源）
