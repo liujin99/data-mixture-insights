@@ -2,7 +2,7 @@
 
 LLM 预训练数据配比算法的业界研究洞察项目。
 
-> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 162 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a **"industrial playbook" core reference set** — mixture methods actually used by industrial-scale models, evidenced at three tiers (TR disclosure / open-asset auditability / multi-vendor convergence): Nemotron 3 Ultra, Nemotron 3.5+Singhal, Nemotron-CLIMB, MAI-Thinking-1, Marin 535B. Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
+> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 165 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a **"industrial playbook" core reference set** — mixture methods actually used by industrial-scale models, evidenced at three tiers (TR disclosure / open-asset auditability / multi-vendor convergence): Nemotron 3 Ultra, Nemotron 3.5+Singhal, Nemotron-CLIMB, MAI-Thinking-1, Marin 535B. Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
 
 > **免责声明**：本项目所有分析、评估和结论均为个人主观看法，针对特定场景（3B-A1 MoE 模型中训练〔3B-A1→7B→15B→500B 梯子首档验证档〕，STEM accuracy 评估）进行的判断，不代表任何官方立场，也不构成对任何论文或方法的权威评价。论文的梯队划分、价值标记和行动建议仅为本项目内部工作参考。
 
@@ -55,7 +55,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 ```
 data-mixture-insights/
 ├── papers/          # 论文 PDF (35 篇, 本地存储不入库)
-├── docs/            # 分析文档 57 个：论文总表.md（全 162 篇主表）+ 深度分析/专题分析文档
+├── docs/            # 分析文档 57 个：论文总表.md（全 165 篇主表）+ 深度分析/专题分析文档
 └── README.md
 ```
 
@@ -71,7 +71,7 @@ data-mixture-insights/
 
 ## 论文索引
 
-> 四梯队共 162 篇，每行**一句话核心**：讲清这个工作最核心的结论/指导，或为什么对本项目（3B-A1 MoE 中训练、数据配比）有高参考价值。详细内容、⚠️ 边界与梯队裁定注记以 [`docs/论文总表.md`](docs/论文总表.md) 为准（完整主表：梯队+标记+机构+Venue+文档路径+关键贡献）。
+> 四梯队共 165 篇，每行**一句话核心**：讲清这个工作最核心的结论/指导，或为什么对本项目（3B-A1 MoE 中训练、数据配比）有高参考价值。详细内容、⚠️ 边界与梯队裁定注记以 [`docs/论文总表.md`](docs/论文总表.md) 为准（完整主表：梯队+标记+机构+Venue+文档路径+关键贡献）。
 >
 > **梯队划分依据**《可信度评估准则》（实验规模 / 作者机构 / 业界关注度 / 开源可审计+社区采用 / 时效；2026-10-12 制定、2026-11-06 增补第 4、5 条）；个别行的升降档裁定及原因见 changelog。
 >
@@ -151,6 +151,8 @@ data-mixture-insights/
 | 156 | **The Finetuner's Fallacy** | ISTA+CMU+Meta 等 34 人 | arXiv (2026.03, 2603.16177) | 专门域数据从预训练起掺入（SPT）优于留给微调：1.75× token 效率、1B SPT>3B 标准、过拟合 scaling law 定最优重复——“域数据尽早进场”受控证据（调度三连之一） |
 | 157 | **Replaying Pre-training Data Improves Fine-tuning** | Stanford | arXiv (2026.03, 2603.04964) | 微调/中训练回放通用数据反而提升目标域（1.87×/2.06× 数据效率，8B 实证）——PT replay 线来源（#145 给出其 LR 边界），30% 非 STEM 陪跑收益的量化参照 |
 | 158 | **Nemotron-CC-Math** | NVIDIA | **ICLR 2026**（arXiv 2508.15096，2025.08） | 133B/52B（4+）开源数学语料：超 FineMath-4+ 且体量 5.5×、8B 实证 MATH +4.8~12.6——STEM 池数据量瓶颈的现成扩充资产（代码+数据开源） |
+| 165 | **daVinci-Prover: Agent-Native Mid-Training** | Wenhong Zhu 等（Qipeng Guo/Pengfei Liu 班底，机构待核） | arXiv (2026.11, 2611.16433) | **[高价值]** 定理证明的透明 MT 配方：33.7B token agent-native 中训练语料（分解/搜索/自验证/修正+verifier-grounded 轨迹），**+13.7 vs 匹配 Qwen3-8B SFT-only 基线**（MiniF2F/FATE-M/ProofNet）、Qwen3.5 系复验——与 #161 同哲学（技能先验+agent 轨迹喂 MT）在垂直域的学术版 |
+| 166 | **Lara Mini Base** | Translated/EU LARA 联盟 | arXiv (2026.11, 2611.16956) | **[有意思]** 多语配比 TR：6T tokens/45 语言/7.2B-A0.6B MoE 从零训练——训练中非英语占比逐步增至反超英语（语言份额=课程轴）、**MoE 缓解语言间容量竞争**（连 #52 容量竞争）；2B 活跃参数档平均分超 4-6× tokens 的模型；权重 CC BY-NC-SA 开源 |
 
 ### 第三梯队：方向参考（综述 / 假说 / 场景错位 / 待验证）
 
@@ -220,6 +222,7 @@ data-mixture-insights/
 | 159 | **Beyond Data Schedule: Loss-Reweighting (LARE)** | Jiazheng Li 等 5 人（未核） | arXiv (2026.10, 2610.32141) | 固定数据曝光、按 running loss 域级 loss 重加权（inverse-square-root 规则免搜索）——"配比之外的独立控制"：单 checkpoint 超两阶段各自最佳；1.5B/240B +7.84pp；连 #51 Nexus（目标函数级域平衡）/#113 ADO（loss 驱动调整的迁移风险）——sweep 漏网、11-10 补录 |
 | 162 | **Beyond Passive Imitation: On-Policy Mid-Training Distillation** | 阿里+复旦/川大/港理工/上交 | arXiv (2026.11, 2611.13855) | **[有意思]** MT 阶段小 LR+KL 在线蒸馏替代 NTP；反例比正结论硬：同语料同配方 Llama-3.2-3B 升/Qwen3-1.7B-Base 大降（跨 base 迁移线）⚠️ LR confound（1e-5 vs 1e-6+KL）、单 seed、代码 404——T3 不细读 |
 | 163 | **Primitives and Paths** | Anqi Qu 等（未核） | arXiv (2026.11, 2611.11260) | **[新发现]** 二维 post-trainability 状态空间（full-solution support × primitive coverage）三 regime（放大/组合受限/习得受限）——"RL 是放大还是新习得取决于基座状态"理论化，与 3 Ultra MOPD 支撑集机制发现同构——T3 不细读 |
+| 167 | **Agentic-OPD** | Tingcheng Bian 等（未核） | arXiv (2026.11, 2611.12799) | **[有意思]** RL checkpoint 动物园当免费教师池：best-val ckpt 会丢早期 ckpt 已解题（并集>>单点），HCN 按学生未解覆盖选师+LAD 局部蒸馏——**3 Ultra MOPD/GLM-5 OPCD"前序 ckpt 当教师"的学术机制版**；4B 学生 5 域 24 基准最高 +7.4 |
 
 ### 第四梯队：轴外相关或初步工作
 
@@ -769,6 +772,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-11-13（二次更名："生产采用精选"→"工业实战精选"，标记 [工业实战/…]）**：用户反馈"生产采用精选没有感觉"+需明确"工业级"限定（区分于实验室小规模实战）。定名"**工业实战精选**"——规模（工业级）+性质（真在打，非论文方法）双限定；标记 [生产/高价值]→[工业实战/高价值]（总表 6 行），README 分栏/操作手册小标题/标记说明/英文简介（production-adopted→industrial playbook）同步。内容与席位不变。
 - **2026-11-16（Nemotron 触发器核验：HF 全放声明兑现 + RL 配比表超预期公开）**：执行 11-12 留下的待核项（HF 经 hf-mirror 通道；github 当日仍不通）。**三项全兑现**：①三档 ckpt（Base-BF16/BF16/NVFP4+GenRM）；②数据 226 个数据集全披露+PT 集合级 token 数（CC-v2/v2.1 9.1T、Code 1.7T+427.9B、Specialized 660B、Math 133.3B、Legal 4.3B、多语 812.7B、GitHub 920B——公开集合对账 ~14T/20T，"major portions" 诚实，余量私有/第三方合成如实列名未放）；③recipe 指向 NeMo repo（链在未目检，低优先级尾巴）。**#60 准则 4 强命中**（一档 TR+二档开源资产双证据）。**超预期：`Nemotron-RL-Ultra-Training-Blends` 七份 blend 精确百分比全公开**（rlvr1/rlvr2/ifbench/rlhf/reasoning/swe/mopd）——工业模型 post-training 配比表直接公开的罕见案例；rlvr1→rlvr2 轮间迭代可审计（饱和项微降+新增 ~1.4% 级定向补丁）；reasoning/swe blend 头部成分为第三方开源数据集。**手册新增"RL/MOPD 配比"环节**（十→十一环节）；头部厂商 doc §2.8 待核句改已核+配比表摘要；总表 #60 行补注。
 - **2026-11-16（旧待裁四项快速处置 + 精力纪律确立）**：用户裁定**"T3 的不建议精读"+精力纪律**（"不要把太多精力放到分析任务价值不高/不那么可信的工作上"）——旧挂起四项一句话裁掉归档：① **#162 OPMD**（2611.13855，T3 **[有意思]**）：MT 阶段小 LR+KL 在线蒸馏替代 NTP，价值在反例——同语料同配方 Llama-3.2-3B 升/Qwen3-1.7B-Base 大降（配方跨 base 迁移线硬证据）；⚠️ LR confound（1e-5 vs 1e-6+KL，#145 教训）/单 seed/代码 404/1B tokens 学术规模。② **#163 Primitives and Paths**（2611.11260，T3 **[新发现]**）：二维 post-trainability 状态空间（full-solution support × atomic primitive coverage）→ 三 regime（放大/组合受限/习得受限）——"RL 是放大还是新习得取决于基座状态"的理论化，第一轴与 3 Ultra MOPD"教师优势须落在学生可采样支撑集内"机制发现同构；合成任务+小模型验证。③ **#164 DRIVE**（2610.32501，T4）：源预训练数据不可得时 SFT 样本加权替代回放——SFT 层非本库轴，轴外备查。④ "falble" 所指销项（库内无记录的对话遗留词）。统计：总 159→162（T3 62→64、T4 32→33）、仅索引 82→85、有标记 48→50（[新发现] 8→9、[有意思] 10→11）、无标记 111→112；总表 #162-164 三行+README T3/T4 表+全库计数同步。
+- **2026-11-16（增量 sweep：窗口 11-10→11-16 连续无缝 + 头部厂商动态盘点）**：8 组 arXiv 短语查询（data mixture/mixing/curation/selection、pretraining data、midtraining/mid-training、training recipe、data curriculum、training corpus、annealing）+ HF 五厂盘点。**录用 3 篇**：① **#165 daVinci-Prover**（2611.16433，T2 **[高价值]**）：定理证明的透明 MT 数据配方——33.7B token agent-native 中训练语料（分解/搜索/自验证/修正+verifier-grounded 轨迹），**+13.7 vs 匹配 Qwen3-8B SFT-only 基线**、Qwen3.5 系复验——#161 同哲学（技能先验+轨迹喂 MT+SFT 桥评测）的垂直域学术版，**深读候选**；② **#166 Lara Mini Base**（2611.16956，T2 [有意思]）：多语配比 TR——6T/45 语言/7.2B-A0.6B MoE，语言份额课程（非英语随训练反超英语）+**MoE 缓解语言间容量竞争**（连 #52）；③ **#167 Agentic-OPD**（2611.12799，T3 [有意思]）：RL ckpt 池=零成本教师池（best-val 有损），HCN 选师+LAD 局部蒸馏——**MOPD/OPCD"前序 ckpt 当教师"的学术机制版**，4B/24 基准最高 +7.4。**存档不录**：WoW 教育知识图谱语料（机构信号弱）、Walrus TR（语音域轴外）、entity comparison phases（163M 个案研究）。**头部厂商盘点（重要观察）**：五家新旗舰**权重已出、TR 全部未出**——Qwen3.8（11-07，2.4T-A95B）/GLM-5.3（10-14）/MiniMax-H3（11-09）/Kimi-K3.1-Pro（11-05）/DS-V4.1-Flash（10-16）——设 **TR 落地触发器**：任一家 TR 出现且含配比/数据章节即入核。**Marin 盯哨**：无 bethehand 终裁；SFT/RL 管线活跃（pinned SFT campaign、Lean 证明评分器、Data Belay 新数据集测试带、RL 自恢复续训），继续 watch。统计：总 162→165（T2 46→48、T3 64→65）、仅索引 85→88、有标记 50→53（[高价值] 26→27、[有意思] 11→13）。
 
 ## License
 
