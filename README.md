@@ -2,7 +2,7 @@
 
 LLM 预训练数据配比算法的业界研究洞察项目。
 
-> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 159 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a **production-adopted core reference set** — mixture methods actually used by industrial-scale models, evidenced at three tiers (TR disclosure / open-asset auditability / multi-vendor convergence): Nemotron 3 Ultra, Nemotron 3.5+Singhal, Nemotron-CLIMB, MAI-Thinking-1, Marin 535B. Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
+> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 159 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a **"industrial playbook" core reference set** — mixture methods actually used by industrial-scale models, evidenced at three tiers (TR disclosure / open-asset auditability / multi-vendor convergence): Nemotron 3 Ultra, Nemotron 3.5+Singhal, Nemotron-CLIMB, MAI-Thinking-1, Marin 535B. Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
 
 > **免责声明**：本项目所有分析、评估和结论均为个人主观看法，针对特定场景（3B-A1 MoE 模型中训练〔3B-A1→7B→15B→500B 梯子首档验证档〕，STEM accuracy 评估）进行的判断，不代表任何官方立场，也不构成对任何论文或方法的权威评价。论文的梯队划分、价值标记和行动建议仅为本项目内部工作参考。
 
@@ -17,7 +17,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 3. **相变现象**：数据配比中的相变如何影响训练效果？
 4. **质量信号**：如何定义和量化数据质量？
 
-## 生产采用精选（2026-11-13 设立，用户裁定）
+## 工业实战精选（2026-11-13 设立，用户裁定）
 
 > **判断准则：工业级模型真正在使用的配比方法**——先不管创新性，主打生产采用证据。参照它们可能不是最优，但不会差到哪里去；远比"研究人员为发 paper 而做的工作"可靠（后者存在美化的可能性）。
 > **与 T1-T4 的关系（命名说明）**：不沿用 T 编号——本分栏准则与 T1-T4 不同维度（**生产采用过滤** vs **可信度分层**），不是"更高梯队"；四梯队分级不变，入选者均保持 T1。席位/准则调整=用户裁定。
@@ -25,7 +25,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 > **两条局限**：① 沉默厂商不可观测——以多厂商独立收敛当业界代表信号；② "在用"=可靠地板，非前沿天花板。
 > 演革：11-12 canon 7 席（支柱问题参考答案）→ 11-13 操作链（GLM-5/UltraData 退出）→ 权威关（InfoLaw/SuperValid 撤席）→ **生产采用准则定稿**。
 
-### 生产实践操作手册（每条标证据档）
+### 工业实战操作手册（每条标证据档）
 
 | 环节 | 生产实践 | 证据来源〔档〕 |
 |---|---|---|
@@ -74,7 +74,7 @@ data-mixture-insights/
 >
 > **梯队划分依据**《可信度评估准则》（实验规模 / 作者机构 / 业界关注度 / 开源可审计+社区采用 / 时效；2026-10-12 制定、2026-11-06 增补第 4、5 条）；个别行的升降档裁定及原因见 changelog。
 >
-> **标记说明**：`[高价值/重要]` = 项目理论根基；`[高价值]` = 直接可用方法/数据；`[新发现]` = 新视角启发；`[有意思]` = 有价值但需批判看待；`[独立再发现]` = 不同搜索角度独立验证高相关；`[高价值/轴外]` = 高可信+理论新颖但 T4 场景外——价值认可保留、不作直接实验参考（2026-11-09，/轴外 可与其他标记组合，如 #114 [高价值/新发现/轴外]）；`[生产/…]` = 生产采用精选成员（判断准则与操作手册见"生产采用精选"段，2026-11-13；与 T1-T4 不同维度，分级不受影响）。约束：无后缀 `[高价值]` 仅限 T1/T2。
+> **标记说明**：`[高价值/重要]` = 项目理论根基；`[高价值]` = 直接可用方法/数据；`[新发现]` = 新视角启发；`[有意思]` = 有价值但需批判看待；`[独立再发现]` = 不同搜索角度独立验证高相关；`[高价值/轴外]` = 高可信+理论新颖但 T4 场景外——价值认可保留、不作直接实验参考（2026-11-09，/轴外 可与其他标记组合，如 #114 [高价值/新发现/轴外]）；`[工业实战/…]` = 工业实战精选成员（判断准则与操作手册见"工业实战精选"段，2026-11-13；与 T1-T4 不同维度，分级不受影响）。约束：无后缀 `[高价值]` 仅限 T1/T2。
 
 ### 第一梯队：高可信度 + 高价值（准入：定理级 / 工业规模 / 强机构+强 venue / 完全开源+社区采用）
 
@@ -762,6 +762,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-11-13（canon 权威性收敛：InfoLaw/SuperValid 撤席，5 席定稿）**：用户重申 canon 原则——"必须是权威的、可信度高的、有实际参考价值的工作"（举例 Marin/MAI/Nemotron Ultra）。两新席对照该标准**均低一档，撤**：InfoLaw（ByteDance+ICML'26 权威够，但 7B/425B 验证规模低于 canon 各席 1-2 个量级，"拟合代扫描"路线无权威厂商生产采用，与库内 rank non-invariance/相变谨慎立场相悖）→ T1 常备；SuperValid（2T 受控实用，但蚂蚁非头部模型厂、无 venue、无开源审计）→ T1 常备随行。**canon 定稿 5 席**：①3 Ultra（PT 参照）→②3.5+Singhal（MT 参照+护栏+SFT 桥）→③CLIMB（搜索）→④MAI（信号纪律）→⑤Marin（验收）——全席过权威关（NVIDIA×3/微软/全开源可审计）；监控步并入②⑤、拟合步撤空。**撤席附带发现：权威级"拟合代扫描"实践者不存在——头部实际做法=手调+消融+护栏+桥（①②③全席自证）**。README canon 段重写+英文简介同步。
 - **2026-11-13（T0 分栏设立："生产采用"准则定稿）**：应用户裁定——T1-T4 分级不变，另设 **T0=生产采用精选**：准则=**工业级模型真正在使用的配比方法**（先不管创新性；参照可能非最优但不会差——远比"为发 paper 而做的研究"可靠，后者存在美化的可能性）。README canon 段升级为"**T0 · 生产采用精选**"，分栏内明写判断准则+**证据三档**（一=TR 直接描述生产使用/二=开源资产可审计〔含第三方采用〕/三=≥2 家独立头部收敛）+反例条款（TR 一句话无细节不算；方法停在研究线不算）+两条局限（沉默厂商不可观测→多厂商收敛当代表；"在用"=地板非天花板）。**T0 操作手册十环节**（标证据档）落成：PT 19 类两阶段/定向注入价目表/MT 配比（回放 20%+轨迹封顶）/**定比例=手调+消融+护栏+桥（无一家头部披露用自动搜索定生产配比）**/回归护栏/SFT 桥验收/信号纪律/memorization-aware 重复上限/蒸馏刷新/ClimbMix 资产。**CLIMB 席位角色修正**：③"定比例"的 T0 事实=手调，CLIMB=唯一开源搜索参考（方法未进生产，反例条款活样本）。总表 6 行（#60/#73/#74/#110/#160/#161）加 [T0/高价值] 标记；标记说明+英文简介同步。
 - **2026-11-13（更名："T0"→"生产采用精选"，标记 [生产/…]）**：应用户指出——"T0"编号易被读作 T1-T4 同一梯队的更高一级，但准则不同维度（生产采用过滤 vs 可信度分层）。分栏更名"**生产采用精选**"（不占 T 编号），总表标记 [T0/高价值]→[生产/高价值]（6 行），README 分栏/标记说明/英文简介同步；小标题改"生产实践操作手册"/"参考席位"，"T0 事实"改"业界事实"。内容与席位不变。
+- **2026-11-13（二次更名："生产采用精选"→"工业实战精选"，标记 [工业实战/…]）**：用户反馈"生产采用精选没有感觉"+需明确"工业级"限定（区分于实验室小规模实战）。定名"**工业实战精选**"——规模（工业级）+性质（真在打，非论文方法）双限定；标记 [生产/高价值]→[工业实战/高价值]（总表 6 行），README 分栏/操作手册小标题/标记说明/英文简介（production-adopted→industrial playbook）同步。内容与席位不变。
 
 ## License
 
