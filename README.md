@@ -2,7 +2,7 @@
 
 LLM 预训练数据配比算法的业界研究洞察项目。
 
-> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 165 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a **"industrial playbook" core reference set** — mixture methods actually used by industrial-scale models, evidenced at three tiers (TR disclosure / open-asset auditability / multi-vendor convergence): Nemotron 3 Ultra, Nemotron 3.5+Singhal, Nemotron-CLIMB, MAI-Thinking-1, Marin 535B. Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
+> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 168 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a **"industrial playbook" core reference set** — mixture methods actually used by industrial-scale models, evidenced at three tiers (TR disclosure / open-asset auditability / multi-vendor convergence): Nemotron 3 Ultra, Nemotron 3.5+Singhal, Nemotron-CLIMB, MAI-Thinking-1, Marin 535B. Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
 
 > **免责声明**：本项目所有分析、评估和结论均为个人主观看法，针对特定场景（3B-A1 MoE 模型中训练〔3B-A1→7B→15B→500B 梯子首档验证档〕，STEM accuracy 评估）进行的判断，不代表任何官方立场，也不构成对任何论文或方法的权威评价。论文的梯队划分、价值标记和行动建议仅为本项目内部工作参考。
 
@@ -31,7 +31,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 |---|---|---|
 | PT 配比结构 | 19 类两阶段：多样性 75% → 质量 25% 课程 | 3 Ultra〔一〕 |
 | 定向注入 | ~100B token 合成注入换单 benchmark ~+10（价目表） | 3 Ultra〔一〕 |
-| MT 配比 | 域数据 ~75% + **PT 回放 20%**（40% 无增益）+ LC 5% + 轨迹/对话式数据封顶 10-15% | 3.5+Singhal〔一〕；骨架 NVIDIA/GLM/Qwen-Coder-Next/Kimi-Dev 独立收敛〔三〕；回放 GLM 未披露（分歧如实记） |
+| MT 配比 | 域数据 ~75% + **PT 回放 20%**（40% 无增益）+ LC 5% + 轨迹/对话式数据封顶 10-15% | 3.5+Singhal〔一〕；骨架 NVIDIA/GLM/Qwen-Coder-Next/Kimi-Dev 独立收敛〔三〕；回放 GLM 未披露（分歧如实记）。**轨迹封顶条旁证（11-16 压力测试扫描，素材级非参考链）**：#168 熵塌缩机制+pre-RL 熵前兆、#169 OPD-then-RL>联合、#170 "伤 RL 的是离策略/过量模仿非模仿本身"——学术侧一致、无反例；伤的机制=探索熵压缩非知识装载 |
 | RL/MOPD 配比 | 七份 blend 精确百分比公开（agentic 工具 ~20%/SWE ~14%/IF ~12%/数学 ~11%）；轮间定向补丁（饱和项微降+新增 ~1.4% 级补丁项）；单一目的小 blend（ifbench/reasoning/swe） | 3 Ultra〔二：RL-Ultra-Training-Blends 开源资产，11-16 核验〕 |
 | **定比例的方法** | **手调+消融+护栏+桥**——无一家头部披露用自动搜索定生产配比 | 〔三〕；反例活样本：CLIMB 搜索算法未进自家生产（研究线/产品线分裂） |
 | 边训边监控 | 四组通用 benchmark 回归护栏，摔线退档 | NVIDIA〔一〕 |
@@ -56,7 +56,7 @@ LLM 预训练数据配比算法的业界研究洞察项目。
 ```
 data-mixture-insights/
 ├── papers/          # 论文 PDF (35 篇, 本地存储不入库)
-├── docs/            # 分析文档 57 个：论文总表.md（全 165 篇主表）+ 深度分析/专题分析文档
+├── docs/            # 分析文档 57 个：论文总表.md（全 168 篇主表）+ 深度分析/专题分析文档
 └── README.md
 ```
 
@@ -72,7 +72,7 @@ data-mixture-insights/
 
 ## 论文索引
 
-> 四梯队共 165 篇，每行**一句话核心**：讲清这个工作最核心的结论/指导，或为什么对本项目（3B-A1 MoE 中训练、数据配比）有高参考价值。详细内容、⚠️ 边界与梯队裁定注记以 [`docs/论文总表.md`](docs/论文总表.md) 为准（完整主表：梯队+标记+机构+Venue+文档路径+关键贡献）。
+> 四梯队共 168 篇，每行**一句话核心**：讲清这个工作最核心的结论/指导，或为什么对本项目（3B-A1 MoE 中训练、数据配比）有高参考价值。详细内容、⚠️ 边界与梯队裁定注记以 [`docs/论文总表.md`](docs/论文总表.md) 为准（完整主表：梯队+标记+机构+Venue+文档路径+关键贡献）。
 >
 > **梯队划分依据**《可信度评估准则》（实验规模 / 作者机构 / 业界关注度 / 开源可审计+社区采用 / 时效；2026-10-12 制定、2026-11-06 增补第 4、5 条）；个别行的升降档裁定及原因见 changelog。
 >
@@ -224,6 +224,9 @@ data-mixture-insights/
 | 163 | **Primitives and Paths** | Anqi Qu 等（未核） | arXiv (2026.11, 2611.11260) | **[新发现]** 二维 post-trainability 状态空间（full-solution support × primitive coverage）三 regime（放大/组合受限/习得受限）——"RL 是放大还是新习得取决于基座状态"理论化，与 3 Ultra MOPD 支撑集机制发现同构——T3 不细读 |
 | 166 | **Lara Mini Base** | Translated/EU LARA 联盟 | arXiv (2026.11, 2611.16956) | **[有意思]** 多语配比 TR：6T tokens/45 语言/7.2B-A0.6B MoE——训练中非英语占比逐步反超英语（语言份额=课程）、MoE 缓解语言间容量竞争（连 #52）；**2026-11-16 用户裁定 T2→T3：多语非业界当前重点、数学才是** |
 | 167 | **Agentic-OPD** | Tingcheng Bian 等（未核） | arXiv (2026.11, 2611.12799) | **[有意思]** RL checkpoint 动物园当免费教师池：best-val ckpt 会丢早期 ckpt 已解题（并集>>单点），HCN 按学生未解覆盖选师+LAD 局部蒸馏——**3 Ultra MOPD/GLM-5 OPCD"前序 ckpt 当教师"的学术机制版**；4B 学生 5 域 24 基准最高 +7.4 |
+| 168 | **SFT Overtraining Predicts Rank Inversion via Entropy Collapse** | Aphale/Liu 双作者（未核） | arXiv (2026.06, 2606.18487) | **[有意思]** 过量 SFT 伤 RL 受控证据：3B 五档 SFT 深度——pre-RL pass@1 升但峰值 GRPO pass@10 0.806→0.481；机制=熵塌缩→组内奖励全同无信号；**pre-RL 熵 ρ=+0.69=事前前兆**；破阈值 p*(g) 才反转（6.7B 未破不反转）——#161 轨迹封顶条的学术机制版 |
+| 169 | **Sequential Beats Joint: OPD 与 RLVR 的相互作用** | Boyan Li/Xi Ye 等（未核） | arXiv (2026.09, 2609.04108) | **[新发现]** OPD-then-RL 两阶段>一切联合目标——**OPD 扩张教师支撑解覆盖、RL 在支撑内 sharpen、联合互相干扰**：三明治顺序栈的顺序化证据；与 3 Ultra MOPD（联合式奖励成形）对照面记档；与 #163 支撑集框架同构 |
+| 170 | **RL Starts before RL: OPD for Better RL** | Shuai Dong 等（未核） | arXiv (2026.09, 2609.28145) | **[有意思]** 精确化边界：on-policy 蒸馏当 RL 准备期>直接 RL>SFT-then-RL，收益与即时精度无关——**伤 RL 的不是模仿数据，是离策略/过量模仿**：#161 封顶+on-policy 设计的第三方注脚、与 MOPD"sampled-token>全分布"同向 |
 
 ### 第四梯队：轴外相关或初步工作
 
@@ -778,6 +781,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **2026-11-16（#165 daVinci-Prover 深读完成）**：应用户裁定深读，建 `daVinciProver_深度分析.md`（12 节）。**深读要点**：① **配比表级透明**（33.7B 六类带百分比：分解 25/轨迹 21.3/自验 16.9/回放 15.2/修正 11.4/搜索 10.2）——回放 15.2% 与 NVIDIA 20% 同族但对象不同（语料内精选 vs PT 防遗忘），"回放"一词两义须分清；② **消融核心发现：8.4B agent 轨迹 > 25.3B 技能先验**（分布对齐>知识灌输；轨迹按 token 计价不按样本），组合互补最优；③ **+13.7 系旧 base（Qwen3-8B）数字——新 base（Qwen3.5-9B）上收敛至 +1~+3、35B MoE 上更小**："底座越新、先验存量越大，域专项 MT 边际越小"配比收益校准律（对 #160 Lightning 同理须谨慎）；④ 33B 语料>OProver 65B（构成>规模）；scaling 前 15B 甜点；⑤ 教师=DeepSeek-V4-Flash（**别家开源模型当数据引擎=NVIDIA MOPD 同款模式的学术复刻**），非形式组件直接用 Nemotron-Math-Proofs-v2（**NVIDIA 数据资产第三方采用实录**）；⑥ 训练配方：MTP 保留 0.1/routing 保留+aux 1e-3、LR **cosine→0**（衰减营再添一员）、32K packing 样本隔离+Gated DeltaNet 状态重置、YaRN 外推免 LC 课程；⑦ **成本账 $122-146K**（48×H200×20 天）——域专项 MT 数据合成是主要开销项；⑧ **memory compact 杠杆（FATE-H 16→42）比 MT 本身大一个量级**——轨迹预算与推理期上下文压缩应一体设计；⑨ 评测反作弊纪律（拒绝 axioms/native_decide、去污 0.034%、pass@8 vs 同行†pass@32 不对齐如实记）。**判定：T2 维持**（无 venue+学术规模堵 T1；透明度/消融/纪律全优非 T3）；不入工业实战精选分栏，挂"尺度参照随行"边界注记。触发器：语料/36K 轨迹开源兑现核验（harness 已核开源、语料未核）、venue 落地。引用深度分析行 77→78、仅索引 88→87。**同日用户三问补录 §13+价值重估 §14**：教师选型=可自部署最强（开源圈第一、闭源未对比，难题榜学生-教师差 17 分）；9B 学生进开源第一梯队（超 32B 专用 prover、逼近教师 4/5 榜）；**配比找法未公布——"desired mixture"预设+手调+事后消融，无任何搜索过程**——在"定配比方法公开世界不存在"（InfoLaw 撤席元结论）前提下，本文价值定位=种子模板+剂量经济学+读数标尺+元结论佐证，反向支持项目精力放生产方法+验证纪律而非搜索算法。
 - **2026-11-16（#165 §14 二次修正：用户两处纠偏）**：① **"定配比方法公开世界不存在"系滑坡**——正确表述=**未披露/不可观测≠不存在**（分栏局限①才是正确姿势）；"方法"拆两半：**验证方法学已披露可抄**（消融/护栏/SFT 桥），**决策方法学在沉默区**（候选/判据/迭代函数）；② **"种子模板"不能指数字**——六类百分比绑定其池（五源+合成管线）、其域（Lean 交互长→轨迹 21.3%）、其 base，"不能直接抄"；**可迁移性分界表（daVinci 版，对齐 #161 §8.1）**：分类法/定性规律/验证纪律/剂量量级 ✓ 可迁移，**百分比数字 ✗ 池绑定须本地重定**。修正后价值定位=**假设空间+经验规律+验证程序**（非配比答案）；"模板迁移的终点是本地消融，起点不是数字是结构"。
 - **2026-11-16（用户裁定：参考地位纪律——直接参考权=精选集独占）**：**"我们能真正参考的工业级方法=工业实战精选分栏（5 席）"**；#165 daVinci-Prover 因**新且未被广泛验证**（无 venue/无第三方采用/无独立复现）**降为分析素材+watch、不进参考链**——分栏边界注记改"尺度参照随行"为裁定注记、深读文档补 §15 参考地位裁定（触发器：venue/语料开源兑现/第三方采用后再议）；T2 [高价值] 与深读文档保留（素材价值不删）。原则记档：**未经广泛验证的新文只作素材与 watch，直接参考以精选集为唯一来源**。
+- **2026-11-16（"超长 SFT 伤 RL"候选线扫描：手册"轨迹封顶"条压力测试）**：目标=检验"轨迹/对话式数据封顶 10-15% 防变相加长 SFT 伤 RL"（当前仅 NVIDIA 一档证据）有无第三方旁证/反例。7 组查询（RL trainability/SFT hurts/exploration collapse/entropy collapse/cold start/pass@k+distillation），**结论=旁证一致、无反例**。录用 T3 三篇（素材级非参考链）：**#168 SFT Overtraining Predicts Rank Inversion**（2606.18487：3B 五档 SFT 深度受控——pre-RL pass@1 升而峰值 GRPO pass@10 0.806→0.481；机制=SFT 压缩 rollout 熵→二元奖励组内全同→GRPO 无信号；**pre-RL 熵 ρ=+0.69 事前前兆**；破 p*(g) 阈值才反转、6.7B 未破不反转——边界条件清楚）；**#169 Sequential Beats Joint**（2609.04108：OPD-then-RL>纯 OPD/纯 RLVR/一切联合；机制=**OPD 扩支撑覆盖、RL 内 sharpen、联合互扰**——三明治顺序栈的顺序化证据；与 3 Ultra MOPD 对照面记档〔MOPD=联合式奖励成形，非损失相加，对照须细〕；与 #163 支撑集框架同构）；**#170 RL Starts before RL**（2609.28145：on-policy 蒸馏当 RL 准备期>直接 RL>SFT-then-RL、收益与即时精度无关——**伤 RL 的不是模仿数据，是离策略/过量模仿**：#161 封顶+on-policy 设计的第三方注脚）。**存档**：TS-OPSD 政策复热（RL 侧补救）、KL/轨迹解耦统一分解（2605.16826，理论随行）、exploration collapse 系（RL 目标函数面非数据面）。**手册"MT 配比"行加旁证注记**。统计：总 165→168（T3 66→69）、仅索引 87→90、有标记 53→56（[新发现] +1、[有意思] +2）。
 
 ## License
 
