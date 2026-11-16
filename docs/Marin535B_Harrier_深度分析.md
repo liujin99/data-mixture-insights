@@ -454,3 +454,17 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - **§8.6 修复与调度**：262K 扩展 PR #10618；262K 评测修复 PR #10711（零 token tag 剔除 + 多长度评估系列，10-26，3,574 测试过）；seqlen 切换（~step 252k，qk_mult 1.48）与 d2048 rung 81% 失败弃恢复：#8435 内 dlwh 讨论串
 - **§8.7.6 源码级来源（2026-11-03）**：PR #6969 三件套 research.md（分支 design/mixing_via_embeddings，head SHA d2a5a25）；swarm 分支 `calvin/swarm-olmo3-regmix-test` 的 `experiments/domain_phase_mix/exploratory/two_phase_many/`（DSP/GRP fitters：`fit_dsp_canonical_variants_{60m,300m}.py`、`fit_variable_scale_dsp_nd.py`、`fit_grug_v4_aggregate_canonical_dsp.py`）；qsplit240 资产与 39 域定义在 `experiments/domain_phase_mix/`（`domains.py`、`experiment.py`、`weight_sampler.py`）；swarm-transfer-calibration 与 partition-expressivity logbook 于同目录 `.agents/logbooks/`（research.md 引用）
 - 遗留未解：phase-2 实际生效时间（10 月上旬评论被 GitHub 懒加载折叠，~10-23 为步速推算）。（2026-11-10 已销项：#8452 "PI"＝Probability of Improvement——PR 正文核验，对照 run 对即 `epsilon0-pi` vs `epsilon0-monotonic-pi`，胜者 8-19 晋格正典配比，见 §3.2）
+
+## 8.10 盯哨更新（2026-11-16：standup 周报线启用 + bethehand 转型）
+
+**渠道**：standup 周报线首次启用——#11169"Week of November 2, 2026 standup"（11-10 建帖，11-16 查阅）；bethehand/bethehand 仓库提交（11-09×5，均 profile README 更新）；issue 流 #11500+ 全为基建/评测 bug 修复，无 SFT/RL 结果帖。
+
+**Snowball RL 线（基建→实验期）**：
+- RL inner loop 收敛进五个 PR（#10926/#10737/#10740/#10863/#11069）：**一条命令跑一个 RL 实验，并报告是否超过 control runs 的 run-to-run 噪声**——噪声底线纪律工程化（§8.6"无分离即不换"决策协议从 hero run 探针搬进 RL 通用件）。
+- Snowball 67B-A2B（vultr 集群）端到端管线基本可用：保存/加载 checkpoint、断点续训、跨节点通信；510M-A360M 小型 snowball 上 Trainium（大量 workaround）。
+- 计划项："make snowball recipes"、"**write a snowball tech report**"——**新触发器：snowball TR 出现即核**。
+- 其余：SFT shootout（#10213）/SFT identity（#10696/#10695）、Ablations 循环（拟把 Snowball SFT 搬 TPU）、curriculum RL（BioTasks）首轮实验、RL 数据集梳理、"distillation index for current SFT and pretraining"。
+
+**bethehand 终裁线**：仍无。README 已转型求职/研究主页（looped-scaling complete、无 venue、准备读博），**预测赛条目已从主页消失**。按精力纪律建议 watch 降级：等主办方公告/第三方复算即可，不再主动盯其仓库（待用户裁定）。
+
+**下次盯哨**：Week of Nov 9 standup（~11-17 建帖）或 SFT/RL 首个结果帖；bethehand 若降级则退出盯哨清单。
