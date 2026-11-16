@@ -465,6 +465,6 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - 计划项："make snowball recipes"、"**write a snowball tech report**"——**新触发器：snowball TR 出现即核**。
 - 其余：SFT shootout（#10213）/SFT identity（#10696/#10695）、Ablations 循环（拟把 Snowball SFT 搬 TPU）、curriculum RL（BioTasks）首轮实验、RL 数据集梳理、"distillation index for current SFT and pretraining"。
 
-**bethehand 终裁线**：仍无。README 已转型求职/研究主页（looped-scaling complete、无 venue、准备读博），**预测赛条目已从主页消失**。按精力纪律建议 watch 降级：等主办方公告/第三方复算即可，不再主动盯其仓库（待用户裁定）。
+**bethehand 终裁线**：仍无。README 已转型求职/研究主页（looped-scaling complete、无 venue、准备读博），预测赛条目已从主页消失。**2026-11-16 用户裁定：watch 取消销项**——非 Marin 项目成员、无跟踪价值，终裁不再等（预测赛记分板本身已完整：官方+mindscanlabs 两份复盘+实测结果，少他一份不影响对答案）。
 
-**下次盯哨**：Week of Nov 9 standup（~11-17 建帖）或 SFT/RL 首个结果帖；bethehand 若降级则退出盯哨清单。
+**下次盯哨**：Week of Nov 9 standup（~11-17 建帖）或 SFT/RL 首个结果帖。（bethehand 已销项，退出盯哨清单。）
