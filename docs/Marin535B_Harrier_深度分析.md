@@ -482,4 +482,12 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - 262k 上下文扩展收官（log-scaled 版中选 #11044——LC/数据轴注记：Marin 的长上下文走"log-scaled 数据扩展"路线）。
 - **snowball TR：本周零提及**（上周"计划写"后无下文）——触发器维持。
 
-**下次盯哨**：Week of Nov 16 standup（~11-24 建帖）/ SFT/RL 首个结果帖 / snowball TR。
+**同日二次刷新（#11783，karansag 11-20 中午建帖）——回放比例工业对照实验开跑在即**（"SFT/RL 首个结果帖"触发器的前站：实验设计帖，结果待跑）：
+- **Snowball SFT pretraining replay share 三臂 matched-compute 对照**：20.47%（基线，兼 recipe check）/40%/60% 回放行份额，固定一小时预算（150 updates×32 packed rows×262,144 tokens），只动 mixture 采样权重、两侧内部比例保持（193 回放组件/184 SFT 组件），8 小时 screen 由基线臂通过才启动；评测 Micro210×2+edit-call。
+- **① Marin 生产实践=20% 回放再添收敛**：10/05 SFT run 20.35%/Mochi Hero SFT 20.43%（scheduled positions 实测，issue 一手披露非 TR）——与 NVIDIA 20%/Singhal 20% 同值；GLM 仍未披露（分歧维持）。
+- **② loss mask 分歧点记档**：Marin SFT 数据与 trainer 均无 role-based mask（system/user/tool-result 全算 loss，"是否 intended 无文档"）——vs NVIDIA agent 轨迹 10% loss-mask，两侧工业实践相反，watch 后续表态。
+- ③ 剂量学细节：SFT 行 padding 7.5-8% 而回放行零 padding→回放 trained-token 份额高于行份额 ~1.3-2pp（20.47% 行→21.15% token）。
+- ④ 控制异常教训：11-19 from-base FP32 控制 Micro210 87.29 vs 11-18 的 145.01/440（原因未隔离）——短屏实验的对照漂移风险，Marin 用 pin 11-18 优化器版本应对。
+- **新子触发器：#11783 结果落地即更新手册"回放 20%（40% 无增益）"行证据**——若 40%/60% 显著增益，该行"40% 无增益"须改写。
+
+**下次盯哨**：Week of Nov 16 standup（~11-24 建帖）/ **#11783 回放实验结果** / snowball TR。
