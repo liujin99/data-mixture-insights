@@ -485,7 +485,7 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 **同日二次刷新（#11783，karansag 11-20 中午建帖）——回放比例工业对照实验开跑在即**（"SFT/RL 首个结果帖"触发器的前站：实验设计帖，结果待跑）：
 - **Snowball SFT pretraining replay share 三臂 matched-compute 对照**：20.47%（基线，兼 recipe check）/40%/60% 回放行份额，固定一小时预算（150 updates×32 packed rows×262,144 tokens），只动 mixture 采样权重、两侧内部比例保持（193 回放组件/184 SFT 组件），8 小时 screen 由基线臂通过才启动；评测 Micro210×2+edit-call。
 - **① Marin 生产实践=20% 回放再添收敛**：10/05 SFT run 20.35%/Mochi Hero SFT 20.43%（scheduled positions 实测，issue 一手披露非 TR）——与 NVIDIA 20%/Singhal 20% 同值；GLM 仍未披露（分歧维持）。
-- **② loss mask 分歧点记档**：Marin SFT 数据与 trainer 均无 role-based mask（system/user/tool-result 全算 loss，"是否 intended 无文档"）——**业界对照（库内三家两沉默）**：NVIDIA=工具响应 mask（对照实验：不遮 27.5 vs 遮 37.8，差 10 分，最硬证据）+GLM-5=错误段保留但 mask（学纠正不强化错误，同哲学）——Marin 系已知唯一反例，watch 后续表态（含其 #11783 实验是否受此影响）。空白点：CoT/数学数据该对哪些 token 算 loss，#161 明示未测。
+- **② loss mask 分歧点记档**：Marin SFT 数据与 trainer 均无 role-based mask（system/user/tool-result 全算 loss，"是否 intended 无文档"）——**业界对照（库内三家两沉默）**：NVIDIA=工具响应 mask（对照实验：不遮 27.5 vs 遮 37.8，差 10 分，最硬证据）+GLM-5=错误段保留但 mask（学纠正不强化错误，同哲学）——Marin 系已知唯一反例，watch 后续表态（含其 #11783 实验是否受此影响）。空白点：CoT/数学数据该对哪些 token 算 loss，#161 明示未测。**用户工作假设（11-20）：非设计而是无经验未意识到**——判据三条：①无内部文档（"是否 intended 无文档"自认）；②NVIDIA 差 10 分的对照实验公开在先、知道就没理由反着来；③同期基建毛刺不止一处（11-19 vs 11-18 控制分 87.29 vs 145.01 原因未隔离）。（保留口子：故意走"学环境"world-modeling 路线在学术上存在、NVIDIA 实验证明该路线翻车，但 Marin 无任何文档主张此说。）**验证方式**：Marin 后续加 role mask 或 issue 讨论此话题=补课实锤；长期不改才构成故意证据。
 - ③ 剂量学细节：SFT 行 padding 7.5-8% 而回放行零 padding→回放 trained-token 份额高于行份额 ~1.3-2pp（20.47% 行→21.15% token）。
 - ④ 控制异常教训：11-19 from-base FP32 控制 Micro210 87.29 vs 11-18 的 145.01/440（原因未隔离）——短屏实验的对照漂移风险，Marin 用 pin 11-18 优化器版本应对。
 - **新子触发器：#11783 结果落地即更新手册"回放 20%（40% 无增益）"行证据**——若 40%/60% 显著增益，该行"40% 无增益"须改写。
