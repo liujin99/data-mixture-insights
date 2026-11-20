@@ -20,7 +20,7 @@
 
 ## 1. GLM-5（智谱 AI + 清华, 744B/40B, 28.5T tokens）
 
-> arXiv: 2602.15763v1 | 2026.2 | Zhipu AI & Tsinghua University
+> arXiv: 2602.15763v2 | 2026.2（v1→v2 系 2026-11-20 增量复读时发现此前标 v1 有误，v2=2026-02-24） | Zhipu AI & Tsinghua University。深读见 `GLM5_深度分析.md`（canon 级 2026-11-13 + 增量复读 §10 2026-11-20）。
 
 ### 1.1 架构
 

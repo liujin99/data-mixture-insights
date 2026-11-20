@@ -97,5 +97,54 @@
 - MT 数据侧零消融、零比例；200K 溢出断言级；DSA 表在 9B（GLM-4.7-Flash）非 744B 本体；单 run；post-training 数据配比未披露。
 - 触发器：① GLM-4.5 TR 回溯（中训练框架出处，看协议是否 4.5 已定）；② GLM 下一代 TR 的 MT 章节演进（是否补比例/消融/回放）；③ 若 GLM 放出中训练数据细节（目前无开源声明）→ 复核。
 
+## 10. 2026-11-20 增量复读（v2 全文通读，补 §1-§9 未覆盖材料）
+
+> 11-13 深读以数据配比轴为主线；本轮补四块它未覆盖的轴级材料 + 一句话记档组。底档同 /tmp/opencode/glm5.html（**v2，2026-02-24**；头部厂商 doc §1 标 v1 系当时笔误，已修正）。
+
+### 10.1 Base 评测表（Table 11）：基座能力分配的轴级数据点
+
+| Base 对比 | GLM-4.5 | GLM-5 | 方向 |
+|---|---|---|---|
+| GSM8K | 79.4 | **68.8** | 数学 **−10.6** |
+| MATH | 61.0 | **56.4** | 数学 −4.6 |
+| EvalPlus | 78.1 | **87.0** | 代码 **+8.9** |
+| LiveCodeBench-Base | 28.1 | **34.4** | 代码 +6.3 |
+| MMLU | 86.1 | 88.3 | 知识 +2.2 |
+
+- PT"prioritizing code and reasoning early on"的**代价显形**：基座数学倒退 ~10 分、代码大涨；post-training RL 把数学拉回（终模型 AIME 92.5/HMMT 95.4/91.1——超过 GLM-4.7）。
+- **库内连线**：#113（base 指标≠下游）的**反向案例**——base 弱≠终弱，PT/MT 段的能力取舍可在 RL 段重配；连 #159/#114（中间 checkpoint 选择）与 Singhal"base proxy 不足以指导配方决策"（#161 §3.1）——**base 评测只能读"分配了什么"，读不出"终模型会什么"**。
+- 引用纪律：终模型数学分数=RL 拉回后的产物，不可反推 PT/MT 配比"对数学友好"。
+
+### 10.2 SWE-rebench（Table 9）：打榜姿态的另一半
+
+- 动态新任务（持续挖掘新 GitHub issue-fix、去污染）Resolved **42.1%**：落后 Opus 4.6 52.9 / GPT-5.2 51.7 / Sonnet 4.5 47.1 / Gemini 3 Pro 46.7 / **Opus 4.5 43.8**，仅高于 GLM-4.7 41.3 / Kimi K2.5 37.9。
+- 与自报 SWE-V 77.8（开源第一）并排读：**静态 SOTA ≠ 泛化到新任务**——静态基准 2 年公开+污染风险的自家证词（他们主动给出此理由并披露全表）。
+- **连 #60 §7.6**：至此第三方/动态口径三种用法集齐——NVIDIA 被动伪影（AA 中下）、GLM 主动对齐（AA/LMArena SOTA）、GLM 同时披露动态基准落后——**评测诚实度的复合样本：打榜与披露短板可以并存**。
+
+### 10.3 Reasoning RL 四域均衡（§3.2）：本文唯一 RL mixture 数字
+
+- math/science/code/TIR 四域 **"roughly balanced"**——RL 层配比的第三家工业披露（Nemotron 七份 RL blend 百分比全公开、DeepSeek per-dataset 并发上限=blend 表执行侧写）。
+- 难度带定义工业化：只留"GLM-4.7 罕见解对 + 更强教师（GPT-5.2 xhigh/Gemini 3 Pro）可解"——**ZPD 带双阈值**（学生难、教师会；连 #88"难度=学生配对属性"的工业级完整版）；域×来源分别配 judge/评测系统、二元结果奖励。
+- TIR 域=数学/科学难题的更难子集+与标注方共建的"必须用工具"STEM 题——**同题不同域的复用设计**。
+
+### 10.4 CC-Bench-V2（§6.2）：长程/增量开发评测设计参照
+
+- **Agent-as-a-Judge**：GUI agent 交互式验证 check-item；点级人机一致 **94%**、8 模型排名 Spearman **85.7%**——自动化长程评测可靠性的标定数字。
+- **链式任务管线**（比 SWE-bench 单 commit 更接近真实工程）：merged PR 过滤（3-15 commits 线性史）→ LLM 语义相邻性+DP 最优分组 → patch 三分类（golden/test/auto-apply）→ 问题生成 → 任务分类 → Docker 环境验证（全链零回归）。**误差跨链复合**：一步劣改可静默破坏后续测试——GLM-5 chained 52.3 vs Opus 4.5 61.6 的差距主因（他们自陈）。
+- 分层结果：repo exploration **65.6 > Opus 4.5 64.5**（导航强）vs ISR 差距（前端整任务交付弱）——**agentic 能力的内部分化画像**：找文件≠交付任务。
+- 连 #161 SFT 桥：评测协议家族再添一员（去人工标注、全自动 harness）。
+
+### 10.5 一句话记档组
+
+- **Agentic RL 数据工程**（§4.2）：10K+ SWE 可验证环境（RepoLaunch、F2P/P2P、9 语言）、终端环境合成（Harbor 格式、Docker 构建成功率 90%+、构建 agent 自验证闭环）、搜索任务 WKG 200 万页多跳 QA 三段难度过滤——**环境规模化=数据合成的另一形态**（连 #160 §2.5 agentic 管线；Marin 同期在造同类环境，Snowball）。
+- **推理期上下文管理**（§4.2.4）：keep-recent-k（k=5 折叠旧观察）BrowseComp 55.3→62.0；+discard-all 分层（T=32k）→75.9；自陈"超 100k token 精度显著下降"——200K 训练窗口与推理折叠的配合，训练窗口大≠推理期不用折叠。
+- **staleness/环境失败双过滤**：rollout 版本差>τ 丢弃、环境崩溃样本剔除（GRPO 组内>半数有效则补齐否则弃组）——RL 数据质量纪律（连 Marin #11188 SFT 审查同族）。
+- **中文芯片全栈适配**（§5）：W4A8 量化+七平台（Ascend/Moore Threads/Hygon/Cambricon/Kunlunxin/MetaX/Enflame）、单 Atlas 节点≈双 GPU 集群、长序列部署成本 −50%——部署侧非配比轴（用户 NPU 场景参考）。
+- **Pony Alpha 彩蛋**（§8）：匿名 OpenRouter 盲测（25% 猜 Claude Sonnet 5/20% DeepSeek/10% Grok）——品牌盲测方法论一例。
+- **自家修订基准并放出**：terminal-bench-2-verified（修歧义指令）+ τ² prompt 调整——与 TB2.0 官方分数并排双报（56.2/60.7†）的透明做法。
+- **DSA RL 稳定性**：非确定性 CUDA top-k 在 RL 中"数步内灾难性退化+熵崩"；换 torch.topk（确定性）+冻结 indexer 解决——离散选择算子的确定性=训练-推演一致性前提（MoE routing replay 同构）。
+
+**增量引用清单补充**：Table 11 受控同表对比（base 能力分配）、SWE-rebench 全表（自家披露动态口径）、四域均衡+ZPD 双阈值、CC-Bench 标定数字（94%/85.7%）。**仍不引**：终模型分数当目标线（§8 裁定不变）。
+
 ---
-*深读底档：/tmp/opencode/glm5.html（2026-11-13 抓取，703KB）。头部厂商 doc §1 为 2026-08 批量分析，本文为 canon 级深读升级，§1 评级表维持。*
+*深读底档：/tmp/opencode/glm5.html（2026-11-13 抓取，703KB，v2 2026-02-24；§10 增量复读 2026-11-20 同底档）。头部厂商 doc §1 为 2026-08 批量分析，本文为 canon 级深读升级，§1 评级表维持。*
