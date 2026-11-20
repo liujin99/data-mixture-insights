@@ -94,7 +94,7 @@
 | 机构 | GAIR/Pengfei Liu（上交系强学术组）✓ |
 | venue | 无（11-14 新挂）⚠️ |
 | 消融 | 有（组件消融+语料对比+scaling 五点+过程证据）✓ |
-| 开源兑现 | **harness GitHub 已核**（GAIR-NLP/daVinci-prover，5★ 新仓）。**2026-11-16 HF 复核（davinci-prover org）**：**SFT 轨迹已放**——`agentic-prover-SFT`（11-11）= **35,291 条成功 Lean4 证明轨迹**（教师=DeepSeek V4.1 Flash，与 36K 口径对齐）；**RL 侧已放**——`agentic-prover-RL`（11-15）=4,030 任务+`agentic-prover-RL-env`（harbor 框架环境），**source_datasets=nvidia/Nemotron-Math-Proofs-v3-RL**（v2→v3 已出新版，NVIDIA 数学资产再被第三方采用）；**33.7B MT 语料本体未放**（org 下无对应数据集）——准则 4 按"部分开源"计，MT 语料兑现继续 watch |
+| 开源兑现 | **harness GitHub 已核**（GAIR-NLP/daVinci-prover，5★ 新仓）。**2026-11-16 HF 复核（davinci-prover org）**：**SFT 轨迹已放**——`agentic-prover-SFT`（11-11）= **35,291 条成功 Lean4 证明轨迹**（教师=DeepSeek V4.1 Flash，与 36K 口径对齐）；**RL 侧已放**——`agentic-prover-RL`（11-15）=4,030 任务+`agentic-prover-RL-env`（harbor 框架环境），**source_datasets=nvidia/Nemotron-Math-Proofs-v3-RL**（v2→v3 已出新版，NVIDIA 数学资产再被第三方采用）；**33.7B MT 语料本体已放**——**2026-11-20 复核**：`agentic-prover-midtrain`（11-16）六类中**四类全放**：decompose 8.435B（466.2 万例）/agent 轨迹 7.170B（39.7 万例）/revision 3.836B（102.7 万例）/search 3.447B（196.2 万例）=**8,048,641 例 / 22.888B token**（与论文配比表四类逐一吻合：25%/21.3%/11.4%/10.2%×33.7B，反推自验+回放两类 ~10.8B 不放——README 明示"informal data is excluded"，系口径决定非拖延）；另放 decompose/revision 的 **Lean 4.35-verified 过滤版**（合计 211.4 万例，与原版重叠、作去重替代用；全验证路线=14.3B token）；裸文本 Parquet/单 text 字段/不 tokenize 不 packing，token 计数按 Qwen3.5 32K 预处理（含 EOS、不含回放与 padding）——**准则 4 升"开源兑现（formal 主体）"**：轨迹+RL+环境+MT 语料四件套齐，唯 informal 两类明示不放 |
 | 反作弊 | 评测拒绝 axioms/native_decide、去污 0.034% ✓ |
 | 主要打折点 | headline +13.7 在旧 base；Qwen3.5 上 +1~+3；pass@8 vs †pass@32 不对齐；单域 |
 
@@ -128,4 +128,6 @@
 
 ## 15. 参考地位裁定（2026-11-16 用户终局裁定）
 
-**直接参考权=工业实战精选分栏独占**；本文因**新且未被广泛验证**（无 venue、无第三方采用、无独立复现）**不进参考链**——降级为**分析素材+watch 项**。T2 [高价值] 梯队与深读文档保留（素材价值不删），§14 可迁移性分界表含义收敛为"若将来参考时哪些成分可用"的预分析，非当前行动依据。**watch 触发器**（任一兑现再议参考地位）：① venue 落地（ICLR/NeurIPS 线）；② 33.7B 语料+36K 轨迹开源兑现——**11-16 部分兑现**（35,291 轨迹+4,030 RL 任务+环境已放，33.7B MT 语料本体未放，剩余部分继续 watch）；③ 第三方采用/复现记录。
+**直接参考权=工业实战精选分栏独占**；本文因**新且未被广泛验证**（无 venue、无第三方采用、无独立复现）**不进参考链**——降级为**分析素材+watch 项**。T2 [高价值] 梯队与深读文档保留（素材价值不删），§14 可迁移性分界表含义收敛为"若将来参考时哪些成分可用"的预分析，非当前行动依据。**watch 触发器**（任一兑现再议参考地位）：① venue 落地（ICLR/NeurIPS 线）；② 33.7B 语料+36K 轨迹开源兑现——**11-20 触发命中**（35,291 轨迹+4,030 RL 任务+环境+MT 语料 formal 主体 22.888B 全放；自验+回放 ~10.8B 按 informal 口径明示不放）——**参考地位再议提上日程，用户裁定权**；③ 第三方采用/复现记录。
+
+**11-20 补记（语料兑现的库内意义）**：① **"agent 轨迹进 MT"从论文主张变可下载资产**（7.17B token/39.7 万条定理证明 agent 轨迹，与 NVIDIA Nemotron-Math-Proofs 同域互补——MT 轨迹语料现有两家开源来源）；② 四类百分比与放出 token 逐一吻合（8.435/7.170/3.836/3.447B），**论文配比表获语料级可审计背书**（证据二档"开源资产可审计"达成，唯缺 informal 侧）；③ 验证版子集（Lean 4.35 只验最终证明、不验 NL 解释与初始尝试）是"验证器把关"主题的又一次落地——放的是**原料+过滤器两版**，用哪版是使用者的事。

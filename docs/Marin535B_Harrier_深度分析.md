@@ -468,3 +468,18 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 **bethehand 终裁线**：仍无。README 已转型求职/研究主页（looped-scaling complete、无 venue、准备读博），预测赛条目已从主页消失。**2026-11-16 用户裁定：watch 取消销项**——非 Marin 项目成员、无跟踪价值，终裁不再等（预测赛记分板本身已完整：官方+mindscanlabs 两份复盘+实测结果，少他一份不影响对答案）。
 
 **下次盯哨**：Week of Nov 9 standup（~11-17 建帖）或 SFT/RL 首个结果帖。（bethehand 已销项，退出盯哨清单。）
+
+## 8.11 盯哨更新（2026-11-20：Nov 9 standup——Snowball 进入数据装配期 + Lean RL 进场）
+
+**渠道**：#11597"Week of November 9, 2026 standup"（11-17 建帖，standup 周报线第二期命中）；issue 流无 SFT/RL 结果帖（#10740"publish results"系实验 preset 发布机制建设——preset/control pin 2026.11.19.1、CPU 预检、verdict 可复算，无结果数字）。
+
+**Snowball 线（基建期→数据装配期）**：
+- 训练循环就绪（2 节点 MI355x：checkpoint/断点重启/真实数据全通）；**Snowball-mix ladder 数据集已建上 GCS**+全量 snowball run 的**去污 Harrier 训练集**起草中（Amy）——配比对象从"实验配方"转向"正式训练集"，去污先行。
+- **首个 snowball transfer recipe 落地**（Ben）+RL Data Atlas（清洗/摄入/后端兼容元数据）；下周"more vetted Snowball recipes"——**"vetted recipe"成为 Marin 的正式概念**（与库内"验证器把关"主题同向）。
+- SFT 数据质量工程（David）：只用成功 Open-SWE 轨迹、**20% LCE replay 的垃圾过滤**（logbooks#40）、"bad reasoning"审查——回放比例(20%)再次出现，且配过滤纪律。
+- **Lean RL 数据进场**（Matt）：合并 Lean v4.34.1 proof grader+ProofNet-Verified+NuminaMath-LEAN 训练数据——**Marin 进入定理证明 RL**（与 daVinci/NVIDIA Nemotron-Math-Proofs 同域；数学/agentic 内环权重再确认，同周 daVinci 放出 MT 语料、NVIDIA v3 资产被其采用——三方在同一域收敛）。
+- **Kimi K3.1-Pro 被用作任务生成+grounding 源**（Mark，~2 万 TaskForge 任务）；Karan 用 Long Loop 跑 Qwen/Kimi 轨迹消融——**K3.1-Pro 当数据引擎实录**（权重已出、TR 未出，不妨碍被别家当教师用）。
+- 262k 上下文扩展收官（log-scaled 版中选 #11044——LC/数据轴注记：Marin 的长上下文走"log-scaled 数据扩展"路线）。
+- **snowball TR：本周零提及**（上周"计划写"后无下文）——触发器维持。
+
+**下次盯哨**：Week of Nov 16 standup（~11-24 建帖）/ SFT/RL 首个结果帖 / snowball TR。
