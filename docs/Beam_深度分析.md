@@ -1,6 +1,6 @@
 # Beam Model Technical Report 深度分析（Reflection Team，501.3B/23.4B，23.8T）
 
-**录入**：2026-11-24，总表 #173，T2 [高价值]（席位/梯队终裁权在用户）。发现渠道=微信公众号解读文（飞星未来《解读 Reflection Beam》），一手源 **arXiv 2611.26358**（2026-11-19 提交，Reflection Team 230+ 作者，正文 8 节+3 附录、37 表 72 图）已全文核验——微信文数字与原文一致。**开源权重**（BF16/FP8/NVFP4 三档 checkpoint+DFlash 2 投机解码 drafter）；**数据与配方未开源**——证据档位一档（TR 一手全披露）。
+**录入**：2026-11-24，总表 #173，T2 [高价值]（席位/梯队终裁权在用户）。发现渠道=微信公众号解读文（飞星未来《解读 Reflection Beam》），一手源 **arXiv 2611.26358**（2026-11-19 提交，Reflection Team 230+ 作者，正文 8 节+3 附录、37 表 72 图）已全文核验——微信文数字与原文一致。**时间线（11-24 二轮核查修正）**：模型 10-05 官宣（官博"Introducing Beam"，HN 556 分/172 评）、**权重 10-16 以 Apache 2.0 上架 HF**（四 ckpt：BF16/NVFP4/FP8/DFlash2）、TR 11-19 补发——权重已出 ~6 周，非"新发布 5 天"。**开源权重、数据与配方未开源**——证据档位一档（TR 一手全披露）。发布方背景与业界定位见 §11。
 
 **一句话**：新 lab 首个模型的"全链路摊账本"TR——PT 配比表（含分域轮次）、质量分档加权的因果消融、**MT 两阶段回放数字（10%/35%，库内第二家 MT 回放披露）**、RL 任务池策展原则、MOPD 双教师融合+split-braining 检验、goodput 77%→92.3% 工程账，全部写进正文且愿写"不好看"的数字（goodput 77%/MFU 21%/推理 GPU 3.9-5.4 倍于训练）。配比披露密度为 2026 年 TR 最高一档。
 
@@ -94,13 +94,32 @@
 
 ## 10. 参考地位与 watch（席位终裁权在用户）
 
-**当前判定：T2 [高价值] 分析素材，不进直接参考链**——同 #165 纪律：新发布（11-19）、无第三方采用/独立复现（**可检验性≠被验证性**：权重放出=别人可以验，尚无别人确实验过）；工业规模门槛（23.8T/10.5K GPU）已过，唯缺时间检验。**直接参考权=工业实战精选分栏独占**原则不变。
+**当前判定：T2 [高价值] 分析素材，不进直接参考链**——同 #165 纪律：无第三方大规模采用/独立复现（**可检验性≠被验证性**：权重+AA 第三方评测已有〔11-24 核查，触发器①半命中〕，但采用量与独立复现未到）；工业规模门槛（23.8T/10.5K GPU）已过。**直接参考权=工业实战精选分栏独占**原则不变。**11-24 定位注记**：库内直接参考的 Nemotron 3 Ultra 系"配比披露+开源兑现"入选而非分数（AA 三指数中下-垫底）——Beam 的配比披露密度同级（MT 回放等 Ultra 未披露的数字它给了）、第三方分数更高（AA 17.7 vs Ultra 11.8），素材资格过硬；直接参考缺的只是"被验证"（采用规模/独立复现/时间检验）。
 
 **watch 触发器**（任一兑现再议参考地位）：
-① **第三方采用/独立复现**（评测机构独立复现分数/他家用 Beam 当数据引擎或教师——连"Kimi K3.1-Pro 被 Marin 当数据引擎"模式）
+① **第三方采用/独立复现**（评测机构独立复现分数/他家用 Beam 当数据引擎或教师——连"Kimi K3.1-Pro 被 Marin 当数据引擎"模式）——**半命中注记（11-24）**：AA 已收录（17.7），但 HF 采用量差两个数量级（见 §11）；NVIDIA 收购若落地=强命中
 ② venue 落地（ICLR/NeurIPS 线）
 ③ **数据资产开源**（配比表从"TR 描述"变"可审计资产"，证据档位一档→二档——#165 同款路径）
 ④ 多语 0.71× 是否后续补训（多语轴信号）
 ⑤ split-braining 概念被他家 TR 采纳（命名扩散=影响力信号）
 
-**下次盯哨顺带**：Reflection 后续动作（Beam 数据/recipe 是否跟进开源、第二个模型）；HN/社区对 TR 的独立复现讨论。
+**下次盯哨顺带**：Reflection 后续动作（Beam 数据/recipe 是否跟进开源、第二个模型、NVIDIA 收购进展）；AA 指数更新；社区独立复现讨论。
+
+## 11. 发布方与业界定位（11-24 二轮核查）
+
+**发布方：Reflection AI**（reflection.ai，美国 startup）：
+- **估值 $25B**（2026-03 融资轮，FT 报道口径）；**2026-10-10 FT/Bloomberg 报 NVIDIA 在洽谈收购或加深投资**（条款未定）
+- 定位"open intelligence"三开承诺：权重开+论文开（TR）+软件开（RL 工具与环境）——公司口号"AI 不该被少数人控制"
+- **机构背书**：Dell AI Factory with NVIDIA 认证（企业本地部署）、**美国能源部 Genesis Mission 认证成员**（服务 17 家国家实验室）、**Shinsegae 韩国主权云**（250MW 数据中心，美韩政府双背书）——"主权/本地部署"是其商业模式主轴
+- 230+ 作者含多位前 Google/DeepMind/Microsoft/Meta 知名研究者（Irwan Bello、Aakanksha Chowdhery、Suriya Gunasekar、Tolga Bolukbasi、Brandon Amos、Mojan Javaheripi、John D. Co-Reyes 等；arXiv 名单 Ioannis Antonoglou 在列）——创始人背景本次未从可达源核到（Wikipedia/搜索被网络掐），背景知识线索=ex-DeepMind 系，**未验证记档**
+- 安全第三方合作：Gray Swan（对抗鲁棒/提示注入/reward hacking 基准，11-18 博文）、Andon Labs 现场部署自治风险评测（"Mr. Beam"，11-20）、Trusted Access Program（11-17 起）
+
+**第三方定位（AA，库内对 Nemotron 用的同一把尺，2026-11-24 抓取）**：
+- **Intelligence Index：Beam 1.0 = 17.7（页面显示 18）**——**高于 Nemotron 3 Ultra 11.8（+6）**、Nemotron 3.5 Super VL 13.6；与 K2 Horizon 375B-A23B（17.8）、Inkling 2 Mini（20.1）同档
+- **但低于同规模开源权重模型中位数 23**：GLM-5.3 31.7 / DS V4.1-Flash 28.6-32.6 / Qwen4-Max 42.9 / Kimi K3.1-Pro 46.5 均在其上——AA 官方评语"below average among comparable models (median: 23)"
+- **效率主张获第三方证实**：每任务 1.8 分钟（可比模型中位 14.0）、53.7M 输出 token（中位 104M，"very concise"）、$0.28/任务、输出 310 tok/s——"3-4× 少推理算力"的定位成立
+- AA openness 指数：Beam 38.9 vs **Nemotron 3 Ultra 83.3**（Ultra 因数据+recipe 全开源为全场最高档）——开放生态上 Beam 仍逊 Ultra
+- **采用信号（HF，hf-mirror 11-24）**：主 ckpt BF16 12,384 下载/328 赞（~6 周）——vs Nemotron 3 Ultra BF16 月下载 1M+，**差约两个数量级**（兴趣有、规模采用未到）
+- 官博自报表（10-27 更新，含 Inkling/Nemotron Ultra/GLM 5.2/5.3/Kimi K3/Qwen 3.8-Max/DS V4.1 Flash 全对比）方向与 AA 一致（Beam>Ultra），但自报幅度更大；HN 556 分帖社区质疑主线="比 DS V4.1 Flash 更大更贵且全面更差"+图表呈现批评（更强模型放折叠线后）——自报表读法维持"方向可用、幅度存疑"
+
+**定位一句话**：第三方口径=**"明显超过 Nemotron 3 Ultra、够不到 GLM-5.3/DS V4.1-Flash 档、远低于头部；推理效率/成本档位第一梯队"**的西方开源权重模型；公司是 $25B 估值、被 NVIDIA 盯上的"主权 AI"供应商——TR 的价值在披露密度（配比+回放+RL 策展+工程账）而非榜单名次。
