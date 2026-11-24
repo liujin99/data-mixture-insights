@@ -1,16 +1,20 @@
 # Data Mixture Insights
 
-LLM 预训练数据配比算法的业界研究洞察项目。
+LLM 预训练数据配比（data mixture）领域的研究与工业实践洞察库。
 
-> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 171 papers tracked and adjudicated (T1–T4) under a standing credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), with a **"industrial playbook" core reference set** — mixture methods actually used by industrial-scale models, evidenced at three tiers (TR disclosure / open-asset auditability / multi-vendor convergence): Nemotron 3 Ultra, Nemotron 3.5+Singhal, Nemotron-CLIMB, MAI-Thinking-1, Marin 535B, Beam. Focus lens: 3B-A1 MoE mid-training, STEM accuracy. T1 highlights: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
+> **English**: A tier-graded research-insight library on LLM pretraining **data mixture** — 171 papers tracked and adjudicated (T1–T4) under a published credibility rubric (experiment scale / institution / community traction / open-source auditability + adoption / recency ≤2y), plus an **"industrial playbook" core reference set**: mixture methods actually used by industrial-scale models, evidence-graded across three tiers (TR disclosure / open-asset auditability / multi-vendor convergence) — Nemotron 3 Ultra, Nemotron 3.5+Singhal, Nemotron-CLIMB, MAI-Thinking-1, Marin 535B, Beam. Tiering is anchored to a small-active-MoE mid-training use case with a STEM-accuracy focus. Headline T1 findings: scale-induced rank non-invariance (MAI-Thinking-1), capability-aligned OOD validation (SuperValid), open-auditable mixture engineering (Marin / Nemotron-CLIMB), phase transitions in data mixing. Notes are in Chinese; the tier tables are language-light.
 
-> **免责声明**：本项目所有分析、评估和结论均为个人主观看法，针对特定场景（3B-A1 MoE 模型中训练〔3B-A1→7B→15B→500B 梯子首档验证档〕，STEM accuracy 评估）进行的判断，不代表任何官方立场，也不构成对任何论文或方法的权威评价。论文的梯队划分、价值标记和行动建议仅为本项目内部工作参考。
+> **免责声明**：本库所有分析、评估和结论均为个人主观研究判断，针对特定场景（3B-A1 MoE 中训练、STEM accuracy 评估）——不代表任何官方立场，也不构成对任何论文或方法的权威评价。梯队划分与价值标记仅作研究参考。
 
 ## 项目目标
 
-追踪和分析数据配比（data mixture）领域的最新研究进展，为 QuaDMix 等配比算法的实现和优化提供理论指导和实践参考。
+追踪、评估与归档 LLM 预训练数据配比（data mixture）领域的研究进展与工业实践，为配比方法的研究与工程实现提供参考。三条主线：
 
-**边界**：只做洞察——追踪/分析/记录/盯哨；**不做"用库"落地**——不起草自家配比方案、不做实验、不产出面向训练的交付物。
+- **论文索引**：全部收录论文按可信度准则分四梯队（T1–T4），每篇一句话核心结论；
+- **工业实战精选**：生产级模型真实在用的配比方法参考集（席位+证据分档）；
+- **核心洞察**：跨论文综合的领域级结论与未解决问题。
+
+**范围**：本库为文献洞察库——只做追踪/分析/记录，不做训练实验、不产出配比方案或训练交付物。
 
 ## 核心问题
 
@@ -519,7 +523,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **#123 实证几何（14M-2B 八尺寸扫描）**：重复代价由单变量 z=(R-1)·N_total/U 决定，临界 epoch 数几乎不随模型大小变（proxy 外推利好：大小只动预算项）
 - **#126 AI token 变号（800 模型受控扫描）**：掺 AI 文本对数据饥饿模型先降 human loss 后饱和再反转为害、对高预算模型几乎立即有害，Chinchilla 式 law 预测不了这种**变号**；实操=先重复 human 文本、再考虑扩 AI 语料
 
-**对本项目的直接修正（行动建议 item 7）**：数学池 1.26B token 在 1.8B 预算下 ~1.4 epoch；400M proxy 线若用 1/16 预算且不子采样则只有 ~0.09 epoch——重复率失配 16 倍。proxy 搜索前必须先按目标重复率子采样。
+**对本项目的直接修正**：数学池 1.26B token 在 1.8B 预算下 ~1.4 epoch；400M proxy 线若用 1/16 预算且不子采样则只有 ~0.09 epoch——重复率失配 16 倍。proxy 搜索前必须先按目标重复率子采样。
 
 ### 25. CPT 与 from-scratch 的最优配比形状不同：CPT 尖锐、from-scratch 均衡
 
@@ -539,7 +543,7 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 
 - **Table 1（510M/50K steps）**：优化目标与下游 All 准确率的 Spearman——用 11 个 end-task 验证域的 loss 做 objective **ρ=0.844**，用 7 个 SlimPajama 域 loss（DoGe/DML 常用目标）只有 **0.282**——"换验证目标"的收益远大于"换配比方法"
 - **Mixture of Data Experts**：每域训一个小专家模型，loss 按混合权重加权聚合 ≈ 任意混合配比的 val loss（附 Proposition 理论保证）；作为回归特征后配比排名预测 0.81→0.95，仅需 ~25 个真实混合 run 做监督，独立搜配比省 3× 算力
-- **对本项目**：CAP v1/OpenHermes 验证集的域覆盖度检查（行动建议相关条目）的理论根据——validation mixture 本身是最大的杠杆，先检查它再谈换方法
+- **对本项目**：CAP v1/OpenHermes 验证集的域覆盖度检查的理论根据——validation mixture 本身是最大的杠杆，先检查它再谈换方法
 - **工具化落地（#132 SuperValid，蚂蚁）**：capability 级 OOD 验证集的构造配方——benchmark→知识成分蒸馏→语料检索扩展→LLM 过滤改写成验证样本；2T tokens 受控实验里 IID val loss 随配比变化漂移而 SuperValid loss 平稳（MSE 1.51e-3 跨架构/尺度/数据分布）。CAP v1 若要升级为"capability 级 OOD 验证集"，这是现成管线；与 MDE 互补：MDE 证明"选对验证目标"收益大，SuperValid 给出"怎么造对目标"的工业配方
 
 ### 27. 模型合并可以当配比搜索的低耗代理，且工业级跨尺度迁移成功
@@ -590,49 +594,6 @@ Nexus (#51, 清华+字节跳动) 从优化器角度证明了一个惊人的事�
 - **顶点采样**：proxy 混合按 Greedy fill 填到 cap 或置零（+配对反向排列去相关）——D-最优、零超参；Dirichlet 的定理级代价（Theorem 1：贴 prior 欠分散 1/c × 尾部饥饿 d^(p−1)，BPB 变动小 5×=没信号可回归）。**与 #70 Scheffé、#124 重复率子采样三处独立收敛：细簇参数化时该用经典统计设计。⚠️ 按本库 CLIMB 一手经验修正边界**：#74 CLIMB 用 Dirichlet（20-21 簇粒度）配比优化有效、LinMix 自证 24 粗域各方法持平——**"Dirichlet 崩"仅在高维细域（288）+贴 prior 条件下成立，粗簇层（≲24 域）Dirichlet 实战可用；读作"可用性随维度退化的警告"，非普适否定**
 - **合成方案（r-scan 采样协议就此集齐）**：顶点群定主效应（哪些域正归因，β 可解释）+ 内部/轴向点测交互（#70）——两段式；LinMix 的顶点最优结构性测不到混合区最优点（#27/#130：交互真实、math 最优点在内部），**内部点扫描不可省**；重复轴双旋钮 κ（硬 cap）+isoelastic r（软曲率）
 - **数字边界**：价值全在细域（288 域 Dirichlet ρ≤0.39 vs 顶点+线性照常、ARC +13.8%；**24 粗域各方法差别小**）；4B 上 MBPP +46%/MATH +31.6% vs 最佳基线，且 RegMix 的 GSM8K 混合低于 prior（不分化 vs LinMix 目标定向分化）；BPB 目标+学术规模+workshop venue——**协议全引、配比数字不引**
-
-## 对 QuaDMix 的行动建议
-
-### 立即行动
-
-1. **修复 Proxy LR** — 降低 proxy 的 learning rate，验证与大模型结果的相关性
-2. **实现 Capacity-Aware Mixture Law** — 在 LightGBM 回归中加入 capacity-aware 特征
-3. **记录域梯度统计量** — 在 proxy 训练中记录每个域的梯度范数和方差（FastMix + PiKE）
-4. **加入 pairwise 域特征** — 在 LightGBM 特征中加入 u_k × u_{k'} 捕捉二阶协同（Domain-Aware SL）
-5. **记录 proxy loss 轨迹 + 训练 trajectory-conditioned LightGBM** — RegMix-D 证明这是 ROI 最高的改进（+0.5-1%，成本仅修改 logging + 重训回归模型）
-6. **加入 Rarity 信号（第 7 维质量特征）** — Solar Open 2 (#42) 业界验证，rarity = 1/文档频次，计算成本极低，与现有 5 个质量信号正交（预期 +0.5-1%）
-7. **子采样匹配目标重复率（400M proxy 线实验设计修正）**（#124）——每个 proxy 配比实验前，把各数据池子采样到"每源 epoch 与 1.8B 目标预算一致"：重复率失配是外推失败的机械解释（同尺寸 1.17B 小预算→全预算同样失败；受控后 1/16 tokens 即恢复最优配比，误差 0.10 vs 不控制 0.85）。例：r=0.7 下数学池 1.26B token 目标预算走 ~1.4 epoch，proxy 预算 1/16 不子采样则变 ~0.09——重复动力学完全不同。见核心问题文档 §2.11
-
-### 短期行动
-
-8. **加入网页图中心度信号**（#30）— 计算 Common Crawl host-level betweenness centrality，乘法组合 + 50/50 混合，预期 +1.5%，成本 9 GPU-hours
-9. **对比 Token-Count Baseline** — 实现 token-count heuristic 作为 baseline
-10. **调整高质量数据重复次数** — 高质量数据重复 15-20x；参考 InfoLaw (#37) 建模重复递减收益。**⚠️ 修正（#125/#123，2026.10）**：固定重复倍数非普适常数——大数据集更耐重复（E(K,N) 饱和值随 N 增长，修正 Muennighoff "≤4 epoch 无差"），重复上界应按池大小与预算显式计算（定价几何 z=(R-1)N/U）
-11. **参考 DataMan 质量标准** — 检查 Eq.1 的质量信号是否覆盖 14 条标准
-12. **验证集域覆盖度检查** — 确保 CAP v1/OpenHermes 不偏向特定域（Domain-Aware SL + Google MDE）
-13. **PCA 检查搜索空间有效维度** — 对 proxy 实验数据做 PCA（Domain-Aware SL 发现 8 域只有 2 个有效方向；Explaining DMSL #38 用更少参数更高精度）
-14. **检查域定义与 proxy 梯度一致性**（#33）— 验证 22 个 Dewey Decimal 域是否与模型梯度感知对齐
-15. **在目标训练加域 loss 监控 patch**（DomainPilot #39）— ~30 行代码注入训练框架，在切换点查询回归模型调整配比，Qwen3-1.7B 验证 +2-3.8%
-16. **验证 Noise Reduction 理论**（Explaining DMSL #38）— 检查 quality-top-k 是否符合"最优权重向难域偏移"的理论预测
-
-### 长期探索
-
-17. **探索 GP Surrogate**（#29）— 在低维子空间（5-10 主域）上尝试 GP + GP-UCB 主动采样
-18. **探索 FastMix 在线优化模式** — 550x 搜索加速，但需注意工业数据风险
-19. **探索 LoRA 插值 Proxy** — 比训完整模型便宜，比 model merging 灵活
-20. **扩展到数据顺序优化** — 顺序是另一个重要维度
-21. **合成数据配比** — 如果数据池包含合成数据，使用 30% 配比
-22. **探索 model-driven reward（weight norms）**（HDS #40）— 作为第三信号（质量+域间影响+模型状态），RL 在线调度 Pile 省 44% 迭代、MMLU +7.2%
-23. **探索 InfoLaw 式重复递减收益建模**（#37）— 在 overtraining 场景下显式建模重复的尺度依赖递减收益
-24. **用 DataFlex (#49) 框架做标准化 baseline 对比** — 统一 sample selection/mixture/reweighting 三种范式
-25. **在 nanochat 中验证 Nexus 优化器**（#51）— ~20 行代码实现 Algorithm 3（inner_model NSGD + 位移 pseudo-gradient），3:7 配比不变，验证 STEM+通用域是否同时提升。与数据配比正交，可叠加 Route A/B
-26. **采用两阶段 diversity→quality 课程**（Nemotron 3 #60）— 前 75% 多样性优先，后 25% 质量优先。NVIDIA 550B 规模验证。与 QuaDMix quality-top-k 思路一致
-27. **分阶段上下文+难度递进**（GLM-5 #58）— 中训练分阶段：先扩上下文，再加难度数据。200K 阶段增强 128K 窗口内性能
-28. **考虑加入 SFT-style 数据**（Nemotron 3 #60）— sft-code/sft-stem/sft-general 在预训练中有效（Akter 2026 frontloading）
-29. **考虑补充代码数据**（GLM-5/Qwen3/Nemotron 3）— 所有头部厂商中训练都含 code ≥15%，当前无 code 是最大差异
-30. **长期升级到实例级配比**（Qwen3 #59）— 从域级配比升级到实例级，需要细粒度标签（educational value/fields/domains/safety）
-31. **使用 I-最优设计 + 稀疏 Scheffé 模型替代随机采样 + LightGBM**（#70, [有意思]）— proxy 实验设计优化：用经典 DOE 方法选择配比实验点（省 25% runs），用稀疏二阶 Scheffé 模型替代黑箱预测器获得可解释的域主效应+交互分解。特别关注 web×math 交互项 $\beta_{\text{web},\text{math}}$。**注意**：论文可信度存疑（无 venue），但方法本身是 60 年经典统计工具
-32. **按域 val loss 决定重复策略**（#71）— 测量各域 val loss，loss 低的域多重复，loss 高的域少重复。用同 TPP 小 proxy 调好后迁移。**注意**：中训练 TPP≈1.2 与 Chinchilla TPP=20 差异大，迁移不直接；本项目当前瓶颈是数据量而非重复策略，此建议为战术级
 
 ## License
 
