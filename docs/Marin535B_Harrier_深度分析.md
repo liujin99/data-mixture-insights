@@ -499,6 +499,14 @@ exposure_d = 该域权重×池容量（分相位，γ_sat/γ_pen 折算）
 - 开放线：10% 疑似非 agentic 榜更优、20% 疑似 agentic 更优（单 run 不可断，watch 若 Marin 追加同 seed 对照）。
 - 同批新 issue 速记：#11995/#11997 **difficulty-budgeted balanced reasoning SFT pipeline**（难度预算=课程轴新实践）、#11999 Hero corpus 可复现化、#11993 两阶段 encoder 去污 PoC、#11983 **IFEval 对齐 Nemotron prompts**（NVIDIA 资产再被采用）。
 
+**11-25 补记：#11783 正文更新（评论零新增，最后评论 11-22T06:18；正文 11-25 09:00 编辑汇总）——Adam banks 配方臂 + Mochi fresh-from-base 线入场，开放线展宽**：
+- **配方轴入场（18 Nov 配方：Adam expert banks + BF16 参数存储，关联 #11858 optimizer grid/#11687 BF16 fix）**：1h 三臂 0%(r0)/10%(P1)/20.47%(Arm E)——held-out SFT loss 0.591/0.5032/0.5016（10%≈20%，均远优于 0%）、Micro210 52.32/54.69/51.75；**8h 双臂（step 500）：10%(P3, s0) held-out SFT loss 0.4247 < 20.47%（Arm E s0 0.4488 / P2 s2 0.4425）**——Adam 配方下 10% 的 loss 指标领先；**但 Micro210 同配方同剂量 20% 两种子差 7.1pp（57.70 vs 50.56）——Micro210 单跑数值可信度崩塌，held-out SFT loss 成为更稳主指标**（11-23 方法学发现的直接后果兑现）。
+- **Mochi fresh-from-base（10%+Adam banks，从 pre-train 基座 step-393491 直训 SFT）**：100→1000 updates（8h/128 GB200）edit-call greedy 0.930→**0.942**、13 launcher evals 中 10 项改善（math500 89→93、humaneval+ 80→84、gsm8k 82）——**到达现役 20.47% 生产水平（0.947），但 matched 20.47%/Muon-H from-base 对照未跑（作者自注）**——"从基座直训+10% 回放"路线的可行性信号，非结论。
+- **开放线状态改写（11-23 版作废）**："10% 非 agentic 疑优 vs 20% agentic 疑优"→ **剂量×配方交互**：Muon-H 配方 20% 站住（11-23 记）、Adam 配方 10% loss 领先 + fresh-from-base 同水平——与 Beam"剂量阶段依赖"（10%+35%）同族证据再+1：**回放剂量没有跨配方的普适最优值，剂量结论必须绑定配方/阶段语境**。20% 定论的适用范围收窄为"Muon-H 配方下"；库内"定 20% 不精调"表述的定量解释链更新为：NVIDIA MT 20%（自家中轴）/Marin Muon-H 20%/Marin Adam 待终裁/Beam 阶段依赖。
+- **下次盯哨点**：① matched from-base 对照（20.47% 或 Muon-H）——Mochi fresh 线终裁；② cw-rno2a 同集群 8h 20% 对照（11-22 承诺"being prepared"）——Micro210 集群混杂终裁；③ Adam vs Muon-H 配方终裁（#11858 线）。
+
+**11-25 附属盯哨**：Marin standup 惯例断更——Week of Nov 16 帖未建（最新停于"Week of Nov 9" #11597，11-17 更新后无新帖），触发器改为"等复更或确认停更"；四厂 TR 例查无变化（GLM-5.3/Kimi-K3.1-Pro/MiniMax-H3/Qwen 模型均在 HF、TR 论文仍未出）。
+
 ## 附录 A 教学讲义：GP & BO 手算级拆解（2026-11-20 专题沉淀；11-12 初讲、11-20 零公式重讲后入档；用户裁定附录化——通用教学讲义不入正文，正文只留 §8.7.6 交叉引用）
 
 **问题框架**：39 维配比空间找 BPB 最低点，真查一次贵到肉疼 → BO＝"用最少提问找到最小值"，结构两句：GP（代理模型：记住所有问过的点，画两张图——"哪里大概多低"与"哪里没摸清"）＋采集函数（把两张图合成"下一查哪"的分数）。
