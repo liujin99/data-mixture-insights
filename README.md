@@ -146,7 +146,7 @@ data-mixture-insights/
 | 165 | **daVinci-Prover: Agent-Native Mid-Training** | GAIR（上交/复旦系，Pengfei Liu 通讯） | arXiv (2026.11, 2611.16433) | **[高价值]** 定理证明的透明 MT 配方：33.7B token 配比表全公开（分解 25%/轨迹 21.3%/自验 16.9%/回放 15.2%/修正 11.4%/搜索 10.2%）；**消融：8.4B agent 轨迹>25.3B 技能先验**；+13.7 系旧 base 数字（新 base 收敛 +1~3）；前 15B 剂量甜点；成本 $15 万级——尺度最接近 3B-A1 的域专项 MT 素材（直接参考权=工业实战精选独占，本文仅作分析素材） |
 
 | 174 | **WeMM-Ecom：微信电商多模态家族** | 腾讯（微信） | arXiv (2026.11, 2611.30662) | 两阶段域递进 CPT 工业披露实例：370.3B tokens（电商 45.8%）→ 76.7B（61.1%）、Qwen3.5 基座，0.8B-35B-A3B 全开源+微信生产部署；全量 TR 披露详见 [论文总表](docs/论文总表.md) |
-| 175 | **GB-SFT** | Mark Heimann/Bruno Jacob（CMU 圈） | arXiv (2026.11, 2611.29127) | SFT token 级 loss 预算再配比：法域引用串吃 81% 监督预算 vs 答案 5%——语义角色分组均衡超四对照（含 matched-budget data mixing）；Marin loss mask 分歧点同题 |
+| 175 | **GB-SFT** | Mark Heimann/Bruno Jacob（Ivo AI） | arXiv (2026.11, 2611.29127) | SFT token 级 loss 预算再配比：法域引用串吃 81% 监督预算 vs 答案 5%——语义角色分组均衡超四对照（含 matched-budget data mixing）；Marin loss mask 分歧点同题 |
 
 ### T3 方向参考（综述 / 假说 / 场景错位 / 待验证）
 
