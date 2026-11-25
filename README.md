@@ -23,12 +23,14 @@ LLM 预训练数据配比（data mixture）领域的研究与工业实践洞察�
 3. **相变现象**：数据配比中的相变如何影响训练效果？
 4. **质量信号**：如何定义和量化数据质量？
 
+业界披露现状的量化参照：一项对 40 份开源 LLM 技术报告的抽样研究发现，仅 1 份同时披露数据配比、token 数与算力（arXiv 2611.20003，单作者研究，作参考锚点）——本库对披露的逐篇追踪即针对这一空白。
+
 ## 目录结构
 
 ```
 data-mixture-insights/
 ├── papers/          # 论文 PDF (35 篇, 本地存储不入库)
-├── docs/            # 分析文档 65 个：论文总表.md（全 171 篇主表）+ 可信度评估准则.md + 工业实战操作手册.md + 更新日志.md + 关键Takeaway.md + 深度分析/专题分析文档
+├── docs/            # 分析文档 65 个：论文总表.md（全 177 篇主表）+ 可信度评估准则.md + 工业实战操作手册.md + 更新日志.md + 关键Takeaway.md + 深度分析/专题分析文档
 └── README.md
 ```
 
@@ -46,7 +48,7 @@ data-mixture-insights/
 
 ## 论文索引
 
-> T1–T4 共 171 篇，每行**一句话核心**：讲清这个工作最核心的结论/指导，或为什么对本项目（3B-A1 MoE 中训练、数据配比）有高参考价值。详细内容、⚠️ 边界与梯队注记以 [`docs/论文总表.md`](docs/论文总表.md) 为准（完整主表：梯队+标记+机构+Venue+文档路径+关键贡献）。
+> T1–T4 共 177 篇，每行**一句话核心**：讲清这个工作最核心的结论/指导，或为什么对本项目（3B-A1 MoE 中训练、数据配比）有高参考价值。详细内容、⚠️ 边界与梯队注记以 [`docs/论文总表.md`](docs/论文总表.md) 为准（完整主表：梯队+标记+机构+Venue+文档路径+关键贡献）。
 >
 > **梯队划分依据**《可信度评估准则》（实验规模 / 作者机构 / 业界关注度 / 开源可审计+社区采用 / 时效）；个别行的升降档及原因见 [`docs/更新日志.md`](docs/更新日志.md)。
 >
@@ -143,6 +145,9 @@ data-mixture-insights/
 | 158 | **Nemotron-CC-Math** | NVIDIA | **ICLR 2026**（arXiv 2508.15096，2025.08） | 133B/52B（4+）开源数学语料：超 FineMath-4+ 且体量 5.5×、8B 实证 MATH +4.8~12.6——STEM 池数据量瓶颈的现成扩充资产（代码+数据开源） |
 | 165 | **daVinci-Prover: Agent-Native Mid-Training** | GAIR（上交/复旦系，Pengfei Liu 通讯） | arXiv (2026.11, 2611.16433) | **[高价值]** 定理证明的透明 MT 配方：33.7B token 配比表全公开（分解 25%/轨迹 21.3%/自验 16.9%/回放 15.2%/修正 11.4%/搜索 10.2%）；**消融：8.4B agent 轨迹>25.3B 技能先验**；+13.7 系旧 base 数字（新 base 收敛 +1~3）；前 15B 剂量甜点；成本 $15 万级——尺度最接近 3B-A1 的域专项 MT 素材（直接参考权=工业实战精选独占，本文仅作分析素材） |
 
+| 174 | **WeMM-Ecom：微信电商多模态家族** | 腾讯（微信） | arXiv (2026.11, 2611.30662) | 两阶段域递进 CPT 工业披露实例：370.3B tokens（电商 45.8%）→ 76.7B（61.1%）、Qwen3.5 基座，0.8B-35B-A3B 全开源+微信生产部署；全量 TR 披露详见 [论文总表](docs/论文总表.md) |
+| 175 | **GB-SFT** | Mark Heimann/Bruno Jacob（CMU 圈） | arXiv (2026.11, 2611.29127) | SFT token 级 loss 预算再配比：法域引用串吃 81% 监督预算 vs 答案 5%——语义角色分组均衡超四对照（含 matched-budget data mixing）；Marin loss mask 分歧点同题 |
+
 ### T3 方向参考（综述 / 假说 / 场景错位 / 待验证）
 
 | # | 论文 | 机构 | Venue | 一句话核心 |
@@ -217,6 +222,10 @@ data-mixture-insights/
 | 169 | **Sequential Beats Joint: OPD 与 RLVR 的相互作用** | Boyan Li/Xi Ye 等（未核） | arXiv (2026.09, 2609.04108) | **[新发现]** OPD-then-RL 两阶段>一切联合目标——**OPD 扩张教师支撑解覆盖、RL 在支撑内 sharpen、联合互相干扰**：三明治顺序栈的顺序化证据；与 3 Ultra MOPD（联合式奖励成形）对照面记档；与 #163 支撑集框架同构 |
 | 170 | **RL Starts before RL: OPD for Better RL** | Shuai Dong 等（未核） | arXiv (2026.09, 2609.28145) | **[有意思]** 精确化边界：on-policy 蒸馏当 RL 准备期>直接 RL>SFT-then-RL，收益与即时精度无关——**伤 RL 的不是模仿数据，是离策略/过量模仿**：#161 封顶+on-policy 设计的第三方注脚、与 MOPD"sampled-token>全分布"同向 |
 
+| 176 | **ProMix** | Imperial College London | arXiv (2026.11, 2611.29873) | 15M proxy 域权重免重调迁移 7B VLA（68.4→76.2%）——proxy 权重跨规模迁移正面案例，与 QuaDMix proxy gap 失败分析对话（域错位+无开源） |
+| 177 | **OPMD: On-Policy Mid-Training Distillation** | 中科院软所等 | arXiv (2026.11, 2611.13855) | 同 1B 语料同配方 Llama-3.2-3B 涨、Qwen3-1.7B 降——"配比效果依赖底模"受控反例 |
+| 178 | **Scaling Laws for Vision-Language Fusion** | Sakana AI 系 | arXiv (2026.11, 2611.22351) | 模态配比 scaling law：mixture ratio×steps×sizes 统一预测，模型越大早融合越优（Explaining DMSL 家族多模态轴扩展） |
+
 ### T4 轴外相关或初步工作
 
 | # | 论文 | 机构 | Venue | 一句话核心 |
@@ -253,7 +262,8 @@ data-mixture-insights/
 | 142 | **WARP: Weight-Space Analysis for Recovering Training Data Portfolios** | UW-Madison | arXiv 2607.01686 + **ICML'26 Workshop**（有代码） | 从公开权重反推微调数据配比（merge 插值造伪轨迹+梯度对齐）——逆向配比取证 |
 | 152 | **Kolibri: A Sovereign European Model** | Aleph Alpha | Tech Report (2026.10, 2610.31945；Apache 2.0) | 78B/3.46B active MoE 全开放：24T 跨 pre/mid/long-context 三段、德语 >20%+2T 自策展——激活量与 3B-A1 重合的开放 MoE TR |
 | 153 | **IQuest-Q1** | IQuest | IQuest Report (2026.10, 2610.30949；开源) | 320B/15B MoE：S2 课程加码 code 配比+细粒度 mid-training 扩域渐进上下文+跨阶段 checkpoint 合并——MoE 中训练结构参照 |
-| 164 | **DRIVE** | Qing Liu/Xinrui Chen 等（未核） | arXiv (2026.10, 2610.32501) | 源预训练数据不可得时 SFT 样本加权替代回放（contribution+多样性信号可微加权+先验正则）——SFT 层轴外备查 |
+| 164 | **DRIVE** | Qing Liu/Xinrui Chen 等（未核） | arXiv (2026.10, 2610.32501) | 源预训练数据不可得时 SFT 样本加权替
+| 179 | **PhysicsLM 4.2** | Meta（Allen-Zhu） | arXiv (2026.11, 2611.24963) | "ICL 推理例子应早进预训练而非留给中训练"（8B/1-2T、64 runs 工业级受控，架构为主仅留此句） |代回放（contribution+多样性信号可微加权+先验正则）——SFT 层轴外备查 |
 
 ## 核心洞察
 
